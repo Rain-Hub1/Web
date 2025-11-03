@@ -3,89 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ember.Cine - Sua Lista de Animes</title>
-    <!-- Link para o novo arquivo CSS -->
-    <link rel="stylesheet" href="Ember.Cine.css">
-    <!-- Ícones (opcional, mas dá um toque legal) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Ember Cine - Repositório de Animes</title>
+    <link rel="stylesheet" href="EmberCine.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
 
-    <header>
+    <header class="header">
         <div class="container">
-            <h1><i class="fas fa-fire"></i> Ember.Cine</h1>
+            <div class="header-left">
+                <i class="fab fa-github header-logo"></i>
+                <h1>Ember Cine</h1>
+            </div>
             <div id="user-info" class="hidden">
                 <span id="user-email"></span>
-                <button id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                <button id="logout-button" class="btn btn-secondary">Sair</button>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <!-- Seção de Login/Cadastro -->
         <section id="auth-container">
-            <div class="form-card">
-                <h2>Acesse sua Conta</h2>
-                <p>Faça login para ver sua lista ou cadastre-se gratuitamente.</p>
-                <div class="form-tabs">
-                    <button id="show-login-tab" class="tab-btn active">Login</button>
-                    <button id="show-signup-tab" class="tab-btn">Cadastro</button>
+            <div class="auth-box">
+                <h2>Acesse seu Repositório</h2>
+                
+                <div id="login-form">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-control" required>
+                    
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                    
+                    <button id="login-button" class="btn btn-primary btn-block">Sign in</button>
                 </div>
 
-                <!-- Formulário de Login -->
-                <form id="login-form">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="login-email" placeholder="Seu e-mail" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="login-password" placeholder="Sua senha" required>
-                    </div>
-                    <button type="submit" id="login-button" class="btn-primary">Entrar</button>
-                </form>
+                <div class="signup-prompt">
+                    Novo no Ember Cine? <a href="#" id="show-signup-link">Crie uma conta</a>.
+                </div>
 
-                <!-- Formulário de Cadastro -->
-                <form id="signup-form" class="hidden">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="signup-email" placeholder="Escolha um e-mail" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="signup-password" placeholder="Crie uma senha" required>
-                    </div>
-                    <button type="submit" id="signup-button" class="btn-primary">Cadastrar</button>
-                </form>
+                <div id="signup-form" class="hidden">
+                    <hr>
+                    <h3>Criar nova conta</h3>
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" class="form-control" required>
+                    
+                    <label for="signup-password">Senha</label>
+                    <input type="password" id="signup-password" class="form-control" required>
+                    
+                    <button id="signup-button" class="btn btn-success btn-block">Sign up</button>
+                    <a href="#" id="show-login-link" class="hidden">Já tem uma conta? Faça login.</a>
+                </div>
             </div>
         </section>
 
-        <!-- Conteúdo do Usuário Logado -->
         <section id="user-content" class="hidden">
-            <div class="content-card">
-                <h3><i class="fas fa-plus-circle"></i> Adicionar à sua lista</h3>
-                <form id="add-anime-form" class="add-form">
-                    <input type="text" id="anime-title-input" placeholder="Ex: Attack on Titan">
-                    <button type="submit" id="add-anime-button" class="btn-add">+</button>
+            <div class="repo-header">
+                <h3><i class="fas fa-book-bookmark"></i> Minha Lista de Animes</h3>
+                <form id="add-anime-form">
+                    <input type="text" id="anime-title-input" class="form-control" placeholder="Adicionar novo anime...">
+                    <button type="submit" id="add-anime-button" class="btn btn-success">Commit</button>
                 </form>
             </div>
 
-            <div class="content-card">
-                <h3><i class="fas fa-list-ul"></i> Minha Lista</h3>
+            <div class="item-list-box">
                 <ul id="anime-list">
-                    <!-- A lista de animes será carregada aqui -->
                 </ul>
             </div>
         </section>
     </main>
 
-    <!-- Scripts do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <!-- Link para o novo arquivo JavaScript -->
-    <script src="Ember.Cine.js"></script>
+    <script src="EmberCine.js"></script>
 </body>
-      </html>
-      
+</html>
