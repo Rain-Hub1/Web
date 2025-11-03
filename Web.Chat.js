@@ -20,6 +20,7 @@ const sidebarOverlay = document.getElementById('sidebar-overlay');
 const authContainer = document.getElementById('auth-container');
 const groupsContainer = document.getElementById('groups-container');
 const headerTitle = document.getElementById('header-title');
+const groupSettingsBtn = document.getElementById('group-settings-btn');
 const mainContent = document.getElementById('main-content');
 const placeholderScreen = document.getElementById('placeholder-screen');
 const requestsContainer = document.getElementById('requests-container');
@@ -72,6 +73,7 @@ const resetChatView = () => {
     chatContainer.classList.add('hidden');
     inputArea.classList.add('hidden');
     requestsContainer.classList.add('hidden');
+    groupSettingsBtn.classList.add('hidden');
     headerTitle.textContent = auth.currentUser ? "Grupos" : "Login";
     window.location.hash = '';
 };
@@ -226,6 +228,7 @@ const selectGroup = async (groupId) => {
     document.querySelectorAll('.group-item').forEach(el => el.classList.remove('active'));
     requestsContainer.classList.add('hidden');
     requestsContainer.innerHTML = '';
+    groupSettingsBtn.classList.add('hidden');
 
     if (groupId) {
         try {
@@ -247,6 +250,7 @@ const selectGroup = async (groupId) => {
 
             if (isCreator) {
                 renderJoinRequests(groupId);
+                groupSettingsBtn.classList.remove('hidden');
             }
 
             placeholderScreen.classList.add('hidden');
@@ -278,7 +282,7 @@ const renderJoinRequests = (groupId) => {
             item.innerHTML = `
                 <span>${request.displayName}</span>
                 <div>
-                    <button class="primary-btn" data-uid="${doc.id}">Aceitar</button>
+                    <button class="primary-btn" data-uid="${doc.id}" data-name="${request.displayName}">Aceitar</button>
                     <button class="danger-btn" data-uid="${doc.id}">Recusar</button>
                 </div>`;
             requestsContainer.appendChild(item);
@@ -291,10 +295,23 @@ requestsContainer.addEventListener('click', e => {
     if (!uid || !currentGroupId) return;
 
     if (e.target.classList.contains('primary-btn')) {
-        db.collection('grupos').doc(currentGroupId).update({
-            members: firebase.firestore.FieldValue.arrayUnion(uid)
-        }).then(() => {
-            db.collection('grupos').doc(currentGroupId).collection('pedidos').doc(uid).delete();
+        const name = e.target.dataset.name;
+        const { close } = showDialog('custom-dialog', `
+            <div class="modal-header"><h2>Confirmar Ação</h2></div>
+            <div class="modal-body"><p>Você tem certeza que deseja aceitar <strong>${name}</strong> no grupo?</p></div>
+            <div class="modal-footer">
+                <button id="cancel-action" class="secondary-btn">Cancelar</button>
+                <button id="confirm-action" class="primary-btn">Aceitar</button>
+            </div>
+        `);
+        document.getElementById('cancel-action').addEventListener('click', close);
+        document.getElementById('confirm-action').addEventListener('click', () => {
+            db.collection('grupos').doc(currentGroupId).update({
+                members: firebase.firestore.FieldValue.arrayUnion(uid)
+            }).then(() => {
+                db.collection('grupos').doc(currentGroupId).collection('pedidos').doc(uid).delete();
+            });
+            close();
         });
     } else if (e.target.classList.contains('danger-btn')) {
         db.collection('grupos').doc(currentGroupId).collection('pedidos').doc(uid).delete();
@@ -383,22 +400,24 @@ document.getElementById('settings-btn').addEventListener('click', () => {
             <h2>Configurações</h2>
             <button class="action-btn close-modal-btn">&times;</button>
         </div>
-        <div class="form-group photo-preview-container">
-            <img id="photo-preview" src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName?.replace(/ /g, '+') || 'A'}&background=random&color=fff`}" alt="Preview da foto">
-        </div>
-        <div class="form-group">
-            <label for="settings-photo-url">URL da Foto</label>
-            <input type="text" id="settings-photo-url" value="${user.photoURL || ''}">
-        </div>
-        <div class="form-group">
-            <label for="settings-name">Nome de Exibição</label>
-            <input type="text" id="settings-name" value="${user.displayName || ''}">
-        </div>
-        <div class="form-group">
-            <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
-        </div>
-        <div class="form-group">
-            <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
+        <div class="modal-body">
+            <div class="form-group photo-preview-container">
+                <img id="photo-preview" src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName?.replace(/ /g, '+') || 'A'}&background=random&color=fff`}" alt="Preview da foto">
+            </div>
+            <div class="form-group">
+                <label for="settings-photo-url">URL da Foto</label>
+                <input type="text" id="settings-photo-url" value="${user.photoURL || ''}">
+            </div>
+            <div class="form-group">
+                <label for="settings-name">Nome de Exibição</label>
+                <input type="text" id="settings-name" value="${user.displayName || ''}">
+            </div>
+            <div class="form-group">
+                <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
+            </div>
+            <div class="form-group">
+                <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
+            </div>
         </div>
     `);
 
@@ -439,6 +458,78 @@ document.getElementById('settings-btn').addEventListener('click', () => {
             updateButton.disabled = false;
             updateButton.textContent = 'Salvar Alterações';
         }
+    });
+});
+
+groupSettingsBtn.addEventListener('click', async () => {
+    if (!currentGroupId) return;
+    const groupDoc = await db.collection('grupos').doc(currentGroupId).get();
+    const groupData = groupDoc.data();
+
+    const { dialog, close } = showDialog('group-settings-modal', `
+        <div class="modal-header">
+            <h2>Configurações do Grupo</h2>
+            <button class="action-btn close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-tabs">
+            <button class="tab-btn active" data-tab="members">Membros</button>
+            <button class="tab-btn" data-tab="info">Informações</button>
+        </div>
+        <div class="modal-body">
+            <div id="members-tab" class="tab-content active"></div>
+            <div id="info-tab" class="tab-content">
+                <p><strong>Nome do Grupo:</strong> ${groupData.name}</p>
+                <p><strong>ID do Grupo:</strong> ${currentGroupId}</p>
+            </div>
+        </div>
+    `);
+
+    const membersTab = dialog.querySelector('#members-tab');
+    const memberPromises = groupData.members.map(uid => db.collection('users').doc(uid).get().catch(() => null));
+    const memberDocs = await Promise.all(memberPromises);
+    
+    membersTab.innerHTML = '<div class="member-list"></div>';
+    const memberListEl = membersTab.querySelector('.member-list');
+
+    memberDocs.forEach(memberDoc => {
+        if (!memberDoc || !memberDoc.exists) return;
+        const memberData = memberDoc.data();
+        const memberEl = document.createElement('div');
+        memberEl.className = 'member-item';
+        const isCreator = memberData.uid === groupData.creatorId;
+        const canBeKicked = auth.currentUser.uid === groupData.creatorId && !isCreator;
+
+        memberEl.innerHTML = `
+            <div class="member-info">
+                <img src="${memberData.photoURL || `https://ui-avatars.com/api/?name=${memberData.displayName.replace(/ /g, '+')}`}" alt="avatar">
+                <span>${memberData.displayName} ${isCreator ? '(Dono)' : ''}</span>
+            </div>
+            ${canBeKicked ? `<button class="kick-btn" data-uid="${memberData.uid}" data-name="${memberData.displayName}"><i class="fa-solid fa-times"></i></button>` : ''}
+        `;
+        memberListEl.appendChild(memberEl);
+    });
+
+    dialog.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            dialog.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            dialog.querySelector(`#${btn.dataset.tab}-tab`).classList.add('active');
+        });
+    });
+
+    dialog.querySelectorAll('.kick-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const uidToKick = e.currentTarget.dataset.uid;
+            const nameToKick = e.currentTarget.dataset.name;
+            if (confirm(`Tem certeza que deseja remover ${nameToKick} do grupo?`)) {
+                db.collection('grupos').doc(currentGroupId).update({
+                    members: firebase.firestore.FieldValue.arrayRemove(uidToKick)
+                }).then(() => {
+                    alert(`${nameToKick} foi removido.`);
+                    close();
+                });
+            }
+        });
     });
 });
 
