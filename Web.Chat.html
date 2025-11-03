@@ -276,15 +276,8 @@
         const photoPreview = document.getElementById('photo-preview');
         const photoUploadInput = document.getElementById('settings-photo-upload');
 
-        const navigate = (path) => {
-            if (window.location.pathname !== path) {
-                window.history.pushState({}, path, path);
-            }
-            handleRouting();
-        };
-
-        const getGroupIdFromPath = () => {
-            const match = window.location.pathname.match(/\/group\/([a-zA-Z0-9]+)/);
+        const getGroupIdFromHash = () => {
+            const match = window.location.hash.match(/#\/group\/([a-zA-Z0-9]+)/);
             return match ? match[1] : null;
         };
 
@@ -306,7 +299,7 @@
         const updateUIForAuthState = (user) => {
             authContainer.classList.toggle('hidden', !!user);
             groupsContainer.classList.toggle('hidden', !user);
-            headerTitle.textContent = user ? (getGroupIdFromPath() ? headerTitle.textContent : "Grupos") : "Login";
+            headerTitle.textContent = user ? (getGroupIdFromHash() ? headerTitle.textContent : "Grupos") : "Login";
             if (!user) resetChatView();
         };
 
@@ -317,7 +310,7 @@
             chatContainer.classList.add('hidden');
             inputArea.classList.add('hidden');
             headerTitle.textContent = auth.currentUser ? "Grupos" : "Login";
-            navigate('/');
+            window.location.hash = '';
         };
 
         auth.onAuthStateChanged(user => {
@@ -448,7 +441,7 @@
 
                     if (doc.id === currentGroupId) li.classList.add('active');
                     li.addEventListener('click', () => {
-                        navigate(`/group/${doc.id}`);
+                        window.location.hash = `/group/${doc.id}`;
                         toggleSidebar(true);
                     });
                     groupList.appendChild(li);
@@ -534,7 +527,9 @@
             const user = auth.currentUser;
             if (groupName && user) {
                 db.collection('grupos').add({ name: groupName, creatorId: user.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
-                    .then(docRef => navigate(`/group/${docRef.id}`));
+                    .then(docRef => {
+                        window.location.hash = `/group/${docRef.id}`;
+                    });
             }
         });
         document.getElementById('settings-btn').addEventListener('click', () => {
@@ -550,17 +545,11 @@
         sendButton.addEventListener('click', handleSend);
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
 
-        const handleRouting = () => selectGroup(getGroupIdFromPath());
-        window.addEventListener('popstate', handleRouting);
+        const handleRouting = () => selectGroup(getGroupIdFromHash());
+        window.addEventListener('hashchange', handleRouting);
         window.addEventListener('load', () => {
-            if (sessionStorage.redirect) {
-                const path = sessionStorage.redirect;
-                sessionStorage.removeItem('redirect');
-                navigate(path);
-            } else {
-                handleRouting();
-            }
             attachAuthListeners();
+            handleRouting();
         });
     </script>
 </body>
