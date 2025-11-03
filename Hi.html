@@ -3,476 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Web com IA</title>
+    <title>Meu Chat</title>
     <style>
-        :root {
-            --fundo-app: #1c1e26;
-            --fundo-painel: #282a36;
-            --cor-texto: #f8f8f2;
-            --cor-borda: #44475a;
-            --cor-aba-ativa: #50fa7b;
-            --cor-aba-inativa: #bd93f9;
-            --cor-destaque: #8be9fd;
-            --cor-aviso: #ffb86c;
-            --cor-erro: #ff5555;
-            --sombra: 0 10px 30px rgba(0, 0, 0, 0.3);
-            --raio-borda: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--fundo-app);
-            min-height: 100vh;
-            color: var(--cor-texto);
-        }
-
-        .editor-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: var(--fundo-painel);
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra);
-            overflow: hidden;
-            border: 1px solid var(--cor-borda);
-        }
-
-        .app-header {
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(0,0,0,0.2);
-            border-bottom: 1px solid var(--cor-borda);
-            padding: 0 20px;
-            height: 55px;
-        }
-
-        .header-title {
-            color: var(--cor-destaque);
-            font-size: clamp(1rem, 3vw, 1.3em);
-            font-weight: 500;
-        }
-
-        .view-button {
-            padding: 8px 20px;
-            cursor: pointer;
-            border: 2px solid var(--cor-borda);
-            border-radius: 8px;
-            background: none;
-            color: var(--cor-texto);
-            font-size: clamp(12px, 2vw, 14px);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .view-button.active {
-            border-color: var(--cor-aba-ativa);
-            color: var(--cor-aba-ativa);
-            box-shadow: 0 0 10px rgba(80, 250, 123, 0.5);
-        }
-
-        .main-content {
-            position: relative;
-            min-height: 500px;
-            height: 70vh;
-            max-height: 800px;
-        }
-
-        .content-pane {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-
-        .content-pane.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        #code-panel {
-            width: 100%;
-            height: 100%;
-            max-width: 900px;
+        #chat-container {
+            width: 95%;
+            max-width: 800px;
+            height: 90vh;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            background-color: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--cor-borda);
         }
-
-        .panel-header {
-            padding: 10px 15px;
-            background-color: rgba(0,0,0,0.2);
-            font-weight: 500;
-            color: var(--cor-destaque);
-            border-bottom: 1px solid var(--cor-borda);
-            text-align: center;
-            font-size: clamp(14px, 2vw, 16px);
+        h1 {
+            padding: 16px;
+            margin: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #dddfe2;
+            color: #1c1e21;
         }
-
-        #code-editor {
+        #chat-box {
             flex-grow: 1;
-            border: none;
-            background: none;
-            color: var(--cor-texto);
-            padding: 15px;
-            font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-            font-size: clamp(13px, 1.5vw, 15px);
-            line-height: 1.6;
-            resize: none;
-            width: 100%;
+            overflow-y: auto;
+            padding: 16px;
         }
-
-        #code-editor:focus {
-            outline: none;
-        }
-
-        #preview-pane {
-            padding: 20px;
-        }
-        
-        #preview-frame {
-            width: 100%;
-            height: 100%;
-            max-width: 1000px;
-            border: none;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .ai-panel {
-            padding: 15px;
-            background-color: rgba(0,0,0,0.2);
-            border-top: 1px solid var(--cor-borda);
+        .message {
+            margin-bottom: 12px;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
         }
-
-        .ai-input {
+        .message-content {
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message strong {
+            font-size: 13px;
+            color: #65676b;
+            margin-bottom: 4px;
+        }
+        .sent {
+            align-items: flex-end;
+        }
+        .sent .message-content {
+            background-color: #0084ff;
+            color: #fff;
+        }
+        .received {
+            align-items: flex-start;
+        }
+        .received .message-content {
+            background-color: #e4e6eb;
+            color: #050505;
+        }
+        #controls {
+            display: flex;
+            padding: 16px;
+            border-top: 1px solid #dddfe2;
+        }
+        #username-input, #message-input {
+            border: 1px solid #ccd0d5;
+            border-radius: 18px;
+            padding: 8px 12px;
+            font-size: 15px;
+        }
+        #username-input {
+            width: 120px;
+            margin-right: 8px;
+        }
+        #message-input {
             flex-grow: 1;
-            padding: 10px 15px;
-            border: 1px solid var(--cor-borda);
-            border-radius: 8px;
-            background-color: rgba(0,0,0,0.3);
-            color: var(--cor-texto);
-            font-family: inherit;
-            font-size: 14px;
+            margin-right: 8px;
         }
-
-        .ai-input:focus {
-            outline: none;
-            border-color: var(--cor-destaque);
-        }
-
-        .send-button {
-            padding: 10px 15px;
-            background-color: var(--cor-aba-inativa);
+        #send-button {
+            background-color: #0084ff;
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
             cursor: pointer;
             display: flex;
-            align-items: center;
             justify-content: center;
-            transition: background-color 0.3s;
-        }
-
-        .send-button:hover {
-            background-color: var(--cor-aba-ativa);
-        }
-
-        .send-button img {
-            width: 20px;
-            height: 20px;
-            filter: invert(1);
-        }
-
-        .api-key-section {
-            padding: 10px 15px;
-            background-color: rgba(0,0,0,0.1);
-            border-bottom: 1px solid var(--cor-borda);
-            display: flex;
-            gap: 10px;
             align-items: center;
         }
-
-        .api-key-input {
-            flex-grow: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--cor-borda);
-            border-radius: 6px;
-            background-color: rgba(0,0,0,0.3);
-            color: var(--cor-texto);
-            font-family: inherit;
-            font-size: 13px;
-        }
-
-        .api-key-input:focus {
-            outline: none;
-            border-color: var(--cor-destaque);
-        }
-
-        .status-message {
-            padding: 5px 15px;
-            font-size: 13px;
-            text-align: center;
-        }
-
-        .status-loading {
-            color: var(--cor-aviso);
-        }
-
-        .status-error {
-            color: var(--cor-erro);
-        }
-
-        .status-success {
-            color: var(--cor-aba-ativa);
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .app-header {
-                padding: 0 10px;
-                height: 50px;
-            }
-
-            .view-button {
-                padding: 6px 12px;
-            }
-
-            .content-pane {
-                padding: 10px;
-            }
-
-            .main-content {
-                min-height: 400px;
-                height: 60vh;
-            }
-
-            .ai-panel {
-                flex-direction: column;
-            }
+        #send-button:hover {
+            background-color: #0073e6;
         }
     </style>
 </head>
 <body>
 
-    <div class="editor-container">
-        <header class="app-header">
-            <button id="btn-code" class="view-button active" onclick="showPane('code')">Código</button>
-            <div class="header-title">Editor com IA</div>
-            <button id="btn-preview" class="view-button" onclick="showPane('preview')">Preview</button>
-        </header>
-
-        <div class="api-key-section">
-            <input type="password" id="api-key-input" class="api-key-input" placeholder="Cole sua chave da API Gemini aqui...">
-            <button id="save-api-key" class="view-button">Salvar Chave</button>
+    <div id="chat-container">
+        <h1>Chat Simples</h1>
+        <div id="chat-box"></div>
+        <div id="controls">
+            <input type="text" id="username-input" placeholder="Seu nome">
+            <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+            <button id="send-button" title="Enviar">➤</button>
         </div>
-
-        <div id="status-message" class="status-message"></div>
-
-        <main class="main-content">
-            <div id="code-pane" class="content-pane active">
-                <div id="code-panel">
-                    <div class="panel-header">Editor</div>
-                    <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
-                    <div class="ai-panel">
-                        <input type="text" id="ai-prompt" class="ai-input" placeholder="Descreva o que você quer criar...">
-                        <button id="send-prompt" class="send-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="preview-pane" class="content-pane">
-                <iframe id="preview-frame"></iframe>
-            </div>
-        </main>
     </div>
 
+    <!-- Scripts do Firebase v9 (compat) - Mais fácil para iniciantes -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <script>
-        const codeEditor = document.getElementById('code-editor');
-        const previewFrame = document.getElementById('preview-frame');
-        const aiPromptInput = document.getElementById('ai-prompt');
-        const sendPromptButton = document.getElementById('send-prompt');
-        const apiKeyInput = document.getElementById('api-key-input');
-        const saveApiKeyButton = document.getElementById('save-api-key');
-        const statusMessage = document.getElementById('status-message');
-        
-        const defaultCode = `<h1>Editor com IA!</h1>
-<p>Descreva o que você quer criar no campo abaixo e clique no botão de enviar.</p>
-<p>O código será gerado automaticamente usando a API do Gemini.</p>
-<div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
-  <h3>Exemplo de prompt:</h3>
-  <p>"Crie uma página com um cabeçalho azul, um formulário de contato e um rodapé verde"</p>
-</div>`;
+        // Sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJN4ylUCR3GFY-6G-oHIdOKlrLPLYb0OE",
+            authDomain: "chat-conversation-71277.firebaseapp.com",
+            projectId: "chat-conversation-71277",
+            storageBucket: "chat-conversation-71277.appspot.com", // Corrigido para o formato correto
+            messagingSenderId: "995855170501",
+            appId: "1:995855170501:web:6d51bd110f166fb93469ac"
+        };
 
-        let apiKey = localStorage.getItem('gemini-api-key') || '';
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const messagesCollection = db.collection('mensagens');
 
-        // Configurar a chave da API se já estiver salva
-        if (apiKey) {
-            apiKeyInput.value = '••••••••••••••••';
-        }
+        // Elementos da página
+        const chatBox = document.getElementById('chat-box');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const usernameInput = document.getElementById('username-input');
 
-        function showPane(paneName) {
-            const btnCode = document.getElementById('btn-code');
-            const btnPreview = document.getElementById('btn-preview');
-            const codePane = document.getElementById('code-pane');
-            const previewPane = document.getElementById('preview-pane');
+        // Função para enviar mensagem
+        const sendMessage = () => {
+            const username = usernameInput.value.trim();
+            const text = messageInput.value.trim();
 
-            if (paneName === 'code') {
-                codePane.classList.add('active');
-                previewPane.classList.remove('active');
-                btnCode.classList.add('active');
-                btnPreview.classList.remove('active');
-            } else {
-                previewPane.classList.add('active');
-                codePane.classList.remove('active');
-                btnPreview.classList.add('active');
-                btnCode.classList.remove('active');
-                updatePreview();
-            }
-        }
-
-        function updatePreview() {
-            const code = codeEditor.value;
-            const previewDoc = previewFrame.contentWindow.document;
-            previewDoc.open();
-            previewDoc.write(code);
-            previewDoc.close();
-        }
-
-        async function generateCodeWithAI(prompt) {
-            if (!apiKey) {
-                showStatus('Por favor, insira sua chave da API Gemini primeiro.', 'error');
+            if (text === '' || username === '') {
+                alert("Por favor, preencha seu nome e a mensagem.");
                 return;
             }
 
-            showStatus('Gerando código com IA...', 'loading');
-            
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `Você é um assistente de código HTML/CSS/JavaScript. Gere apenas o código HTML, CSS e JavaScript necessário para: ${prompt}. 
-                                Não inclua explicações, comentários ou texto adicional - apenas o código puro. 
-                                Se for necessário CSS, inclua dentro de uma tag <style>. 
-                                Se for necessário JavaScript, inclua dentro de uma tag <script>.`
-                            }]
-                        }]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    const generatedCode = data.candidates[0].content.parts[0].text;
-                    
-                    // Limpar o código (remover markdown se presente)
-                    const cleanCode = generatedCode.replace(/```html|```/g, '').trim();
-                    
-                    codeEditor.value = cleanCode;
-                    updatePreview();
-                    showStatus('Código gerado com sucesso!', 'success');
-                } else {
-                    throw new Error('Resposta inesperada da API');
-                }
-            } catch (error) {
-                console.error('Erro ao gerar código:', error);
-                showStatus(`Erro: ${error.message}`, 'error');
-            }
-        }
-
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = 'status-message';
-            
-            if (type === 'loading') {
-                statusMessage.classList.add('status-loading');
-            } else if (type === 'error') {
-                statusMessage.classList.add('status-error');
-            } else if (type === 'success') {
-                statusMessage.classList.add('status-success');
-            }
-            
-            // Limpar a mensagem após 5 segundos
-            setTimeout(() => {
-                statusMessage.textContent = '';
-                statusMessage.className = 'status-message';
-            }, 5000);
-        }
+            messagesCollection.add({
+                user: username,
+                text: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                messageInput.value = ''; // Limpa o campo de mensagem
+                messageInput.focus();
+            })
+            .catch((error) => {
+                console.error("Erro ao enviar mensagem: ", error);
+            });
+        };
 
         // Event Listeners
-        sendPromptButton.addEventListener('click', () => {
-            const prompt = aiPromptInput.value.trim();
-            if (prompt) {
-                generateCodeWithAI(prompt);
-            } else {
-                showStatus('Por favor, digite um prompt primeiro.', 'error');
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         });
 
-        aiPromptInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendPromptButton.click();
-            }
+        // Ouvir e exibir novas mensagens em tempo real
+        messagesCollection.orderBy('timestamp').onSnapshot(snapshot => {
+            chatBox.innerHTML = ''; // Limpa o chat para renderizar novamente
+            snapshot.forEach(doc => {
+                const message = doc.data();
+                const messageElement = document.createElement('div');
+                
+                const currentUser = usernameInput.value.trim();
+                const messageClass = (message.user === currentUser && currentUser !== '') ? 'sent' : 'received';
+                
+                messageElement.classList.add('message', messageClass);
+                
+                messageElement.innerHTML = `
+                    <div class="message-content">
+                        <strong>${message.user}</strong>
+                        <div>${message.text}</div>
+                    </div>
+                `;
+                chatBox.appendChild(messageElement);
+            });
+            // Rola para a mensagem mais recente
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
-
-        saveApiKeyButton.addEventListener('click', () => {
-            const newApiKey = apiKeyInput.value.trim();
-            
-            if (newApiKey && !newApiKey.includes('••')) {
-                apiKey = newApiKey;
-                localStorage.setItem('gemini-api-key', apiKey);
-                apiKeyInput.value = '••••••••••••••••';
-                showStatus('Chave da API salva com sucesso!', 'success');
-            } else if (newApiKey.includes('••')) {
-                // Se o campo contém pontos, significa que já temos uma chave salva
-                // Neste caso, vamos permitir que o usuário veja/edite a chave
-                apiKeyInput.value = apiKey;
-                showStatus('Digite a nova chave da API e clique em Salvar novamente.', 'loading');
-            } else {
-                showStatus('Por favor, insira uma chave da API válida.', 'error');
-            }
-        });
-
-        // Inicialização
-        window.onload = () => {
-            codeEditor.value = defaultCode;
-            updatePreview();
-        };
     </script>
-
 </body>
 </html>
