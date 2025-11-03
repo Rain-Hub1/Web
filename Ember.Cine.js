@@ -20,25 +20,28 @@ const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const addAnimeForm = document.getElementById('add-anime-form');
 
+const loginButton = document.getElementById('login-button');
+const signupButton = document.getElementById('signup-button');
 const logoutButton = document.getElementById('logout-button');
+
 const animeList = document.getElementById('anime-list');
 const animeTitleInput = document.getElementById('anime-title-input');
 
-const showLoginTab = document.getElementById('show-login-tab');
-const showSignupTab = document.getElementById('show-signup-tab');
+const showSignupLink = document.getElementById('show-signup-link');
+const showLoginLink = document.getElementById('show-login-link');
 
-showLoginTab.addEventListener('click', () => {
-    loginForm.classList.remove('hidden');
-    signupForm.classList.add('hidden');
-    showLoginTab.classList.add('active');
-    showSignupTab.classList.remove('active');
+showSignupLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    signupForm.classList.remove('hidden');
+    showLoginLink.classList.remove('hidden');
+    document.querySelector('.signup-prompt').classList.add('hidden');
 });
 
-showSignupTab.addEventListener('click', () => {
-    loginForm.classList.add('hidden');
-    signupForm.classList.remove('hidden');
-    showLoginTab.classList.remove('active');
-    showSignupTab.classList.add('active');
+showLoginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    signupForm.classList.add('hidden');
+    showLoginLink.classList.add('hidden');
+    document.querySelector('.signup-prompt').classList.remove('hidden');
 });
 
 signupForm.addEventListener('submit', (e) => {
@@ -46,8 +49,8 @@ signupForm.addEventListener('submit', (e) => {
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     auth.createUserWithEmailAndPassword(email, password)
-        .then(() => alert('Cadastro realizado com sucesso! Faça o login.'))
-        .catch(error => alert('Erro no cadastro: ' + error.message));
+        .then(() => alert('Conta criada! Faça o login para continuar.'))
+        .catch(error => alert('Erro: ' + error.message));
 });
 
 loginForm.addEventListener('submit', (e) => {
@@ -55,7 +58,7 @@ loginForm.addEventListener('submit', (e) => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     auth.signInWithEmailAndPassword(email, password)
-        .catch(error => alert('Erro no login: ' + error.message));
+        .catch(error => alert('Erro: ' + error.message));
 });
 
 logoutButton.addEventListener('click', () => {
@@ -76,7 +79,7 @@ addAnimeForm.addEventListener('submit', (e) => {
         .then(() => {
             animeTitleInput.value = '';
         })
-        .catch(error => console.error("Erro ao adicionar anime: ", error));
+        .catch(error => console.error("Error adding document: ", error));
     }
 });
 
@@ -87,7 +90,7 @@ function loadAnimes(userId) {
       .onSnapshot(snapshot => {
           animeList.innerHTML = '';
           if (snapshot.empty) {
-              animeList.innerHTML = '<li>Sua lista está vazia. Adicione seu primeiro anime!</li>';
+              animeList.innerHTML = '<li>Nenhum anime na sua lista. Faça seu primeiro "commit"!</li>';
               return;
           }
           snapshot.forEach(doc => {
@@ -119,5 +122,9 @@ auth.onAuthStateChanged(user => {
         userInfo.classList.add('hidden');
         userEmailSpan.textContent = '';
         animeList.innerHTML = '';
+        
+        signupForm.classList.add('hidden');
+        showLoginLink.classList.add('hidden');
+        document.querySelector('.signup-prompt').classList.remove('hidden');
     }
 });
