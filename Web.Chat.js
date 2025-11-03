@@ -281,13 +281,17 @@ const handleGroupClick = (group) => {
 
 const requestToJoinGroup = (groupId) => {
     const user = auth.currentUser;
+    if (!user) return;
     db.collection('grupos').doc(groupId).collection('pedidos').doc(user.uid).set({
         displayName: user.displayName,
         photoURL: user.photoURL,
         requestedAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         alert("Seu pedido para entrar no grupo foi enviado!");
-    }).catch(err => alert("Erro ao enviar pedido: " + err.message));
+    }).catch(err => {
+        console.error("Erro ao enviar pedido:", err);
+        alert("Erro ao enviar pedido: " + err.message);
+    });
 };
 
 const selectGroup = async (groupId) => {
@@ -492,9 +496,14 @@ document.getElementById('settings-btn').addEventListener('click', () => {
                 const fileSnapshot = await storage.ref(filePath).put(selectedPhotoFile);
                 newPhotoURL = await fileSnapshot.ref.getDownloadURL();
             }
-            await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
+            
+            if (newName !== user.displayName || newPhotoURL !== user.photoURL) {
+                await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
+            }
+            
             alert("Perfil atualizado com sucesso!");
             close();
+
         } catch (err) {
             alert("Erro ao atualizar perfil: " + err.message);
         } finally {
