@@ -98,7 +98,7 @@
         }
         .placeholder-screen i { font-size: 40px; margin-bottom: 16px; }
         .chat-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-        .message { display: flex; gap: 16px; max-width: 85%; }
+        .message { display: flex; gap: 16px; max-width: 85%; position: relative; }
         .message.user { align-self: flex-end; }
         .message-avatar {
             width: 32px; height: 32px; border-radius: 50%;
@@ -114,6 +114,16 @@
         }
         .message-sender { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
         .message.user .message-sender { text-align: right; }
+        .delete-msg-btn {
+            position: absolute; top: -10px; right: -10px;
+            background-color: var(--danger-color); color: white;
+            border: none; border-radius: 50%;
+            width: 24px; height: 24px;
+            font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .message.user:hover .delete-msg-btn { opacity: 1; }
         .input-area { padding: 16px; flex-shrink: 0; background-color: var(--bg-color); border-top: 1px solid var(--border-color); }
         .input-wrapper {
             display: flex; align-items: center; background-color: var(--surface-color);
@@ -400,11 +410,8 @@
                     msgEl.className = `message ${isCurrentUser ? 'user' : 'other'}`;
                     const avatar = msg.photoURL ? `<img src="${msg.photoURL}" alt="avatar">` : (msg.displayName?.charAt(0) || 'U');
                     
-                    const messageBodyHtml = `
-                        <div class="message-body">
-                            <div class="message-sender">${msg.displayName}</div>
-                            <div class="message-content">${msg.text}</div>
-                        </div>`;
+                    const deleteBtnHtml = isCurrentUser ? `<button class="delete-msg-btn" data-msg-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>` : '';
+                    const messageBodyHtml = `<div class="message-body">${deleteBtnHtml}<div class="message-sender">${msg.displayName}</div><div class="message-content">${msg.text}</div></div>`;
                     const avatarHtml = `<div class="message-avatar">${avatar}</div>`;
 
                     msgEl.innerHTML = isCurrentUser ? messageBodyHtml + avatarHtml : avatarHtml + messageBodyHtml;
@@ -427,6 +434,17 @@
             });
             messageInput.value = '';
         };
+
+        chatContainer.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-msg-btn');
+            if (deleteBtn && currentGroupId) {
+                const messageId = deleteBtn.dataset.msgId;
+                if (confirm("Tem certeza que deseja apagar esta mensagem?")) {
+                    db.collection('grupos').doc(currentGroupId).collection('mensagens').doc(messageId).delete()
+                        .catch(err => alert("Erro ao apagar mensagem: " + err.message));
+                }
+            }
+        });
 
         menuBtn.addEventListener('click', () => toggleSidebar());
         sidebarOverlay.addEventListener('click', () => toggleSidebar(true));
