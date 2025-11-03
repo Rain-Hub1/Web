@@ -2,452 +2,170 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Novo Chat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-color: #0c0c0c;
-            --surface-color: #161616;
-            --primary-text-color: #f5f5f5;
-            --secondary-text-color: #a3a3a3;
-            --primary-color: #3b82f6;
-            --primary-color-hover: #2563eb;
-            --border-color: #2a2a2a;
-            --hover-color: #222222;
-            --sent-bubble-color: var(--primary-color);
-            --received-bubble-color: #2c2c2c;
-            --sidebar-width: clamp(280px, 25vw, 340px);
-            --font-base: clamp(14px, 1.5vmin, 16px);
-            --font-large: clamp(18px, 2vmin, 22px);
+            --bg-color: #131314;
+            --surface-color: #1f1f1f;
+            --text-primary: #e3e3e3;
+            --text-secondary: #9b9b9b;
+            --accent-color: #4a7cf4;
+            --input-bg: #2d2d2f;
         }
-        html { font-size: var(--font-base); }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-color);
-            color: var(--primary-text-color);
-            height: 100vh;
-            width: 100vw;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
             overflow: hidden;
         }
-        .hidden { display: none !important; }
 
-        /* --- Auth Screen --- */
-        .auth-screen {
-            width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
-            flex-direction: column; padding: 20px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
         }
-        .auth-box {
-            background: var(--surface-color); padding: clamp(20px, 5vw, 40px); border-radius: 12px;
-            width: 100%; max-width: 400px; border: 1px solid var(--border-color);
-        }
-        .auth-box h1 { text-align: center; margin-bottom: 25px; font-weight: 600; font-size: var(--font-large); }
-        .auth-box input, .auth-box button { width: 100%; padding: 12px; border-radius: 6px; font-size: 1em; }
-        .auth-box input { margin-bottom: 15px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--primary-text-color); }
-        .auth-box button { border: none; background-color: var(--primary-color); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.2s; }
-        .auth-box button:hover { background-color: var(--primary-color-hover); }
-        #google-login-button { background-color: #4285F4; }
-        .auth-box p { color: var(--secondary-text-color); text-align: center; margin-top: 20px; }
-        .auth-box a { color: var(--primary-color); text-decoration: none; cursor: pointer; }
 
-        /* --- Main App Layout --- */
-        .app-container { display: grid; grid-template-columns: var(--sidebar-width) 1fr; height: 100vh; transition: grid-template-columns 0.3s ease; }
-        .app-container.sidebar-collapsed { grid-template-columns: 0px 1fr; }
-        .sidebar {
-            background: var(--surface-color); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; overflow: hidden;
+        /* Cabeçalho */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            flex-shrink: 0;
         }
-        .sidebar-header {
-            padding: 20px; border-bottom: 1px solid var(--border-color); display: flex;
-            justify-content: space-between; align-items: center; flex-shrink: 0;
-        }
-        .sidebar-header h2 { font-size: 1.25em; font-weight: 600; white-space: nowrap; }
-        .action-btn {
-            background: transparent; border: none; color: var(--secondary-text-color);
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.1em;
-            transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center;
-        }
-        .action-btn:hover { background: var(--hover-color); color: var(--primary-text-color); }
-        .chat-list { flex: 1; overflow-y: auto; }
-        .chat-item {
-            padding: 16px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer;
-            display: flex; align-items: center; gap: 15px; transition: background 0.2s;
-        }
-        .chat-item-avatar {
-            width: 44px; height: 44px; border-radius: 50%; background: var(--border-color);
-            display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;
-        }
-        .chat-item-info { overflow: hidden; }
-        .chat-item:hover { background: var(--hover-color); }
-        .chat-item.active { background: var(--primary-color); }
-        .chat-item-name { font-weight: 600; margin-bottom: 4px; white-space: nowrap; }
-        .chat-item-preview { font-size: 0.9em; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-item.active .chat-item-preview, .chat-item.active .chat-item-name { color: white; }
 
-        .chat-area { display: flex; flex-direction: column; background: var(--bg-color); min-width: 0; }
-        .chat-header {
-            padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: var(--surface-color);
-            flex-shrink: 0; display: flex; align-items: center; gap: 15px;
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px;
         }
-        .chat-header h3 { font-size: 1.1em; font-weight: 600; }
-        #typing-indicator { font-size: 0.85em; color: var(--secondary-text-color); height: 18px; }
-        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 1rem; }
-        .message { display: flex; gap: 12px; max-width: 75%; }
-        .message.sent { align-self: flex-end; flex-direction: row-reverse; }
-        .message-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-        .message-content { background: var(--received-bubble-color); padding: 12px 16px; border-radius: 18px; }
-        .message.sent .message-content { background: var(--sent-bubble-color); }
-        .message-sender { font-weight: 600; font-size: 0.9em; margin-bottom: 5px; color: var(--secondary-text-color); }
-        .message.sent .message-sender { color: rgba(255,255,255,0.7); }
-        .message-text { line-height: 1.5; word-wrap: break-word; }
-        .message-time { font-size: 0.75em; color: var(--secondary-text-color); margin-top: 6px; text-align: right; }
 
-        .input-area { padding: 20px; border-top: 1px solid var(--border-color); background: var(--surface-color); flex-shrink: 0; }
-        .input-wrapper { display: flex; gap: 12px; align-items: center; }
+        .header-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-left: 24px;
+        }
+
+        /* Área Principal do Conteúdo */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 24px;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Área de Input na Parte Inferior */
+        .input-area {
+            padding: 12px 8px;
+            flex-shrink: 0;
+            background-color: var(--bg-color);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg);
+            border-radius: 28px;
+            padding: 4px;
+        }
+
         .message-input {
-            flex: 1; background: var(--border-color); border: 1px solid #3a3a3a; border-radius: 24px;
-            padding: 12px 20px; color: var(--primary-text-color); font-size: 1em; outline: none; transition: border-color 0.2s;
+            flex-grow: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            padding: 12px 16px;
+            outline: none;
         }
-        .message-input:focus { border-color: var(--primary-color); }
-        .send-btn {
-            background: var(--primary-color); border: none; color: white; width: 44px; height: 44px;
-            border-radius: 50%; cursor: pointer; font-size: 1.1em; transition: background 0.2s, transform 0.2s;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .send-btn:hover { background: var(--primary-color-hover); transform: scale(1.05); }
-        
-        .placeholder-view {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100%; color: var(--secondary-text-color); text-align: center; padding: 20px;
-        }
-        .placeholder-view i { font-size: 3em; margin-bottom: 20px; color: var(--border-color); }
 
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center;
+        .message-input::placeholder {
+            color: var(--text-secondary);
         }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: var(--surface-color); border-radius: 16px; padding: 24px;
-            width: 90%; max-width: 500px; border: 1px solid var(--border-color);
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-header h2 { font-size: 1.4em; }
-        .close-btn { background: none; border: none; color: var(--secondary-text-color); font-size: 1.5em; cursor: pointer; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
-
-        @media (max-width: 768px) {
-            .app-container { grid-template-columns: 1fr; }
-            .sidebar {
-                position: absolute; top: 0; left: 0; bottom: 0; z-index: 100;
-                width: var(--sidebar-width); transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out; border-right: 1px solid var(--border-color);
-            }
-            .sidebar.open { transform: translateX(0); }
-            #toggle-sidebar-btn { display: flex; }
+        .action-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        @media (min-width: 769px) {
-            #toggle-sidebar-btn { display: none; }
+
+        .send-button {
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            margin-left: 4px;
         }
     </style>
 </head>
 <body>
-    <div id="auth-screen" class="auth-screen">
-        <div class="auth-box">
-            <div id="login-view">
-                <h1>Bem-vindo de volta</h1>
-                <input type="email" id="login-email" placeholder="Email">
-                <input type="password" id="login-password" placeholder="Senha">
-                <button id="login-button">Entrar</button>
-                <button id="google-login-button">Entrar com Google</button>
-                <p>Não tem uma conta? <a href="#" id="show-register">Cadastre-se</a></p>
-            </div>
-            <div id="register-view" class="hidden">
-                <h1>Criar Conta</h1>
-                <input type="text" id="register-name" placeholder="Seu Nome">
-                <input type="email" id="register-email" placeholder="Email">
-                <input type="password" id="register-password" placeholder="Senha">
-                <button id="register-button">Cadastrar</button>
-                <p>Já tem uma conta? <a href="#" id="show-login">Faça Login</a></p>
-            </div>
+
+    <header class="header">
+        <button class="menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="header-title">Novo chat</h1>
+    </header>
+
+    <main class="main-content">
+        <svg class="logo" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4A7CF4" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm41.45 119.33-16.52-21.3a4 4 0 0 0-6.44 1.32A60.83 60.83 0 0 0 128 132a61 61 0 0 0-18.49-8.65 4 4 0 0 0-6.44 1.32l-16.52 21.3a4 4 0 0 0 2.89 6.88h13.17a28 28 0 0 0 51.82 0h13.17a4 4 0 0 0 2.89-6.88ZM92.12 96.6a4 4 0 0 0 6.44-1.32C104.2 86.63 115.65 80 128 80s23.8 6.63 29.44 15.28a4 4 0 1 0 6.88-5.17C156.44 79.23 143.12 72 128 72s-28.44 7.23-36.32 18.11a4 4 0 0 0 6.44 5.17Z"/>
+        </svg>
+        <h2 class="welcome-title">Olá, eu sou o DeepSeek.</h2>
+        <p class="welcome-subtitle">Como posso ajudar você hoje?</p>
+    </main>
+
+    <footer class="input-area">
+        <div class="input-wrapper">
+            <input type="text" class="message-input" placeholder="Enviar mensagem para DeepSeek">
+            <button class="action-button" title="Adicionar arquivo">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            <button class="send-button" title="Enviar">
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
         </div>
-    </div>
+    </footer>
 
-    <div id="app-container" class="app-container hidden">
-        <div id="sidebar" class="sidebar">
-            <div class="sidebar-header">
-                <h2>Conversas</h2>
-                <button id="create-group-btn" class="action-btn" title="Criar Novo Grupo"><i class="fa-solid fa-plus"></i></button>
-            </div>
-            <div id="chat-list" class="chat-list"></div>
-        </div>
-
-        <div id="chat-area" class="chat-area">
-            <div id="placeholder-view" class="placeholder-view">
-                <i class="fa-solid fa-comments"></i>
-                <h2>Selecione um grupo para começar</h2>
-                <p>Ou crie um novo grupo para conversar com seus amigos.</p>
-            </div>
-            <div id="chat-view" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
-                <div class="chat-header">
-                    <button id="toggle-sidebar-btn" class="action-btn" title="Mostrar Conversas"><i class="fa-solid fa-bars"></i></button>
-                    <div>
-                        <h3 id="chat-header-name"></h3>
-                        <div id="typing-indicator"></div>
-                    </div>
-                </div>
-                <div id="messages" class="messages"></div>
-                <div class="input-area">
-                    <div class="input-wrapper">
-                        <input type="text" id="message-input" class="message-input" placeholder="Digite uma mensagem...">
-                        <button id="send-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="create-group-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Criar Novo Grupo</h2>
-                <button class="close-btn" data-target-modal="create-group-modal">&times;</button>
-            </div>
-            <input type="text" id="new-group-name" placeholder="Nome do Grupo">
-            <button id="confirm-create-group-btn">Criar</button>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJN4ylUCR3GFY-6G-oHIdOKlrLPLYb0OE",
-            authDomain: "chat-conversation-71277.firebaseapp.com",
-            projectId: "chat-conversation-71277",
-            storageBucket: "chat-conversation-71277.appspot.com",
-            messagingSenderId: "995855170501",
-            appId: "1:995855170501:web:6d51bd110f166fb93469ac"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        const authScreen = document.getElementById('auth-screen');
-        const appContainer = document.getElementById('app-container');
-        const loginView = document.getElementById('login-view');
-        const registerView = document.getElementById('register-view');
-        const chatList = document.getElementById('chat-list');
-        const chatHeaderName = document.getElementById('chat-header-name');
-        const messagesContainer = document.getElementById('messages');
-        const messageInput = document.getElementById('message-input');
-        const sendBtn = document.getElementById('send-btn');
-        const placeholderView = document.getElementById('placeholder-view');
-        const chatView = document.getElementById('chat-view');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const sidebar = document.getElementById('sidebar');
-        const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-
-        let currentGroupId = null;
-        let messageListener = null;
-        let typingListener = null;
-        let typingTimeout = null;
-
-        const showView = (view) => {
-            authScreen.classList.add('hidden');
-            appContainer.classList.add('hidden');
-            document.getElementById(view).classList.remove('hidden');
-        };
-
-        const formatTime = (timestamp) => {
-            if (!timestamp) return '';
-            return timestamp.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        };
-
-        const renderGroups = () => {
-            db.collection('grupos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                chatList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const group = doc.data();
-                    const groupEl = document.createElement('div');
-                    groupEl.className = 'chat-item';
-                    groupEl.dataset.groupId = doc.id;
-                    const initials = group.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                    groupEl.innerHTML = `
-                        <div class="chat-item-avatar">${initials}</div>
-                        <div class="chat-item-info">
-                            <div class="chat-item-name">${group.name}</div>
-                            <div class="chat-item-preview">Criado por ${group.createdBy}</div>
-                        </div>`;
-                    if (doc.id === currentGroupId) groupEl.classList.add('active');
-                    groupEl.addEventListener('click', () => window.location.hash = doc.id);
-                    chatList.appendChild(groupEl);
-                });
-            });
-        };
-
-        const renderMessages = (groupId) => {
-            if (messageListener) messageListener();
-            messageListener = db.collection('grupos').doc(groupId).collection('mensagens').orderBy('timestamp').onSnapshot(snapshot => {
-                messagesContainer.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const msg = doc.data();
-                    const user = auth.currentUser;
-                    const msgEl = document.createElement('div');
-                    msgEl.className = `message ${user && user.uid === msg.uid ? 'sent' : 'received'}`;
-                    msgEl.innerHTML = `
-                        <img src="${msg.photoURL || 'https://via.placeholder.com/36'}" alt="avatar" class="message-avatar">
-                        <div>
-                            <div class="message-content">
-                                <div class="message-sender">${msg.displayName}</div>
-                                <div class="message-text">${msg.text}</div>
-                            </div>
-                            <div class="message-time">${formatTime(msg.timestamp)}</div>
-                        </div>`;
-                    messagesContainer.appendChild(msgEl);
-                });
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            });
-        };
-
-        const listenForTyping = (groupId) => {
-            if (typingListener) typingListener();
-            typingListener = db.collection('digitando').doc(groupId).collection('usuarios').onSnapshot(snapshot => {
-                const typingUsers = [];
-                const now = Date.now();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const user = auth.currentUser;
-                    if (user && doc.id !== user.uid && data.timestamp && (now - data.timestamp.toDate().getTime()) < 5000) {
-                        typingUsers.push(data.displayName);
-                    }
-                });
-                typingIndicator.textContent = typingUsers.length > 0 ? `${typingUsers.join(', ')} está digitando...` : '';
-            });
-        };
-
-        const selectGroup = async (groupId) => {
-            if (currentGroupId === groupId && groupId !== null) return;
-            currentGroupId = groupId;
-            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
-            if (groupId) {
-                const activeGroupEl = document.querySelector(`.chat-item[data-group-id="${groupId}"]`);
-                if (activeGroupEl) activeGroupEl.classList.add('active');
-                const groupDoc = await db.collection('grupos').doc(groupId).get();
-                if (groupDoc.exists) {
-                    chatHeaderName.textContent = groupDoc.data().name;
-                    placeholderView.classList.add('hidden');
-                    chatView.classList.remove('hidden');
-                    renderMessages(groupId);
-                    listenForTyping(groupId);
-                    if (window.innerWidth < 768) sidebar.classList.remove('open');
-                } else { window.location.hash = ''; }
-            } else {
-                placeholderView.classList.remove('hidden');
-                chatView.classList.add('hidden');
-                currentGroupId = null;
-            }
-        };
-
-        const handleRouting = () => selectGroup(window.location.hash.substring(1));
-        window.addEventListener('hashchange', handleRouting);
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                showView('app-container');
-                renderGroups();
-                handleRouting();
-            } else {
-                showView('auth-screen');
-                window.location.hash = '';
-            }
-        });
-
-        document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); loginView.classList.add('hidden'); registerView.classList.remove('hidden'); });
-        document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); registerView.classList.add('hidden'); loginView.classList.remove('hidden'); });
-
-        document.getElementById('register-button').addEventListener('click', () => {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => cred.user.updateProfile({ displayName: name, photoURL: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=random&color=fff` }))
-                .catch(err => alert(err.message));
-        });
-
-        document.getElementById('login-button').addEventListener('click', () => {
-            auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => alert(err.message));
-        });
-
-        document.getElementById('google-login-button').addEventListener('click', () => {
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
-        });
-
-        const sendMessage = () => {
-            const text = messageInput.value.trim();
-            const user = auth.currentUser;
-            if (text === '' || !user || !currentGroupId) return;
-            db.collection('grupos').doc(currentGroupId).collection('mensagens').add({
-                text: text, timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                uid: user.uid, displayName: user.displayName, photoURL: user.photoURL
-            }).then(() => {
-                messageInput.value = '';
-                updateUserTyping(false);
-                clearTimeout(typingTimeout);
-            });
-        };
-
-        sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-
-        const updateUserTyping = (isTyping) => {
-            const user = auth.currentUser;
-            if (!user || !currentGroupId) return;
-            const typingRef = db.collection('digitando').doc(currentGroupId).collection('usuarios').doc(user.uid);
-            if (isTyping) {
-                typingRef.set({ displayName: user.displayName, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            } else { typingRef.delete(); }
-        };
-
-        messageInput.addEventListener('input', () => {
-            clearTimeout(typingTimeout);
-            updateUserTyping(true);
-            typingTimeout = setTimeout(() => updateUserTyping(false), 3000);
-        });
-
-        const createGroupModal = document.getElementById('create-group-modal');
-        document.getElementById('create-group-btn').addEventListener('click', () => createGroupModal.classList.add('active'));
-        document.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.targetModal).classList.remove('active')));
-
-        document.getElementById('confirm-create-group-btn').addEventListener('click', async () => {
-            const groupName = document.getElementById('new-group-name').value.trim();
-            const user = auth.currentUser;
-            if (groupName && user) {
-                const newGroup = await db.collection('grupos').add({
-                    name: groupName, createdBy: user.displayName, creatorId: user.uid,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                createGroupModal.classList.remove('active');
-                document.getElementById('new-group-name').value = '';
-                window.location.hash = newGroup.id;
-            }
-        });
-
-        toggleSidebarBtn.addEventListener('click', () => {
-            if (window.innerWidth < 768) {
-                sidebar.classList.toggle('open');
-            } else {
-                appContainer.classList.toggle('sidebar-collapsed');
-            }
-        });
-    </script>
 </body>
 </html>
