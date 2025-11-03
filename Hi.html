@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Código Mobile</title>
+    <title>CodeFlow - Editor Moderno</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,9 +13,21 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #1e1e2e;
+            --darker: #151521;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+        
         body {
-            background-color: #1e1e1e;
-            color: #f0f0f0;
+            background-color: var(--darker);
+            color: var(--light);
             height: 100vh;
             overflow: hidden;
         }
@@ -25,50 +38,112 @@
             height: 100vh;
         }
         
+        /* Header */
         .header {
-            background-color: #2d2d30;
-            padding: 12px 16px;
-            border-bottom: 1px solid #3e3e42;
+            background-color: var(--dark);
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .app-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .app-title i {
+            font-size: 24px;
         }
         
         .tabs {
             display: flex;
             gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 4px;
         }
         
         .tab {
-            padding: 8px 16px;
-            background-color: #333337;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .tab.active {
-            background-color: #007acc;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
             color: white;
         }
         
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Content */
         .content {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            padding: 20px;
+            gap: 20px;
         }
         
         .tab-content {
             flex: 1;
             display: none;
             flex-direction: column;
+            overflow: hidden;
+            background: var(--dark);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
         
@@ -77,61 +152,218 @@
         }
         
         /* All Code Tab */
-        #all-code {
-            padding: 16px;
+        .code-header {
+            padding: 16px 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .code-info {
-            margin-bottom: 8px;
             font-size: 14px;
-            color: #888;
+            color: var(--gray);
         }
         
-        .code-editor {
-            flex: 1;
-            background-color: #1e1e1e;
-            border: 1px solid #3e3e42;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            padding: 12px;
-            color: #d4d4d4;
-            resize: none;
-            overflow: auto;
-            font-size: 14px;
-            line-height: 1.4;
+        .code-actions {
+            display: flex;
+            gap: 10px;
         }
         
-        /* Preview Tab */
-        #preview {
+        .code-editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+        }
+        
+        .code-editor {
+            flex: 1;
+            background-color: var(--dark);
+            border: none;
+            font-family: 'Fira Code', monospace;
+            padding: 20px;
+            color: var(--light);
+            resize: none;
+            overflow: auto;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .code-editor:focus {
+            outline: none;
+        }
+        
+        .error-panel {
+            background: rgba(239, 68, 68, 0.1);
+            border-top: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 16px 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .error-panel.active {
+            display: block;
+        }
+        
+        .error-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .error-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--error);
+            font-weight: 600;
+        }
+        
+        .error-content {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: pre-wrap;
+        }
+        
+        /* Preview Tab */
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .preview-header {
+            padding: 16px 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .preview-content {
             flex: 1;
             background-color: white;
             border: none;
+            border-radius: 0 0 12px 12px;
         }
         
-        /* Estilos para melhorar a experiência mobile */
+        /* Status Bar */
+        .status-bar {
+            padding: 12px 20px;
+            background-color: var(--dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+        }
+        
+        .status-indicator.error {
+            background-color: var(--error);
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background-color: var(--success);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background-color: var(--error);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Responsividade */
         @media (max-width: 768px) {
             .header {
-                padding: 10px 12px;
+                padding: 14px 16px;
+                flex-direction: column;
+                gap: 15px;
             }
             
-            .tab {
-                padding: 6px 12px;
-                font-size: 14px;
+            .tabs {
+                width: 100%;
+                justify-content: center;
             }
             
-            #all-code {
-                padding: 12px;
+            .actions {
+                width: 100%;
+                justify-content: center;
             }
             
-            .code-editor {
-                font-size: 16px; /* Melhor legibilidade em mobile */
+            .content {
+                padding: 15px;
+            }
+            
+            .code-header, .preview-header {
+                padding: 14px 16px;
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .code-actions {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
     </style>
@@ -139,25 +371,102 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="app-title">Code Editor</div>
+            <div class="app-title">
+                <i class="fas fa-code"></i>
+                CodeFlow
+            </div>
             <div class="tabs">
-                <div class="tab active" data-tab="all-code">All Code</div>
-                <div class="tab" data-tab="preview">Preview</div>
+                <div class="tab active" data-tab="all-code">
+                    <i class="fas fa-file-code"></i>
+                    All Code
+                </div>
+                <div class="tab" data-tab="preview">
+                    <i class="fas fa-eye"></i>
+                    Preview
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" id="theme-toggle">
+                    <i class="fas fa-palette"></i>
+                    Tema
+                </button>
+                <button class="btn btn-primary" id="run-code">
+                    <i class="fas fa-play"></i>
+                    Executar
+                </button>
             </div>
         </div>
         
         <div class="content">
             <!-- All Code Tab -->
             <div id="all-code" class="tab-content active">
-                <div class="code-info">Escreva seu código HTML, CSS e JavaScript abaixo:</div>
-                <textarea class="code-editor" id="code-editor" placeholder="Escreva seu código aqui..."></textarea>
+                <div class="code-header">
+                    <div class="code-info">
+                        <i class="fas fa-info-circle"></i>
+                        Escreva seu código HTML, CSS e JavaScript
+                    </div>
+                    <div class="code-actions">
+                        <button class="btn btn-secondary" id="clear-code">
+                            <i class="fas fa-broom"></i>
+                            Limpar
+                        </button>
+                        <button class="btn btn-secondary" id="copy-code">
+                            <i class="fas fa-copy"></i>
+                            Copiar Código
+                        </button>
+                    </div>
+                </div>
+                <div class="code-editor-container">
+                    <textarea class="code-editor" id="code-editor" placeholder="Escreva seu código aqui..."></textarea>
+                    <div class="error-panel" id="error-panel">
+                        <div class="error-header">
+                            <div class="error-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Erro Detectado
+                            </div>
+                            <button class="btn btn-secondary" id="copy-error">
+                                <i class="fas fa-copy"></i>
+                                Copiar Erro
+                            </button>
+                        </div>
+                        <div class="error-content" id="error-content"></div>
+                    </div>
+                </div>
             </div>
             
             <!-- Preview Tab -->
             <div id="preview" class="tab-content">
+                <div class="preview-header">
+                    <div class="code-info">
+                        <i class="fas fa-play-circle"></i>
+                        Visualização do Resultado
+                    </div>
+                    <div class="code-actions">
+                        <button class="btn btn-secondary" id="refresh-preview">
+                            <i class="fas fa-sync-alt"></i>
+                            Atualizar
+                        </button>
+                    </div>
+                </div>
                 <iframe class="preview-content" id="preview-frame"></iframe>
             </div>
         </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="status-indicator"></div>
+                <span id="status-text">Pronto</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-code"></i>
+                <span id="line-count">0 linhas</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Operação realizada com sucesso!</span>
     </div>
 
     <script>
@@ -167,6 +476,23 @@
             const tabContents = document.querySelectorAll('.tab-content');
             const codeEditor = document.getElementById('code-editor');
             const previewFrame = document.getElementById('preview-frame');
+            const runCodeBtn = document.getElementById('run-code');
+            const refreshPreviewBtn = document.getElementById('refresh-preview');
+            const clearCodeBtn = document.getElementById('clear-code');
+            const copyCodeBtn = document.getElementById('copy-code');
+            const copyErrorBtn = document.getElementById('copy-error');
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const errorPanel = document.getElementById('error-panel');
+            const errorContent = document.getElementById('error-content');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const lineCount = document.getElementById('line-count');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Estado da aplicação
+            let isDarkTheme = true;
+            let currentError = null;
             
             // Alternar entre abas
             tabs.forEach(tab => {
@@ -190,39 +516,246 @@
             function updatePreview() {
                 const code = codeEditor.value;
                 
+                // Verificar erros de sintaxe básica
+                const error = validateCode(code);
+                
+                if (error) {
+                    showError(error);
+                    // Mostrar página de erro no preview
+                    previewFrame.srcdoc = createErrorPage(error);
+                    return;
+                }
+                
                 // Se não há código, mostrar uma página em branco
                 if (!code.trim()) {
-                    previewFrame.srcdoc = `
-                        <!DOCTYPE html>
-                        <html>
-                            <head>
-                                <title>Preview</title>
-                                <style>
-                                    body {
-                                        font-family: Arial, sans-serif;
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                        height: 100vh;
-                                        margin: 0;
-                                        background-color: #f5f5f5;
-                                        color: #666;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div>Escreva algum código na aba "All Code" para ver o preview aqui</div>
-                            </body>
-                        </html>
-                    `;
+                    previewFrame.srcdoc = createEmptyPage();
+                    hideError();
                     return;
                 }
                 
                 // Criar um documento HTML completo com o código fornecido
-                const blob = new Blob([code], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                previewFrame.src = url;
+                try {
+                    const blob = new Blob([code], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    previewFrame.src = url;
+                    hideError();
+                    showToast("Código executado com sucesso!", "success");
+                } catch (e) {
+                    showError(e.toString());
+                    previewFrame.srcdoc = createErrorPage(e.toString());
+                }
             }
+            
+            // Validar código
+            function validateCode(code) {
+                // Verificar tags HTML não fechadas
+                const openTags = code.match(/<([a-z][a-z0-9]*)\b[^>]*>/gi) || [];
+                const closeTags = code.match(/<\/([a-z][a-z0-9]*)>/gi) || [];
+                
+                const tagCount = {};
+                
+                openTags.forEach(tag => {
+                    const tagName = tag.replace(/<(\w+).*/, '$1').toLowerCase();
+                    tagCount[tagName] = (tagCount[tagName] || 0) + 1;
+                });
+                
+                closeTags.forEach(tag => {
+                    const tagName = tag.replace(/<\/(\w+)>/, '$1').toLowerCase();
+                    tagCount[tagName] = (tagCount[tagName] || 0) - 1;
+                });
+                
+                const unclosedTags = Object.keys(tagCount).filter(tag => tagCount[tag] > 0);
+                
+                if (unclosedTags.length > 0) {
+                    return `Tags não fechadas: ${unclosedTags.join(', ')}`;
+                }
+                
+                // Verificar por JavaScript errors comuns
+                if (code.includes('console.error') || code.includes('throw new Error')) {
+                    return "Seu código contém erros intencionais. Verifique o console.";
+                }
+                
+                return null;
+            }
+            
+            // Mostrar erro
+            function showError(error) {
+                currentError = error;
+                errorContent.textContent = error;
+                errorPanel.classList.add('active');
+                statusIndicator.classList.add('error');
+                statusText.textContent = 'Erro detectado';
+            }
+            
+            // Ocultar erro
+            function hideError() {
+                currentError = null;
+                errorPanel.classList.remove('active');
+                statusIndicator.classList.remove('error');
+                statusText.textContent = 'Pronto';
+            }
+            
+            // Criar página de erro
+            function createErrorPage(error) {
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>Erro no Código</title>
+                            <style>
+                                body {
+                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                    margin: 0;
+                                    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+                                    color: #fff;
+                                    text-align: center;
+                                    padding: 20px;
+                                }
+                                .error-container {
+                                    background: rgba(255, 255, 255, 0.1);
+                                    padding: 30px;
+                                    border-radius: 15px;
+                                    backdrop-filter: blur(10px);
+                                    max-width: 600px;
+                                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                                }
+                                h1 {
+                                    font-size: 2.5rem;
+                                    margin-bottom: 20px;
+                                }
+                                .error-details {
+                                    background: rgba(0, 0, 0, 0.2);
+                                    padding: 15px;
+                                    border-radius: 8px;
+                                    margin: 20px 0;
+                                    text-align: left;
+                                    font-family: 'Fira Code', monospace;
+                                    white-space: pre-wrap;
+                                }
+                                .tip {
+                                    margin-top: 20px;
+                                    font-style: italic;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="error-container">
+                                <h1><i class="fas fa-exclamation-triangle"></i> Erro no Código</h1>
+                                <p>Foi detectado um problema no seu código:</p>
+                                <div class="error-details">${error}</div>
+                                <p>Volte para a aba "All Code" para corrigir o erro.</p>
+                                <p class="tip">Dica: Use o botão "Copiar Erro" para facilitar a correção.</p>
+                            </div>
+                        </body>
+                    </html>
+                `;
+            }
+            
+            // Criar página vazia
+            function createEmptyPage() {
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>Preview</title>
+                            <style>
+                                body {
+                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                    margin: 0;
+                                    background: linear-gradient(135deg, #6366f1, #a855f7);
+                                    color: #fff;
+                                }
+                                .message {
+                                    text-align: center;
+                                    background: rgba(255, 255, 255, 0.1);
+                                    padding: 30px;
+                                    border-radius: 15px;
+                                    backdrop-filter: blur(10px);
+                                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="message">
+                                <h2>Nada para visualizar</h2>
+                                <p>Escreva algum código na aba "All Code" para ver o preview aqui</p>
+                            </div>
+                        </body>
+                    </html>
+                `;
+            }
+            
+            // Mostrar toast
+            function showToast(message, type = "success") {
+                toastMessage.textContent = message;
+                toast.classList.remove("error");
+                
+                if (type === "error") {
+                    toast.classList.add("error");
+                }
+                
+                toast.classList.add("active");
+                
+                setTimeout(() => {
+                    toast.classList.remove("active");
+                }, 3000);
+            }
+            
+            // Atualizar contador de linhas
+            function updateLineCount() {
+                const lines = codeEditor.value.split('\n').length;
+                lineCount.textContent = `${lines} linhas`;
+            }
+            
+            // Event Listeners
+            runCodeBtn.addEventListener('click', updatePreview);
+            refreshPreviewBtn.addEventListener('click', updatePreview);
+            
+            clearCodeBtn.addEventListener('click', () => {
+                codeEditor.value = '';
+                updateLineCount();
+                hideError();
+                showToast("Código limpo com sucesso!", "success");
+            });
+            
+            copyCodeBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeEditor.value)
+                    .then(() => showToast("Código copiado para a área de transferência!"))
+                    .catch(() => showToast("Erro ao copiar código", "error"));
+            });
+            
+            copyErrorBtn.addEventListener('click', () => {
+                if (currentError) {
+                    navigator.clipboard.writeText(currentError)
+                        .then(() => showToast("Erro copiado para a área de transferência!"))
+                        .catch(() => showToast("Erro ao copiar erro", "error"));
+                }
+            });
+            
+            themeToggleBtn.addEventListener('click', () => {
+                isDarkTheme = !isDarkTheme;
+                document.body.style.backgroundColor = isDarkTheme ? '#151521' : '#f0f2f5';
+                document.body.style.color = isDarkTheme ? '#f8fafc' : '#1e293b';
+                showToast(isDarkTheme ? "Tema escuro ativado" : "Tema claro ativado");
+            });
+            
+            codeEditor.addEventListener('input', () => {
+                updateLineCount();
+                
+                // Atualizar preview automaticamente se estiver na aba de preview
+                if (document.getElementById('preview').classList.contains('active')) {
+                    clearTimeout(window.previewTimeout);
+                    window.previewTimeout = setTimeout(updatePreview, 1000);
+                }
+            });
             
             // Código de exemplo
             codeEditor.value = `<!DOCTYPE html>
@@ -230,7 +763,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Página</title>
+    <title>Meu Projeto</title>
     <style>
         * {
             margin: 0;
@@ -242,7 +775,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -253,76 +786,78 @@
         
         .container {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
             max-width: 500px;
             width: 100%;
             text-align: center;
         }
         
         h1 {
-            color: #2c3e50;
+            color: #4a4a4a;
             margin-bottom: 20px;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
         }
         
         p {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: #666;
             font-size: 1.1rem;
         }
         
         .btn {
             display: inline-block;
-            background: #6a11cb;
+            background: #667eea;
             color: white;
-            padding: 12px 24px;
-            border-radius: 5px;
+            padding: 14px 28px;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
             font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .btn:hover {
-            background: #5a0db9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: #5a6fd8;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         
         .feature-list {
             text-align: left;
-            margin: 20px 0;
+            margin: 25px 0;
         }
         
         .feature-list li {
-            margin-bottom: 10px;
-            padding-left: 20px;
+            margin-bottom: 12px;
+            padding-left: 24px;
             position: relative;
         }
         
         .feature-list li:before {
             content: "✓";
-            color: #6a11cb;
+            color: #667eea;
             position: absolute;
             left: 0;
             font-weight: bold;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Meu Projeto</h1>
-        <p>Esta é uma página de exemplo criada com o editor de código.</p>
+        <h1>CodeFlow Editor</h1>
+        <p>Este é um exemplo de página criada com o editor. Você pode editar este código na aba "All Code".</p>
         
         <ul class="feature-list">
-            <li>Design responsivo</li>
-            <li>Interface moderna</li>
-            <li>Cores vibrantes</li>
-            <li>Fácil personalização</li>
+            <li>Interface moderna e responsiva</li>
+            <li>Detecção de erros em tempo real</li>
+            <li>Visualização instantânea do resultado</li>
+            <li>Funcionalidade de copiar código e erros</li>
         </ul>
         
         <button class="btn" onclick="showMessage()">Testar JavaScript</button>
@@ -330,13 +865,17 @@
 
     <script>
         function showMessage() {
-            alert('JavaScript funcionando perfeitamente!');
+            alert('JavaScript está funcionando perfeitamente!');
         }
+        
+        // Exemplo de erro (descomente para testar)
+        // console.error("Este é um erro de exemplo");
     </script>
 </body>
 </html>`;
             
-            // Inicializar o preview
+            // Inicializar
+            updateLineCount();
             updatePreview();
         });
     </script>
