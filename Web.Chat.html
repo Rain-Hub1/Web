@@ -4,26 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GitChat</title>
-    <!-- Link para o arquivo CSS externo -->
     <link rel="stylesheet" href="Web.Chat.css">
-    <!-- Link para a biblioteca de ícones Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 <body>
-    <!-- Overlay para fechar o menu em telas pequenas -->
     <div id="sidebar-overlay" class="hidden"></div>
 
-    <!-- Menu Lateral (Sidebar) -->
     <aside id="sidebar" class="sidebar">
-        <!-- Container para a tela de Login/Cadastro -->
         <div id="auth-container"></div>
-
-        <!-- Container para a lista de grupos (visível após login) -->
         <div id="groups-container" class="hidden">
             <div class="sidebar-header">
                 <h2>Grupos</h2>
                 <div>
-                    <button id="settings-btn" class="action-btn" title="Configurações"><i class="fa-solid fa-cog"></i></button>
+                    <button id="settings-btn" class="action-btn" title="Configurações de Usuário"><i class="fa-solid fa-cog"></i></button>
                     <button id="create-group-btn" class="action-btn" title="Novo Grupo"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
@@ -36,13 +29,12 @@
         </div>
     </aside>
 
-    <!-- Cabeçalho Principal -->
     <header class="header">
         <button id="menu-btn" class="action-btn"><i class="fa-solid fa-bars"></i></button>
         <h1 id="header-title" class="header-title">Bem-vindo</h1>
+        <button id="group-settings-btn" class="action-btn hidden" title="Configurações do Grupo"><i class="fa-solid fa-ellipsis-v"></i></button>
     </header>
 
-    <!-- Conteúdo Principal (Chat) -->
     <main id="main-content" class="main-content">
         <div id="placeholder-screen" class="placeholder-screen">
             <i class="fa-solid fa-comments"></i>
@@ -53,7 +45,6 @@
         <div id="chat-container" class="chat-container hidden"></div>
     </main>
 
-    <!-- Área de Digitação (Rodapé) -->
     <footer id="input-area" class="input-area hidden">
         <div class="input-wrapper">
             <input type="text" id="message-input" class="message-input" placeholder="Enviar mensagem...">
@@ -61,16 +52,14 @@
         </div>
     </footer>
 
-    <!-- Modais (pop-ups) para Configurações e Diálogos -->
     <div id="settings-modal" class="modal"></div>
     <div id="custom-dialog" class="modal"></div>
+    <div id="group-settings-modal" class="modal"></div>
 
-    <!-- Scripts do Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
-    <!-- Link para o arquivo JavaScript externo -->
     <script src="Web.Chat.js"></script>
 </body>
 </html>
