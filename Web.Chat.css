@@ -459,7 +459,7 @@ body {
 
 .modal-body {
     overflow-y: auto;
-    padding-right: 10px; /* Espaço para a barra de rolagem */
+    padding-right: 10px;
 }
 
 .modal-body p { 
