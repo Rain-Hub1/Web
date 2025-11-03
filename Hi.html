@@ -23,23 +23,27 @@
 
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px;
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             background: var(--fundo-app);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--fundo-painel);
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra);
             overflow: hidden;
+            border: 1px solid var(--cor-borda);
         }
 
         .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--fundo-painel);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            flex-shrink: 0;
+            background-color: rgba(0,0,0,0.2);
             border-bottom: 1px solid var(--cor-borda);
             padding: 0 20px;
             height: 55px;
@@ -71,9 +75,10 @@
         }
 
         .main-content {
-            flex-grow: 1;
             position: relative;
-            overflow: hidden;
+            min-height: 500px;
+            height: 70vh;
+            max-height: 800px;
         }
 
         .content-pane {
@@ -98,12 +103,10 @@
             width: 100%;
             height: 100%;
             max-width: 900px;
-            max-height: 600px;
             display: flex;
             flex-direction: column;
-            background-color: var(--fundo-painel);
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra);
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--cor-borda);
         }
@@ -143,14 +146,17 @@
             width: 100%;
             height: 100%;
             max-width: 1000px;
-            max-height: 700px;
             border: none;
             background-color: #ffffff;
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .app-header {
                 padding: 0 10px;
                 height: 50px;
@@ -164,45 +170,42 @@
                 padding: 10px;
             }
 
-            #code-panel {
-                max-width: 100%;
-                max-height: 100%;
-            }
-
-            #preview-frame {
-                max-width: 100%;
-                max-height: 100%;
+            .main-content {
+                min-height: 400px;
+                height: 60vh;
             }
         }
     </style>
 </head>
 <body>
 
-    <header class="app-header">
-        <button id="btn-code" class="view-button active" onclick="showPane('code')">Código</button>
-        <div class="header-title">Editor</div>
-        <button id="btn-preview" class="view-button" onclick="showPane('preview')">Preview</button>
-    </header>
+    <div class="editor-container">
+        <header class="app-header">
+            <button id="btn-code" class="view-button active" onclick="showPane('code')">Código</button>
+            <div class="header-title">Editor</div>
+            <button id="btn-preview" class="view-button" onclick="showPane('preview')">Preview</button>
+        </header>
 
-    <main class="main-content">
-        <div id="code-pane" class="content-pane active">
-            <div id="code-panel">
-                <div class="panel-header">Editor</div>
-                <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
+        <main class="main-content">
+            <div id="code-pane" class="content-pane active">
+                <div id="code-panel">
+                    <div class="panel-header">Editor</div>
+                    <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
+                </div>
             </div>
-        </div>
 
-        <div id="preview-pane" class="content-pane">
-            <iframe id="preview-frame"></iframe>
-        </div>
-    </main>
+            <div id="preview-pane" class="content-pane">
+                <iframe id="preview-frame"></iframe>
+            </div>
+        </main>
+    </div>
 
     <script>
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
         const defaultCode = `<h1>Layout Aplicado!</h1>
 <p>O botão "Código" está à esquerda, "Editor" no centro, e "Preview" à direita.</p>
-<p>A caixa de texto e o preview agora se auto-ajustam à tela!</p>`;
+<p>Agora o editor se comporta como um componente que pode ser incorporado em qualquer site!</p>`;
 
         function showPane(paneName) {
             const btnCode = document.getElementById('btn-code');
