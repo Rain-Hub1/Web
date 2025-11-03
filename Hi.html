@@ -11,7 +11,8 @@
             --fundo-editor: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
-            --cor-destaque: #8be9fd;
+            --cor-aba-ativa: #50fa7b; /* Verde vibrante */
+            --cor-aba-inativa: #bd93f9; /* Roxo suave */
             --sombra: 0 4px 15px rgba(0, 0, 0, 0.2);
             --raio-borda: 10px;
         }
@@ -21,71 +22,83 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1c1e26, #21232d);
+            background: var(--fundo-app);
             color: var(--cor-texto);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Evita barras de rolagem no corpo */
+            overflow: hidden; /* Impede a rolagem do corpo principal */
         }
 
-        /* Cabeçalho Fixo */
+        /* Cabeçalho Fixo com as Abas */
         .app-header {
+            display: flex;
             background-color: var(--fundo-editor);
-            padding: 12px 25px;
-            border-bottom: 1px solid var(--cor-borda);
             box-shadow: var(--sombra);
             z-index: 10;
-            flex-shrink: 0; /* Impede que o header encolha */
-        }
-
-        .app-header h1 {
-            margin: 0;
-            font-size: 1.2em;
-            font-weight: 500;
-            color: var(--cor-destaque);
-            text-shadow: 0 0 5px rgba(139, 233, 253, 0.3);
-        }
-
-        /* Container Principal com Layout Flexível */
-        .main-container {
-            display: flex;
-            flex-grow: 1; /* Ocupa todo o espaço restante */
-            padding: 20px;
-            gap: 20px; /* Espaçamento entre as colunas */
-            overflow: hidden;
-        }
-
-        /* Painéis de Código e Preview */
-        .panel {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--fundo-editor);
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra);
-            overflow: hidden; /* Garante que o conteúdo não vaze */
-            flex: 1; /* Cada painel ocupa metade do espaço */
-        }
-
-        .panel-header {
-            padding: 10px 15px;
-            background-color: rgba(0,0,0,0.15);
-            font-weight: 500;
-            color: #bd93f9; /* Roxo para os títulos dos painéis */
+            flex-shrink: 0; /* Garante que o header não encolha */
             border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tab-button {
+            flex-grow: 1; /* Faz as abas ocuparem o mesmo espaço */
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--cor-aba-inativa);
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-button.active {
+            color: var(--cor-aba-ativa);
+            border-bottom-color: var(--cor-aba-ativa);
+        }
+
+        /* Container do Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa todo o espaço restante */
+            position: relative;
+            overflow-y: auto; /* Permite rolagem dentro do conteúdo, se necessário */
+        }
+
+        .content-pane {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            background-color: var(--fundo-editor);
+            display: flex; /* Para centralizar ou alinhar conteúdo interno */
+        }
+
+        .content-pane.active {
+            visibility: visible;
+            opacity: 1;
         }
 
         /* Editor de Texto */
         #code-editor {
-            flex-grow: 1;
             width: 100%;
+            height: 100%;
             border: none;
             background: none;
             color: var(--cor-texto);
-            padding: 15px;
+            padding: 20px;
             font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-            font-size: 15px;
-            line-height: 1.5;
+            font-size: 16px;
+            line-height: 1.6;
             resize: none;
             box-sizing: border-box;
         }
@@ -96,49 +109,28 @@
 
         /* Área de Preview */
         #preview-frame {
-            flex-grow: 1;
             width: 100%;
             height: 100%;
             border: none;
             background-color: #ffffff;
-        }
-
-        /* Responsividade para Telas Pequenas (Mobile) */
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column; /* Empilha os painéis verticalmente */
-                padding: 10px;
-                gap: 10px;
-            }
-
-            body {
-                /* Permite rolagem em telas pequenas se o conteúdo for grande */
-                overflow: auto; 
-            }
-            
-            .panel {
-                /* Define uma altura mínima para cada painel no modo mobile */
-                min-height: 45vh; 
-            }
         }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <h1>Editor Web Moderno</h1>
+        <button id="tab-btn-code" class="tab-button active" onclick="showPane('code')">Código</button>
+        <button id="tab-btn-preview" class="tab-button" onclick="showPane('preview')">Preview</button>
     </header>
 
-    <main class="main-container">
+    <main class="main-content">
         <!-- Painel do Editor de Código -->
-        <div class="panel">
-            <div class="panel-header">Código Fonte</div>
+        <div id="code-pane" class="content-pane active">
             <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
         </div>
 
         <!-- Painel do Preview -->
-        <div class="panel">
-            <div class="panel-header">Preview</div>
+        <div id="preview-pane" class="content-pane">
             <iframe id="preview-frame"></iframe>
         </div>
     </main>
@@ -150,31 +142,56 @@
         const defaultCode = `<!DOCTYPE html>
 <html>
 <head>
+    <title>Minha Página</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f7f9;
-            margin: 20px;
-        }
-        .card {
-            background: white;
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
             padding: 25px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #333;
+            color: #1c1e26;
+            border-bottom: 2px solid #50fa7b;
+            padding-bottom: 10px;
+        }
+        p {
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Design Moderno!</h1>
-        <p>Seu código aqui, resultado ao lado.</p>
+    <div class="container">
+        <h1>Bem-vindo ao Editor!</h1>
+        <p>Este é o seu ambiente de codificação com um design moderno.</p>
+        <p>Escreva seu código na aba <strong>Código</strong> e veja o resultado na aba <strong>Preview</strong>.</p>
     </div>
 </body>
 </html>`;
+
+        // Função para alternar entre os painéis
+        function showPane(paneName) {
+            // Esconde todos os painéis e desativa todas as abas
+            document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+
+            // Mostra o painel e ativa a aba correspondente
+            document.getElementById(`${paneName}-pane`).classList.add('active');
+            document.getElementById(`tab-btn-${paneName}`).classList.add('active');
+            
+            // Atualiza o preview sempre que o usuário mudar para essa aba
+            if (paneName === 'preview') {
+                updatePreview();
+            }
+        }
 
         // Função para atualizar o preview em tempo real
         function updatePreview() {
@@ -188,7 +205,8 @@
         // Inicia o editor com o código padrão
         window.onload = () => {
             codeEditor.value = defaultCode;
-            updatePreview();
+            // Uma pequena espera para garantir que o iframe esteja pronto
+            setTimeout(updatePreview, 50); 
         };
     </script>
 
