@@ -9,6 +9,7 @@
 </head>
 <body>
     <div id="sidebar-overlay" class="hidden"></div>
+
     <aside id="sidebar" class="sidebar">
         <div id="auth-container"></div>
         <div id="groups-container" class="hidden">
@@ -27,10 +28,12 @@
             </div>
         </div>
     </aside>
+
     <header class="header">
         <button id="menu-btn" class="action-btn"><i class="fa-solid fa-bars"></i></button>
         <h1 id="header-title" class="header-title">Bem-vindo</h1>
     </header>
+
     <main id="main-content" class="main-content">
         <div id="placeholder-screen" class="placeholder-screen">
             <i class="fa-solid fa-comments"></i>
@@ -40,18 +43,22 @@
         <div id="requests-container" class="requests-container hidden"></div>
         <div id="chat-container" class="chat-container hidden"></div>
     </main>
+
     <footer id="input-area" class="input-area hidden">
         <div class="input-wrapper">
             <input type="text" id="message-input" class="message-input" placeholder="Enviar mensagem...">
             <button id="send-button" class="send-button" title="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </footer>
+
     <div id="settings-modal" class="modal"></div>
     <div id="custom-dialog" class="modal"></div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
     <script src="Web.Chat.js"></script>
 </body>
 </html>
