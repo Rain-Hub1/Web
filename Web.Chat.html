@@ -163,6 +163,16 @@
         .modal-header h2 { font-size: 20px; }
         .modal-content button.primary-btn { background-color: var(--success-color); color: white; border-color: var(--success-color); }
         .modal-content button.danger-btn { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
+        .photo-preview-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; }
+        #photo-preview {
+            width: 100px; height: 100px; border-radius: 50%;
+            background-color: var(--bg-color); border: 2px solid var(--border-color);
+            object-fit: cover; margin-bottom: 12px;
+        }
+        #photo-upload-label {
+            cursor: pointer; color: var(--accent-color); font-size: 14px;
+        }
+        #photo-upload-label:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -208,13 +218,14 @@
                 <h2>Configurações</h2>
                 <button id="close-settings-btn" class="action-btn">&times;</button>
             </div>
+            <div class="form-group photo-preview-container">
+                <img id="photo-preview" src="" alt="Preview da foto">
+                <label id="photo-upload-label" for="settings-photo-upload">Alterar foto</label>
+                <input type="file" id="settings-photo-upload" class="hidden" accept="image/*">
+            </div>
             <div class="form-group">
                 <label for="settings-name">Nome de Exibição</label>
                 <input type="text" id="settings-name">
-            </div>
-            <div class="form-group">
-                <label for="settings-photo">URL da Foto</label>
-                <input type="text" id="settings-photo" placeholder="https://exemplo.com/foto.jpg">
             </div>
             <div class="form-group">
                 <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
@@ -228,6 +239,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -241,9 +253,11 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         let currentGroupId = null;
         let messageListener = null;
+        let selectedPhotoFile = null;
 
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menu-btn');
@@ -259,14 +273,18 @@
         const sendButton = document.getElementById('send-button');
         const groupList = document.getElementById('group-list');
         const settingsModal = document.getElementById('settings-modal');
+        const photoPreview = document.getElementById('photo-preview');
+        const photoUploadInput = document.getElementById('settings-photo-upload');
 
         const navigate = (path) => {
-            window.history.pushState({}, path, path);
+            if (window.location.pathname !== path) {
+                window.history.pushState({}, path, path);
+            }
             handleRouting();
         };
 
         const getGroupIdFromPath = () => {
-            const match = window.location.pathname.match(/\/Type=Group\/Id=([a-zA-Z0-9]+)/);
+            const match = window.location.pathname.match(/\/group\/([a-zA-Z0-9]+)/);
             return match ? match[1] : null;
         };
 
@@ -359,14 +377,43 @@
             toggleModal('settings-modal', false);
         });
 
-        document.getElementById('update-profile-btn').addEventListener('click', () => {
+        photoUploadInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                selectedPhotoFile = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    photoPreview.src = event.target.result;
+                }
+                reader.readAsDataURL(selectedPhotoFile);
+            }
+        });
+
+        document.getElementById('update-profile-btn').addEventListener('click', async () => {
             const user = auth.currentUser;
+            if (!user) return;
+
             const newName = document.getElementById('settings-name').value;
-            const newPhoto = document.getElementById('settings-photo').value;
-            if (user) {
-                user.updateProfile({ displayName: newName, photoURL: newPhoto })
-                    .then(() => { alert("Perfil atualizado com sucesso!"); toggleModal('settings-modal', false); })
-                    .catch(err => alert("Erro ao atualizar perfil: " + err.message));
+            let newPhotoURL = user.photoURL;
+
+            const updateButton = document.getElementById('update-profile-btn');
+            updateButton.disabled = true;
+            updateButton.textContent = 'Salvando...';
+
+            try {
+                if (selectedPhotoFile) {
+                    const filePath = `profile-pictures/${user.uid}`;
+                    const fileSnapshot = await storage.ref(filePath).put(selectedPhotoFile);
+                    newPhotoURL = await fileSnapshot.ref.getDownloadURL();
+                }
+                await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
+                alert("Perfil atualizado com sucesso!");
+                toggleModal('settings-modal', false);
+            } catch (err) {
+                alert("Erro ao atualizar perfil: " + err.message);
+            } finally {
+                selectedPhotoFile = null;
+                updateButton.disabled = false;
+                updateButton.textContent = 'Salvar Alterações';
             }
         });
 
@@ -401,7 +448,7 @@
 
                     if (doc.id === currentGroupId) li.classList.add('active');
                     li.addEventListener('click', () => {
-                        navigate(`/Type=Group/Id=${doc.id}`);
+                        navigate(`/group/${doc.id}`);
                         toggleSidebar(true);
                     });
                     groupList.appendChild(li);
@@ -487,14 +534,15 @@
             const user = auth.currentUser;
             if (groupName && user) {
                 db.collection('grupos').add({ name: groupName, creatorId: user.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
-                    .then(docRef => navigate(`/Type=Group/Id=${docRef.id}`));
+                    .then(docRef => navigate(`/group/${docRef.id}`));
             }
         });
         document.getElementById('settings-btn').addEventListener('click', () => {
             const user = auth.currentUser;
             if (user) {
                 document.getElementById('settings-name').value = user.displayName || '';
-                document.getElementById('settings-photo').value = user.photoURL || '';
+                photoPreview.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName?.replace(' ', '+') || 'A'}&background=random&color=fff`;
+                selectedPhotoFile = null;
                 toggleModal('settings-modal', true);
             }
         });
