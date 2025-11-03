@@ -1,10 +1,10 @@
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyD-mHbd5e5zzS7sGnFtMbeFii5nyXxD3MI",
+  authDomain: "ember-cine.firebaseapp.com",
+  projectId: "ember-cine",
+  storageBucket: "ember-cine.firebasestorage.app",
+  messagingSenderId: "1071616566981",
+  appId: "1:1071616566981:web:5a08c0aea216a4c37ef2ac"
 };
 
 firebase.initializeApp(firebaseConfig);
