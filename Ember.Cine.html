@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ember Cine - Repositório de Animes</title>
+    <title>Ember Cine</title>
     <link rel="stylesheet" href="Ember.Cine.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
@@ -12,9 +12,14 @@
     <header class="header">
         <div class="container">
             <div class="header-left">
-                <i class="fab fa-github header-logo"></i>
-                <h1>Ember Cine</h1>
+                <a href="#" class="header-logo-link">
+                    <i class="fab fa-github header-logo"></i>
+                    <h1>Ember Cine</h1>
+                </a>
             </div>
+            <nav id="main-nav" class="hidden">
+                <a href="#/Animes">Meu Repositório</a>
+            </nav>
             <div id="user-info" class="hidden">
                 <span id="user-email"></span>
                 <button id="logout-button" class="btn btn-secondary">Sair</button>
@@ -22,55 +27,74 @@
         </div>
     </header>
 
-    <main class="container">
-        <section id="auth-container">
+    <main id="app-root" class="container"></main>
+
+    <template id="template-login">
+        <div class="auth-container">
             <div class="auth-box">
                 <h2>Acesse seu Repositório</h2>
-                
-                <div id="login-form">
+                <form id="login-form">
                     <label for="login-email">Email</label>
                     <input type="email" id="login-email" class="form-control" required>
-                    
                     <label for="login-password">Senha</label>
                     <input type="password" id="login-password" class="form-control" required>
-                    
-                    <button id="login-button" class="btn btn-primary btn-block">Sign in</button>
+                    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                </form>
+                <div class="auth-prompt">
+                    Novo no Ember Cine? <a href="#/Cadastro">Crie uma conta</a>.
                 </div>
+            </div>
+        </div>
+    </template>
 
-                <div class="signup-prompt">
-                    Novo no Ember Cine? <a href="#" id="show-signup-link">Crie uma conta</a>.
-                </div>
-
-                <div id="signup-form" class="hidden">
-                    <hr>
-                    <h3>Criar nova conta</h3>
+    <template id="template-cadastro">
+        <div class="auth-container">
+            <div class="auth-box">
+                <h2>Crie sua conta</h2>
+                <form id="signup-form">
                     <label for="signup-email">Email</label>
                     <input type="email" id="signup-email" class="form-control" required>
-                    
                     <label for="signup-password">Senha</label>
                     <input type="password" id="signup-password" class="form-control" required>
-                    
-                    <button id="signup-button" class="btn btn-success btn-block">Sign up</button>
-                    <a href="#" id="show-login-link" class="hidden">Já tem uma conta? Faça login.</a>
+                    <button type="submit" class="btn btn-success btn-block">Sign up for Ember Cine</button>
+                </form>
+                <div class="auth-prompt">
+                    Já tem uma conta? <a href="#/Login">Faça o login</a>.
                 </div>
             </div>
-        </section>
+        </div>
+    </template>
 
-        <section id="user-content" class="hidden">
+    <template id="template-animes">
+        <div class="repo-container">
             <div class="repo-header">
-                <h3><i class="fas fa-book-bookmark"></i> Minha Lista de Animes</h3>
+                <h2><i class="fas fa-book-bookmark"></i> animes-database</h2>
+            </div>
+            <div class="add-item-form">
                 <form id="add-anime-form">
-                    <input type="text" id="anime-title-input" class="form-control" placeholder="Adicionar novo anime...">
-                    <button type="submit" id="add-anime-button" class="btn btn-success">Commit</button>
+                    <input type="text" id="anime-title-input" class="form-control" placeholder="Adicionar novo anime (ex: Jujutsu Kaisen)">
+                    <button type="submit" class="btn btn-success">Commit new anime</button>
                 </form>
             </div>
-
             <div class="item-list-box">
+                <div class="box-header">
+                    <i class="fas fa-list-ul"></i>
+                    <span>Sua Lista</span>
+                </div>
                 <ul id="anime-list">
                 </ul>
             </div>
-        </section>
-    </main>
+        </div>
+    </template>
+
+    <template id="template-404">
+        <div class="page-404">
+            <i class="fas fa-cat"></i>
+            <h2>404</h2>
+            <p>Página não encontrada.</p>
+            <a href="#">Voltar para o início</a>
+        </div>
+    </template>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
