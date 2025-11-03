@@ -11,63 +11,81 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-const authContainer = document.getElementById('auth-container');
-const userContent = document.getElementById('user-content');
+const appRoot = document.getElementById('app-root');
+const mainNav = document.getElementById('main-nav');
 const userInfo = document.getElementById('user-info');
 const userEmailSpan = document.getElementById('user-email');
-
-const loginForm = document.getElementById('login-form');
-const signupForm = document.getElementById('signup-form');
-const addAnimeForm = document.getElementById('add-anime-form');
-
-const loginButton = document.getElementById('login-button');
-const signupButton = document.getElementById('signup-button');
 const logoutButton = document.getElementById('logout-button');
 
-const animeList = document.getElementById('anime-list');
-const animeTitleInput = document.getElementById('anime-title-input');
+const routes = {
+    '/Login': { templateId: 'template-login', isPublic: true },
+    '/Cadastro': { templateId: 'template-cadastro', isPublic: true },
+    '/Animes': { templateId: 'template-animes', isPublic: false },
+    '/404': { templateId: 'template-404', isPublic: true }
+};
 
-const showSignupLink = document.getElementById('show-signup-link');
-const showLoginLink = document.getElementById('show-login-link');
+function router(event) {
+    const path = window.location.hash.slice(1) || '/';
+    const user = auth.currentUser;
 
-showSignupLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    signupForm.classList.remove('hidden');
-    showLoginLink.classList.remove('hidden');
-    document.querySelector('.signup-prompt').classList.add('hidden');
-});
+    let route;
+    if (path === '/') {
+        route = user ? routes['/Animes'] : routes['/Login'];
+    } else {
+        route = routes[path] || routes['/404'];
+    }
 
-showLoginLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    signupForm.classList.add('hidden');
-    showLoginLink.classList.add('hidden');
-    document.querySelector('.signup-prompt').classList.remove('hidden');
-});
+    if (!route.isPublic && !user) {
+        window.location.hash = '/Login';
+        return;
+    }
 
-signupForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(() => alert('Conta criada! Faça o login para continuar.'))
-        .catch(error => alert('Erro: ' + error.message));
-});
+    const template = document.getElementById(route.templateId);
+    appRoot.innerHTML = template.innerHTML;
+    
+    attachEventListeners(path);
+}
 
-loginForm.addEventListener('submit', (e) => {
+function attachEventListeners(path) {
+    if (path === '/Login' || (path === '/' && !auth.currentUser)) {
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    if (path === '/Cadastro') {
+        const signupForm = document.getElementById('signup-form');
+        signupForm.addEventListener('submit', handleSignup);
+    }
+    if (path === '/Animes' || (path === '/' && auth.currentUser)) {
+        const addAnimeForm = document.getElementById('add-anime-form');
+        addAnimeForm.addEventListener('submit', handleAddAnime);
+        loadAnimes(auth.currentUser.uid);
+    }
+}
+
+function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     auth.signInWithEmailAndPassword(email, password)
         .catch(error => alert('Erro: ' + error.message));
-});
+}
 
-logoutButton.addEventListener('click', () => {
-    auth.signOut();
-});
+function handleSignup(e) {
+    e.preventDefault();
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+            alert('Conta criada! Faça o login para continuar.');
+            window.location.hash = '/Login';
+        })
+        .catch(error => alert('Erro: ' + error.message));
+}
 
-addAnimeForm.addEventListener('submit', (e) => {
+function handleAddAnime(e) {
     e.preventDefault();
     const user = auth.currentUser;
+    const animeTitleInput = document.getElementById('anime-title-input');
     const animeTitle = animeTitleInput.value.trim();
 
     if (user && animeTitle) {
@@ -81,13 +99,15 @@ addAnimeForm.addEventListener('submit', (e) => {
         })
         .catch(error => console.error("Error adding document: ", error));
     }
-});
+}
 
 function loadAnimes(userId) {
+    const animeList = document.getElementById('anime-list');
     db.collection('animes')
       .where('userId', '==', userId)
       .orderBy('createdAt', 'desc')
       .onSnapshot(snapshot => {
+          if (!animeList) return;
           animeList.innerHTML = '';
           if (snapshot.empty) {
               animeList.innerHTML = '<li>Nenhum anime na sua lista. Faça seu primeiro "commit"!</li>';
@@ -109,22 +129,22 @@ function loadAnimes(userId) {
       });
 }
 
+logoutButton.addEventListener('click', () => {
+    auth.signOut();
+});
+
 auth.onAuthStateChanged(user => {
     if (user) {
-        authContainer.classList.add('hidden');
-        userContent.classList.remove('hidden');
+        mainNav.classList.remove('hidden');
         userInfo.classList.remove('hidden');
         userEmailSpan.textContent = user.email;
-        loadAnimes(user.uid);
     } else {
-        authContainer.classList.remove('hidden');
-        userContent.classList.add('hidden');
+        mainNav.classList.add('hidden');
         userInfo.classList.add('hidden');
         userEmailSpan.textContent = '';
-        animeList.innerHTML = '';
-        
-        signupForm.classList.add('hidden');
-        showLoginLink.classList.add('hidden');
-        document.querySelector('.signup-prompt').classList.remove('hidden');
     }
+    router();
 });
+
+window.addEventListener('hashchange', router);
+window.addEventListener('DOMContentLoaded', router);
