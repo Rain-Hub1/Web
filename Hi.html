@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor com TextBox Menor</title>
+    <title>Editor com TextBox Pequena</title>
     <style>
         :root {
             --fundo-app: #1c1e26;
@@ -12,8 +12,8 @@
             --cor-borda: #44475a;
             --cor-aba-ativa: #50fa7b; /* Verde */
             --cor-aba-inativa: #bd93f9; /* Roxo */
-            --sombra: 0 4px 15px rgba(0, 0, 0, 0.2);
-            --raio-borda: 10px;
+            --sombra: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --raio-borda: 12px;
         }
 
         body {
@@ -32,7 +32,7 @@
         .app-header {
             display: flex;
             background-color: var(--fundo-editor-painel);
-            box-shadow: var(--sombra);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
             flex-shrink: 0;
             border-bottom: 1px solid var(--cor-borda);
@@ -71,11 +71,9 @@
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.2s ease-in-out;
-            display: flex; /* Usado para centralizar o painel do editor */
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px; /* Espaçamento para não colar nas bordas */
-            box-sizing: border-box;
         }
 
         .content-pane.active {
@@ -83,17 +81,29 @@
             opacity: 1;
         }
         
-        /* Painel do Editor (aqui está a mágica da "TextBox menor") */
+        /* Painel do Editor (AGORA COM TAMANHO FIXO E PEQUENO) */
         #code-panel {
-            width: 100%;
-            height: 100%;
-            max-width: 1200px; /* Limita a largura máxima do editor */
+            width: 600px;  /* LARGURA FIXA */
+            height: 400px; /* ALTURA FIXA */
+            max-width: 90%; /* Garante que não quebre em telas muito pequenas */
+            max-height: 80%;
+            
             display: flex;
             flex-direction: column;
             background-color: var(--fundo-editor-painel);
             border-radius: var(--raio-borda);
             box-shadow: var(--sombra);
-            overflow: hidden;
+            overflow: hidden; /* Garante que o conteúdo não vaze */
+            border: 1px solid var(--cor-borda);
+        }
+
+        .panel-header {
+            padding: 10px 15px;
+            background-color: rgba(0,0,0,0.2);
+            font-weight: 500;
+            color: var(--cor-destaque);
+            border-bottom: 1px solid var(--cor-borda);
+            text-align: center;
         }
 
         /* Editor de Texto */
@@ -102,20 +112,20 @@
             border: none;
             background: none;
             color: var(--cor-texto);
-            padding: 20px;
+            padding: 15px;
             font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.6;
-            resize: none;
+            resize: none; /* Impede que o usuário redimensione */
         }
 
         #code-editor:focus {
             outline: none;
         }
 
-        /* Área de Preview (ocupa o painel inteiro) */
+        /* Área de Preview (continua em tela cheia) */
         #preview-pane {
-            padding: 0; /* Remove o padding para o iframe ocupar tudo */
+            padding: 0;
         }
         #preview-frame {
             width: 100%;
@@ -133,9 +143,10 @@
     </header>
 
     <main class="main-content">
-        <!-- Painel do Editor de Código (com a TextBox menor) -->
+        <!-- Painel do Editor de Código (com a TextBox pequena e fixa) -->
         <div id="code-pane" class="content-pane active">
             <div id="code-panel">
+                <div class="panel-header">Editor de Código</div>
                 <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
             </div>
         </div>
@@ -150,26 +161,8 @@
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
 
-        const defaultCode = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Página de Exemplo</title>
-    <style>
-        body { 
-            font-family: sans-serif; 
-            padding: 25px;
-            background-color: #f0f2f5;
-        }
-        h1 {
-            color: #1c1e26;
-        }
-    </style>
-</head>
-<body>
-    <h1>Abas + TextBox Menor!</h1>
-    <p>Agora a aba "Código" tem um editor contido, e a aba "Preview" mostra o resultado.</p>
-</body>
-</html>`;
+        const defaultCode = `<h1>Olá!</h1>
+<p>Este é um editor com uma caixa de texto de tamanho fixo.</p>`;
 
         function showPane(paneName) {
             document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
