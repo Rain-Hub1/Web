@@ -71,11 +71,6 @@
 
 
 
-
-
-
-
-
 const firebaseConfig = {
     apiKey: "AIzaSyDJN4ylUCR3GFY-6G-oHIdOKlrLPLYb0OE",
     authDomain: "chat-conversation-71277.firebaseapp.com",
