@@ -15,6 +15,7 @@
             --input-bg: #2d2d2f;
             --user-bubble: #2d2d2f;
             --other-bubble: #1f1f1f;
+            --danger-color: #ef4444;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -27,7 +28,7 @@
         }
         .hidden { display: none !important; }
 
-        /* --- Telas de Autenticação e Grupos (Sidebar) --- */
+        /* --- Sidebar (Autenticação e Grupos) --- */
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
             width: 85%; max-width: 320px;
@@ -42,7 +43,10 @@
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 999;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
         }
+        .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
         .sidebar-header {
             padding: 16px; border-bottom: 1px solid var(--surface-color);
             display: flex; justify-content: space-between; align-items: center;
@@ -51,7 +55,9 @@
         .action-btn {
             background: none; border: none; color: var(--text-secondary);
             font-size: 22px; cursor: pointer; padding: 8px;
+            border-radius: 50%; transition: background-color 0.2s;
         }
+        .action-btn:hover { background-color: var(--surface-color); }
         .auth-view, .groups-view { padding: 16px; }
         .auth-view input {
             width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px;
@@ -120,39 +126,50 @@
             border: none; cursor: pointer; transition: opacity 0.2s;
         }
         .send-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Modal de Configurações --- */
+        .modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 1001;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--surface-color); border-radius: 16px; padding: 24px;
+            width: 90%; max-width: 400px; border: 1px solid var(--input-bg);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h2 { font-size: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+        .form-group input {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--input-bg);
+            background-color: var(--bg-color); color: var(--text-primary); font-size: 16px;
+        }
+        .modal-content button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;
+        }
+        .modal-content .primary-btn { background-color: var(--accent-color); color: white; }
+        .modal-content .danger-btn { background-color: var(--danger-color); color: white; margin-top: 16px; }
     </style>
 </head>
 <body>
     <div id="sidebar-overlay" class="hidden"></div>
     <aside id="sidebar" class="sidebar">
         <div id="auth-container">
-            <div class="sidebar-header">
-                <h2>Login</h2>
-                <button id="close-sidebar-btn-auth" class="action-btn"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div id="login-view" class="auth-view">
-                <input type="email" id="login-email" placeholder="Email">
-                <input type="password" id="login-password" placeholder="Senha">
-                <button id="login-button" class="primary-btn">Entrar</button>
-                <button id="google-login-button" class="secondary-btn">Entrar com Google</button>
-                <p>Não tem conta? <a id="show-register">Cadastre-se</a></p>
-            </div>
-            <div id="register-view" class="auth-view hidden">
-                <input type="text" id="register-name" placeholder="Seu Nome">
-                <input type="email" id="register-email" placeholder="Email">
-                <input type="password" id="register-password" placeholder="Senha">
-                <button id="register-button" class="primary-btn">Cadastrar</button>
-                <p>Já tem conta? <a id="show-login">Faça Login</a></p>
-            </div>
+            <!-- Conteúdo de Login/Registro -->
         </div>
         <div id="groups-container" class="hidden">
             <div class="sidebar-header">
                 <h2>Grupos</h2>
-                <button id="create-group-btn" class="action-btn"><i class="fa-solid fa-plus"></i></button>
+                <div>
+                    <button id="settings-btn" class="action-btn" title="Configurações"><i class="fa-solid fa-cog"></i></button>
+                    <button id="create-group-btn" class="action-btn" title="Novo Grupo"><i class="fa-solid fa-plus"></i></button>
+                </div>
             </div>
-            <div class="groups-view">
-                <ul id="group-list" class="group-list"></ul>
-            </div>
+            <div class="groups-view"><ul id="group-list" class="group-list"></ul></div>
         </div>
     </aside>
 
@@ -162,26 +179,38 @@
     </header>
 
     <main id="main-content" class="main-content">
-        <div id="placeholder-screen" class="placeholder-screen">
-            <i class="fa-solid fa-comments"></i>
-            <h2>Selecione um grupo para conversar</h2>
-            <p>Use o menu para criar ou entrar em um grupo.</p>
-        </div>
-        <div id="chat-container" class="chat-container"></div>
+        <!-- Conteúdo do Chat e Placeholder -->
     </main>
 
     <footer id="input-area" class="input-area hidden">
-        <div class="input-wrapper">
-            <input type="text" id="message-input" class="message-input" placeholder="Enviar mensagem...">
-            <button id="send-button" class="send-button" title="Enviar"><i class="fa-solid fa-arrow-up"></i></button>
-        </div>
+        <!-- Conteúdo da área de input -->
     </footer>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configurações</h2>
+                <button id="close-settings-btn" class="action-btn">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="settings-name">Nome de Exibição</label>
+                <input type="text" id="settings-name">
+            </div>
+            <div class="form-group">
+                <label for="settings-photo">URL da Foto</label>
+                <input type="text" id="settings-photo" placeholder="https://exemplo.com/foto.jpg">
+            </div>
+            <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
+            <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // --- INICIALIZAÇÃO E VARIÁVEIS GLOBAIS ---
         const firebaseConfig = {
             apiKey: "AIzaSyDJN4ylUCR3GFY-6G-oHIdOKlrLPLYb0OE",
             authDomain: "chat-conversation-71277.firebaseapp.com",
@@ -190,59 +219,53 @@
             messagingSenderId: "995855170501",
             appId: "1:995855170501:web:6d51bd110f166fb93469ac"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        let currentGroupId = null;
+        let messageListener = null;
+
+        // --- SELETORES DE ELEMENTOS ---
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menu-btn');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         const authContainer = document.getElementById('auth-container');
         const groupsContainer = document.getElementById('groups-container');
         const headerTitle = document.getElementById('header-title');
-        const placeholderScreen = document.getElementById('placeholder-screen');
-        const chatContainer = document.getElementById('chat-container');
+        const mainContent = document.getElementById('main-content');
         const inputArea = document.getElementById('input-area');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const groupList = document.getElementById('group-list');
+        const settingsModal = document.getElementById('settings-modal');
 
-        let currentGroupId = null;
-        let messageListener = null;
-
+        // --- FUNÇÕES DA INTERFACE (UI) ---
         const toggleSidebar = (forceClose = false) => {
             const isOpen = sidebar.classList.contains('open');
             if (forceClose || isOpen) {
                 sidebar.classList.remove('open');
-                sidebarOverlay.classList.add('hidden');
+                sidebarOverlay.classList.remove('visible');
             } else {
                 sidebar.classList.add('open');
-                sidebarOverlay.classList.remove('hidden');
+                sidebarOverlay.classList.add('visible');
             }
         };
 
-        menuBtn.addEventListener('click', () => toggleSidebar());
-        sidebarOverlay.addEventListener('click', () => toggleSidebar(true));
-        document.getElementById('close-sidebar-btn-auth').addEventListener('click', () => toggleSidebar(true));
-
-        const showAuthView = (view) => {
-            document.getElementById('login-view').classList.toggle('hidden', view !== 'login');
-            document.getElementById('register-view').classList.toggle('hidden', view !== 'register');
+        const toggleModal = (modalId, show) => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.toggle('active', show);
+            }
         };
-        document.getElementById('show-register').addEventListener('click', () => showAuthView('register'));
-        document.getElementById('show-login').addEventListener('click', () => showAuthView('login'));
 
         const updateUIForAuthState = (user) => {
+            authContainer.classList.toggle('hidden', !!user);
+            groupsContainer.classList.toggle('hidden', !user);
             if (user) {
-                authContainer.classList.add('hidden');
-                groupsContainer.classList.remove('hidden');
                 headerTitle.textContent = currentGroupId ? headerTitle.textContent : "Grupos";
             } else {
-                authContainer.classList.remove('hidden');
-                groupsContainer.classList.add('hidden');
                 headerTitle.textContent = "Login";
-                showAuthView('login');
                 resetChatView();
             }
         };
@@ -250,38 +273,71 @@
         const resetChatView = () => {
             if (messageListener) messageListener();
             currentGroupId = null;
-            chatContainer.innerHTML = '';
-            placeholderScreen.classList.remove('hidden');
+            mainContent.innerHTML = `<div id="placeholder-screen" class="placeholder-screen"><i class="fa-solid fa-comments"></i><h2>Selecione um grupo para conversar</h2><p>Use o menu para criar ou entrar em um grupo.</p></div>`;
             inputArea.classList.add('hidden');
             headerTitle.textContent = auth.currentUser ? "Grupos" : "Login";
             window.history.pushState({}, "", window.location.pathname);
         };
 
+        // --- LÓGICA DE AUTENTICAÇÃO E PERFIL ---
         auth.onAuthStateChanged(user => {
             updateUIForAuthState(user);
             if (user) {
                 renderGroups();
                 handleRouting();
+            } else {
+                authContainer.innerHTML = `
+                    <div class="sidebar-header"><h2>Login</h2><button id="close-sidebar-btn-auth" class="action-btn">&times;</button></div>
+                    <div id="login-view" class="auth-view"><input type="email" id="login-email" placeholder="Email"><input type="password" id="login-password" placeholder="Senha"><button id="login-button" class="primary-btn">Entrar</button><button id="google-login-button" class="secondary-btn">Entrar com Google</button><p>Não tem conta? <a id="show-register">Cadastre-se</a></p></div>
+                    <div id="register-view" class="auth-view hidden"><input type="text" id="register-name" placeholder="Seu Nome"><input type="email" id="register-email" placeholder="Email"><input type="password" id="register-password" placeholder="Senha"><button id="register-button" class="primary-btn">Cadastrar</button><p>Já tem conta? <a id="show-login">Faça Login</a></p></div>`;
+                attachAuthListeners();
             }
         });
 
-        document.getElementById('login-button').addEventListener('click', () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-        });
-        document.getElementById('google-login-button').addEventListener('click', () => {
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
-        });
-        document.getElementById('register-button').addEventListener('click', () => {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => cred.user.updateProfile({ displayName: name, photoURL: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=random&color=fff` }))
-                .catch(err => alert(err.message));
+        function attachAuthListeners() {
+            document.getElementById('close-sidebar-btn-auth')?.addEventListener('click', () => toggleSidebar(true));
+            document.getElementById('show-register')?.addEventListener('click', () => {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('register-view').classList.remove('hidden');
+            });
+            document.getElementById('show-login')?.addEventListener('click', () => {
+                document.getElementById('login-view').classList.remove('hidden');
+                document.getElementById('register-view').classList.add('hidden');
+            });
+            document.getElementById('login-button')?.addEventListener('click', () => {
+                auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => alert(err.message));
+            });
+            document.getElementById('google-login-button')?.addEventListener('click', () => {
+                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
+            });
+            document.getElementById('register-button')?.addEventListener('click', () => {
+                const name = document.getElementById('register-name').value;
+                auth.createUserWithEmailAndPassword(document.getElementById('register-email').value, document.getElementById('register-password').value)
+                    .then(cred => cred.user.updateProfile({ displayName: name, photoURL: `https://ui-avatars.com/api/?name=${name.replace(' ', '+')}&background=random&color=fff` }))
+                    .catch(err => alert(err.message));
+            });
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut();
+            toggleModal('settings-modal', false);
         });
 
+        document.getElementById('update-profile-btn').addEventListener('click', () => {
+            const user = auth.currentUser;
+            const newName = document.getElementById('settings-name').value;
+            const newPhoto = document.getElementById('settings-photo').value;
+            if (user) {
+                user.updateProfile({ displayName: newName, photoURL: newPhoto })
+                    .then(() => {
+                        alert("Perfil atualizado com sucesso!");
+                        toggleModal('settings-modal', false);
+                    })
+                    .catch(err => alert("Erro ao atualizar perfil: " + err.message));
+            }
+        });
+
+        // --- LÓGICA DE GRUPOS E CHAT ---
         const renderGroups = () => {
             db.collection('grupos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 groupList.innerHTML = '';
@@ -301,20 +357,6 @@
             });
         };
 
-        document.getElementById('create-group-btn').addEventListener('click', () => {
-            const groupName = prompt("Digite o nome do novo grupo:");
-            const user = auth.currentUser;
-            if (groupName && user) {
-                db.collection('grupos').add({
-                    name: groupName,
-                    createdBy: user.displayName,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(docRef => {
-                    window.location.hash = docRef.id;
-                });
-            }
-        });
-
         const selectGroup = async (groupId) => {
             if (!auth.currentUser) return;
             if (messageListener) messageListener();
@@ -324,10 +366,9 @@
             if (groupId) {
                 const groupDoc = await db.collection('grupos').doc(groupId).get();
                 if (groupDoc.exists) {
-                    const groupData = groupDoc.data();
-                    headerTitle.textContent = groupData.name;
+                    headerTitle.textContent = groupDoc.data().name;
                     document.querySelector(`.group-item[data-group-id="${groupId}"]`)?.classList.add('active');
-                    placeholderScreen.classList.add('hidden');
+                    mainContent.innerHTML = `<div id="chat-container" class="chat-container"></div>`;
                     inputArea.classList.remove('hidden');
                     renderMessages(groupId);
                 } else { resetChatView(); }
@@ -335,6 +376,7 @@
         };
 
         const renderMessages = (groupId) => {
+            const chatContainer = document.getElementById('chat-container');
             messageListener = db.collection('grupos').doc(groupId).collection('mensagens').orderBy('timestamp').onSnapshot(snapshot => {
                 chatContainer.innerHTML = '';
                 snapshot.forEach(doc => {
@@ -351,7 +393,7 @@
                         </div>`;
                     chatContainer.appendChild(msgEl);
                 });
-                document.getElementById('main-content').scrollTop = document.getElementById('main-content').scrollHeight;
+                mainContent.scrollTop = mainContent.scrollHeight;
             });
         };
 
@@ -368,12 +410,38 @@
             });
             messageInput.value = '';
         };
+
+        // --- EVENT LISTENERS ---
+        menuBtn.addEventListener('click', () => toggleSidebar());
+        sidebarOverlay.addEventListener('click', () => toggleSidebar(true));
+        document.getElementById('create-group-btn').addEventListener('click', () => {
+            const groupName = prompt("Digite o nome do novo grupo:");
+            const user = auth.currentUser;
+            if (groupName && user) {
+                db.collection('grupos').add({ name: groupName, createdBy: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+                    .then(docRef => window.location.hash = docRef.id);
+            }
+        });
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (user) {
+                document.getElementById('settings-name').value = user.displayName || '';
+                document.getElementById('settings-photo').value = user.photoURL || '';
+                toggleModal('settings-modal', true);
+            }
+        });
+        document.getElementById('close-settings-btn').addEventListener('click', () => toggleModal('settings-modal', false));
         sendButton.addEventListener('click', handleSend);
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
 
+        // --- ROTEAMENTO ---
         const handleRouting = () => selectGroup(window.location.hash.substring(1));
         window.addEventListener('hashchange', handleRouting);
-        window.addEventListener('load', handleRouting);
+        window.addEventListener('load', () => {
+            mainContent.innerHTML = `<div id="placeholder-screen" class="placeholder-screen"><i class="fa-solid fa-comments"></i><h2>Selecione um grupo para conversar</h2><p>Use o menu para criar ou entrar em um grupo.</p></div>`;
+            attachAuthListeners();
+            handleRouting();
+        });
     </script>
 </body>
 </html>
