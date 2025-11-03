@@ -113,6 +113,7 @@
             border-radius: 6px; line-height: 1.5; border: 1px solid var(--border-color);
         }
         .message-sender { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        .message.user .message-sender { text-align: right; }
         .input-area { padding: 16px; flex-shrink: 0; background-color: var(--bg-color); border-top: 1px solid var(--border-color); }
         .input-wrapper {
             display: flex; align-items: center; background-color: var(--surface-color);
@@ -394,15 +395,19 @@
                 snapshot.forEach(doc => {
                     const msg = doc.data();
                     const user = auth.currentUser;
+                    const isCurrentUser = user && user.uid === msg.uid;
                     const msgEl = document.createElement('div');
-                    msgEl.className = `message ${user && user.uid === msg.uid ? 'user' : 'other'}`;
+                    msgEl.className = `message ${isCurrentUser ? 'user' : 'other'}`;
                     const avatar = msg.photoURL ? `<img src="${msg.photoURL}" alt="avatar">` : (msg.displayName?.charAt(0) || 'U');
-                    msgEl.innerHTML = `
-                        <div class="message-avatar">${avatar}</div>
+                    
+                    const messageBodyHtml = `
                         <div class="message-body">
                             <div class="message-sender">${msg.displayName}</div>
                             <div class="message-content">${msg.text}</div>
                         </div>`;
+                    const avatarHtml = `<div class="message-avatar">${avatar}</div>`;
+
+                    msgEl.innerHTML = isCurrentUser ? messageBodyHtml + avatarHtml : avatarHtml + messageBodyHtml;
                     chatContainer.appendChild(msgEl);
                 });
                 mainContent.scrollTop = mainContent.scrollHeight;
