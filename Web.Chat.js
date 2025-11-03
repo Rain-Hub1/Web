@@ -91,7 +91,6 @@ auth.onAuthStateChanged(user => {
                     <label for="login-email">Email</label><input type="email" id="login-email">
                     <label for="login-password">Senha</label><input type="password" id="login-password">
                     <button id="login-button" class="primary-btn">Entrar</button>
-                    <button id="google-login-button" class="secondary-btn">Entrar com Google</button>
                     <p>Não tem conta? <a id="show-register">Cadastre-se</a></p>
                 </div>
                 <div id="register-view" class="form-group hidden">
@@ -118,9 +117,6 @@ function attachAuthListeners() {
     });
     document.getElementById('login-button')?.addEventListener('click', () => {
         auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => alert(err.message));
-    });
-    document.getElementById('google-login-button')?.addEventListener('click', () => {
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => alert(err.message));
     });
     document.getElementById('register-button')?.addEventListener('click', () => {
         const name = document.getElementById('register-name').value;
