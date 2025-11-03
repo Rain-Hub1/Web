@@ -59,7 +59,15 @@
             border-radius: 6px; transition: background-color 0.2s, border-color 0.2s;
         }
         .action-btn:hover { background-color: var(--btn-hover-bg); border-color: var(--border-color); }
-        .auth-view, .groups-view { padding: 8px; }
+        .auth-view { padding: 8px; }
+        .groups-view { display: flex; flex-direction: column; height: 100%; }
+        .search-bar { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        #search-group-input {
+            width: 100%; padding: 8px 12px; border-radius: 6px;
+            border: 1px solid var(--border-color); background-color: var(--bg-color);
+            color: var(--text-primary); font-size: 14px;
+        }
+        .group-list-container { flex-grow: 1; overflow-y: auto; padding: 8px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
         .form-group input {
@@ -81,17 +89,18 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px; border-radius: 6px; margin-bottom: 4px;
             cursor: pointer; transition: background-color 0.2s;
-            font-weight: 500; border: 1px solid transparent;
+            font-weight: 500; border: 1px solid transparent; position: relative;
         }
         .group-item-name { flex-grow: 1; }
         .group-item:hover { background-color: var(--btn-hover-bg); }
         .group-item.active { background-color: var(--accent-color); color: white; }
-        .delete-group-btn {
-            background: none; border: none; color: var(--danger-color);
-            font-size: 14px; cursor: pointer; padding: 4px 8px;
-            border-radius: 6px; margin-left: 8px;
+        .notification-badge {
+            background-color: var(--danger-color); color: white;
+            border-radius: 50%; width: 18px; height: 18px;
+            font-size: 11px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            position: absolute; top: 4px; right: 4px;
         }
-        .delete-group-btn:hover { background-color: var(--danger-color); color: white; }
         .header {
             display: flex; align-items: center; padding: 16px;
             flex-shrink: 0; border-bottom: 1px solid var(--border-color);
@@ -161,6 +170,12 @@
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-header h2 { font-size: 20px; }
+        .modal-body p { margin-bottom: 24px; line-height: 1.6; }
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-content button {
+            padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
         .modal-content button.primary-btn { background-color: var(--success-color); color: white; border-color: var(--success-color); }
         .modal-content button.danger-btn { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
         .photo-preview-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; }
@@ -173,6 +188,11 @@
             cursor: pointer; color: var(--accent-color); font-size: 14px;
         }
         #photo-upload-label:hover { text-decoration: underline; }
+        .requests-container { padding: 16px; border-top: 1px solid var(--border-color); }
+        .requests-container h3 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+        .request-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background-color: var(--bg-color); border-radius: 6px; }
+        .request-item span { font-weight: 500; }
+        .request-item div button { font-size: 12px; padding: 4px 8px; }
     </style>
 </head>
 <body>
@@ -187,7 +207,12 @@
                     <button id="create-group-btn" class="action-btn" title="Novo Grupo"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
-            <div class="groups-view"><ul id="group-list" class="group-list"></ul></div>
+            <div class="search-bar">
+                <input type="text" id="search-group-input" placeholder="Pesquisar grupos...">
+            </div>
+            <div class="group-list-container">
+                <ul id="group-list" class="group-list"></ul>
+            </div>
         </div>
     </aside>
 
@@ -202,6 +227,7 @@
             <h2>Selecione um grupo para conversar</h2>
             <p>Use o menu para criar ou entrar em um grupo.</p>
         </div>
+        <div id="requests-container" class="requests-container hidden"></div>
         <div id="chat-container" class="chat-container hidden"></div>
     </main>
 
@@ -212,29 +238,8 @@
         </div>
     </footer>
 
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configurações</h2>
-                <button id="close-settings-btn" class="action-btn">&times;</button>
-            </div>
-            <div class="form-group photo-preview-container">
-                <img id="photo-preview" src="" alt="Preview da foto">
-                <label id="photo-upload-label" for="settings-photo-upload">Alterar foto</label>
-                <input type="file" id="settings-photo-upload" class="hidden" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label for="settings-name">Nome de Exibição</label>
-                <input type="text" id="settings-name">
-            </div>
-            <div class="form-group">
-                <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
-            </div>
-            <div class="form-group">
-                <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
-            </div>
-        </div>
-    </div>
+    <div id="settings-modal" class="modal"></div>
+    <div id="custom-dialog" class="modal"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -258,6 +263,7 @@
         let currentGroupId = null;
         let messageListener = null;
         let selectedPhotoFile = null;
+        let allGroups = [];
 
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menu-btn');
@@ -267,14 +273,13 @@
         const headerTitle = document.getElementById('header-title');
         const mainContent = document.getElementById('main-content');
         const placeholderScreen = document.getElementById('placeholder-screen');
+        const requestsContainer = document.getElementById('requests-container');
         const chatContainer = document.getElementById('chat-container');
         const inputArea = document.getElementById('input-area');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const groupList = document.getElementById('group-list');
-        const settingsModal = document.getElementById('settings-modal');
-        const photoPreview = document.getElementById('photo-preview');
-        const photoUploadInput = document.getElementById('settings-photo-upload');
+        const searchGroupInput = document.getElementById('search-group-input');
 
         const getGroupIdFromHash = () => {
             const match = window.location.hash.match(/#\/group\/([a-zA-Z0-9]+)/);
@@ -292,8 +297,16 @@
             }
         };
 
-        const toggleModal = (modalId, show) => {
-            document.getElementById(modalId)?.classList.toggle('active', show);
+        const showDialog = (modalId, title, content) => {
+            const dialog = document.getElementById(modalId);
+            dialog.innerHTML = `<div class="modal-content">${content}</div>`;
+            dialog.classList.add('active');
+            
+            const close = () => dialog.classList.remove('active');
+            const closeBtn = dialog.querySelector('.close-modal-btn');
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            
+            return { dialog, close };
         };
 
         const updateUIForAuthState = (user) => {
@@ -309,6 +322,7 @@
             placeholderScreen.classList.remove('hidden');
             chatContainer.classList.add('hidden');
             inputArea.classList.add('hidden');
+            requestsContainer.classList.add('hidden');
             headerTitle.textContent = auth.currentUser ? "Grupos" : "Login";
             window.location.hash = '';
         };
@@ -316,7 +330,7 @@
         auth.onAuthStateChanged(user => {
             updateUIForAuthState(user);
             if (user) {
-                renderGroups();
+                loadAllGroups();
                 handleRouting();
             } else {
                 authContainer.innerHTML = `
@@ -365,88 +379,87 @@
             });
         }
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            auth.signOut();
-            toggleModal('settings-modal', false);
-        });
+        const loadAllGroups = () => {
+            db.collection('grupos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                allGroups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                filterAndRenderGroups();
+            });
+        };
 
-        photoUploadInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files[0]) {
-                selectedPhotoFile = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    photoPreview.src = event.target.result;
-                }
-                reader.readAsDataURL(selectedPhotoFile);
-            }
-        });
+        const filterAndRenderGroups = () => {
+            const searchTerm = searchGroupInput.value.toLowerCase();
+            const filteredGroups = allGroups.filter(group => group.name.toLowerCase().includes(searchTerm));
+            renderGroupList(filteredGroups);
+        };
 
-        document.getElementById('update-profile-btn').addEventListener('click', async () => {
+        const renderGroupList = (groupsToRender) => {
+            groupList.innerHTML = '';
             const user = auth.currentUser;
             if (!user) return;
 
-            const newName = document.getElementById('settings-name').value;
-            let newPhotoURL = user.photoURL;
+            groupsToRender.forEach(group => {
+                const li = document.createElement('li');
+                li.className = 'group-item';
+                li.dataset.groupId = group.id;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'group-item-name';
+                nameSpan.textContent = group.name;
+                li.appendChild(nameSpan);
 
-            const updateButton = document.getElementById('update-profile-btn');
-            updateButton.disabled = true;
-            updateButton.textContent = 'Salvando...';
-
-            try {
-                if (selectedPhotoFile) {
-                    const filePath = `profile-pictures/${user.uid}`;
-                    const fileSnapshot = await storage.ref(filePath).put(selectedPhotoFile);
-                    newPhotoURL = await fileSnapshot.ref.getDownloadURL();
-                }
-                await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
-                alert("Perfil atualizado com sucesso!");
-                toggleModal('settings-modal', false);
-            } catch (err) {
-                alert("Erro ao atualizar perfil: " + err.message);
-            } finally {
-                selectedPhotoFile = null;
-                updateButton.disabled = false;
-                updateButton.textContent = 'Salvar Alterações';
-            }
-        });
-
-        const renderGroups = () => {
-            db.collection('grupos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                groupList.innerHTML = '';
-                const user = auth.currentUser;
-                snapshot.forEach(doc => {
-                    const group = doc.data();
-                    const li = document.createElement('li');
-                    li.className = 'group-item';
-                    li.dataset.groupId = doc.id;
-                    
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'group-item-name';
-                    nameSpan.textContent = group.name;
-                    li.appendChild(nameSpan);
-
-                    if (user && user.uid === group.creatorId) {
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete-group-btn';
-                        deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-                        deleteBtn.title = 'Apagar grupo';
-                        deleteBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            if (confirm(`Tem certeza que deseja apagar o grupo "${group.name}"? Esta ação não pode ser desfeita.`)) {
-                                db.collection('grupos').doc(doc.id).delete().catch(err => alert(err.message));
-                            }
-                        };
-                        li.appendChild(deleteBtn);
-                    }
-
-                    if (doc.id === currentGroupId) li.classList.add('active');
-                    li.addEventListener('click', () => {
-                        window.location.hash = `/group/${doc.id}`;
-                        toggleSidebar(true);
+                if (user.uid === group.creatorId) {
+                    db.collection('grupos').doc(group.id).collection('pedidos').onSnapshot(reqSnap => {
+                        const existingBadge = li.querySelector('.notification-badge');
+                        if (existingBadge) existingBadge.remove();
+                        if (!reqSnap.empty) {
+                            const badge = document.createElement('div');
+                            badge.className = 'notification-badge';
+                            badge.textContent = reqSnap.size;
+                            li.appendChild(badge);
+                        }
                     });
-                    groupList.appendChild(li);
-                });
+                }
+
+                if (group.id === currentGroupId) li.classList.add('active');
+                li.addEventListener('click', () => handleGroupClick(group));
+                groupList.appendChild(li);
             });
+        };
+
+        const handleGroupClick = (group) => {
+            const user = auth.currentUser;
+            const isMember = group.members && group.members.includes(user.uid);
+            const isCreator = user.uid === group.creatorId;
+
+            if (isMember || isCreator) {
+                window.location.hash = `/group/${group.id}`;
+                toggleSidebar(true);
+            } else {
+                const { close } = showDialog('custom-dialog', 'Entrar no Grupo', `
+                    <div class="modal-header"><h2>Entrar no Grupo</h2></div>
+                    <div class="modal-body"><p>Você gostaria de pedir para entrar no grupo "${group.name}"?</p></div>
+                    <div class="modal-footer">
+                        <button id="cancel-join" class="secondary-btn">Cancelar</button>
+                        <button id="confirm-join" class="primary-btn">Pedir para Entrar</button>
+                    </div>
+                `);
+                document.getElementById('cancel-join').addEventListener('click', close);
+                document.getElementById('confirm-join').addEventListener('click', () => {
+                    requestToJoinGroup(group.id);
+                    close();
+                });
+            }
+        };
+
+        const requestToJoinGroup = (groupId) => {
+            const user = auth.currentUser;
+            db.collection('grupos').doc(groupId).collection('pedidos').doc(user.uid).set({
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("Seu pedido para entrar no grupo foi enviado!");
+            }).catch(err => alert("Erro ao enviar pedido: " + err.message));
         };
 
         const selectGroup = async (groupId) => {
@@ -454,17 +467,34 @@
             if (messageListener) messageListener();
             currentGroupId = groupId;
             document.querySelectorAll('.group-item').forEach(el => el.classList.remove('active'));
+            requestsContainer.classList.add('hidden');
+            requestsContainer.innerHTML = '';
 
             if (groupId) {
                 const groupDoc = await db.collection('grupos').doc(groupId).get();
-                if (groupDoc.exists) {
-                    headerTitle.textContent = groupDoc.data().name;
-                    document.querySelector(`.group-item[data-group-id="${groupId}"]`)?.classList.add('active');
-                    placeholderScreen.classList.add('hidden');
-                    chatContainer.classList.remove('hidden');
-                    inputArea.classList.remove('hidden');
-                    renderMessages(groupId);
-                } else { resetChatView(); }
+                if (!groupDoc.exists) { resetChatView(); return; }
+                
+                const groupData = groupDoc.data();
+                headerTitle.textContent = groupData.name;
+                document.querySelector(`.group-item[data-group-id="${groupId}"]`)?.classList.add('active');
+                
+                const isCreator = auth.currentUser.uid === groupData.creatorId;
+                const isMember = groupData.members && groupData.members.includes(auth.currentUser.uid);
+
+                if (!isCreator && !isMember) {
+                    resetChatView();
+                    alert("Você não tem permissão para ver este grupo.");
+                    return;
+                }
+
+                if (isCreator) {
+                    renderJoinRequests(groupId);
+                }
+
+                placeholderScreen.classList.add('hidden');
+                chatContainer.classList.remove('hidden');
+                inputArea.classList.remove('hidden');
+                renderMessages(groupId);
             } else {
                 placeholderScreen.classList.remove('hidden');
                 chatContainer.classList.add('hidden');
@@ -472,6 +502,45 @@
                 headerTitle.textContent = "Grupos";
             }
         };
+
+        const renderJoinRequests = (groupId) => {
+            db.collection('grupos').doc(groupId).collection('pedidos').onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    requestsContainer.classList.add('hidden');
+                    requestsContainer.innerHTML = '';
+                    return;
+                }
+                requestsContainer.classList.remove('hidden');
+                requestsContainer.innerHTML = '<h3>Pedidos para entrar:</h3>';
+                snapshot.forEach(doc => {
+                    const request = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'request-item';
+                    item.innerHTML = `
+                        <span>${request.displayName}</span>
+                        <div>
+                            <button class="primary-btn" data-uid="${doc.id}">Aceitar</button>
+                            <button class="danger-btn" data-uid="${doc.id}">Recusar</button>
+                        </div>`;
+                    requestsContainer.appendChild(item);
+                });
+            });
+        };
+
+        requestsContainer.addEventListener('click', e => {
+            const uid = e.target.dataset.uid;
+            if (!uid || !currentGroupId) return;
+
+            if (e.target.classList.contains('primary-btn')) {
+                db.collection('grupos').doc(currentGroupId).update({
+                    members: firebase.firestore.FieldValue.arrayUnion(uid)
+                }).then(() => {
+                    db.collection('grupos').doc(currentGroupId).collection('pedidos').doc(uid).delete();
+                });
+            } else if (e.target.classList.contains('danger-btn')) {
+                db.collection('grupos').doc(currentGroupId).collection('pedidos').doc(uid).delete();
+            }
+        });
 
         const renderMessages = (groupId) => {
             messageListener = db.collection('grupos').doc(groupId).collection('mensagens').orderBy('timestamp').onSnapshot(snapshot => {
@@ -521,36 +590,4 @@
         });
 
         menuBtn.addEventListener('click', () => toggleSidebar());
-        sidebarOverlay.addEventListener('click', () => toggleSidebar(true));
-        document.getElementById('create-group-btn').addEventListener('click', () => {
-            const groupName = prompt("Digite o nome do novo grupo:");
-            const user = auth.currentUser;
-            if (groupName && user) {
-                db.collection('grupos').add({ name: groupName, creatorId: user.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
-                    .then(docRef => {
-                        window.location.hash = `/group/${docRef.id}`;
-                    });
-            }
-        });
-        document.getElementById('settings-btn').addEventListener('click', () => {
-            const user = auth.currentUser;
-            if (user) {
-                document.getElementById('settings-name').value = user.displayName || '';
-                photoPreview.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName?.replace(' ', '+') || 'A'}&background=random&color=fff`;
-                selectedPhotoFile = null;
-                toggleModal('settings-modal', true);
-            }
-        });
-        document.getElementById('close-settings-btn').addEventListener('click', () => toggleModal('settings-modal', false));
-        sendButton.addEventListener('click', handleSend);
-        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
-
-        const handleRouting = () => selectGroup(getGroupIdFromHash());
-        window.addEventListener('hashchange', handleRouting);
-        window.addEventListener('load', () => {
-            attachAuthListeners();
-            handleRouting();
-        });
-    </script>
-</body>
-</html>
+        sidebar
