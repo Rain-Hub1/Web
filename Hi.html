@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor com TextBox Pequena</title>
+    <title>Editor com Abas e TextBox Pequena</title>
     <style>
         :root {
             --fundo-app: #1c1e26;
-            --fundo-editor-painel: #282a36;
+            --fundo-painel: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
             --cor-aba-ativa: #50fa7b; /* Verde */
@@ -28,10 +28,10 @@
             overflow: hidden;
         }
 
-        /* Cabeçalho Fixo com as Abas */
+        /* CABEÇALHO COM AS ABAS, SEMPRE VISÍVEL */
         .app-header {
             display: flex;
-            background-color: var(--fundo-editor-painel);
+            background-color: var(--fundo-painel);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
             flex-shrink: 0;
@@ -81,19 +81,18 @@
             opacity: 1;
         }
         
-        /* Painel do Editor (AGORA COM TAMANHO FIXO E PEQUENO) */
+        /* PAINEL DO EDITOR COM TAMANHO FIXO E PEQUENO */
         #code-panel {
             width: 600px;  /* LARGURA FIXA */
             height: 400px; /* ALTURA FIXA */
-            max-width: 90%; /* Garante que não quebre em telas muito pequenas */
+            max-width: 90%; 
             max-height: 80%;
-            
             display: flex;
             flex-direction: column;
-            background-color: var(--fundo-editor-painel);
+            background-color: var(--fundo-painel);
             border-radius: var(--raio-borda);
             box-shadow: var(--sombra);
-            overflow: hidden; /* Garante que o conteúdo não vaze */
+            overflow: hidden;
             border: 1px solid var(--cor-borda);
         }
 
@@ -106,7 +105,6 @@
             text-align: center;
         }
 
-        /* Editor de Texto */
         #code-editor {
             flex-grow: 1;
             border: none;
@@ -116,14 +114,14 @@
             font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
             font-size: 15px;
             line-height: 1.6;
-            resize: none; /* Impede que o usuário redimensione */
+            resize: none;
         }
 
         #code-editor:focus {
             outline: none;
         }
 
-        /* Área de Preview (continua em tela cheia) */
+        /* Área de Preview (ocupa a tela toda) */
         #preview-pane {
             padding: 0;
         }
@@ -137,21 +135,22 @@
 </head>
 <body>
 
+    <!-- AS ABAS ESTÃO AQUI, NO CABEÇALHO -->
     <header class="app-header">
         <button id="tab-btn-code" class="tab-button active" onclick="showPane('code')">Código</button>
         <button id="tab-btn-preview" class="tab-button" onclick="showPane('preview')">Preview</button>
     </header>
 
     <main class="main-content">
-        <!-- Painel do Editor de Código (com a TextBox pequena e fixa) -->
+        <!-- ABA CÓDIGO: Mostra o painel pequeno e fixo -->
         <div id="code-pane" class="content-pane active">
             <div id="code-panel">
-                <div class="panel-header">Editor de Código</div>
+                <div class="panel-header">Editor</div>
                 <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
             </div>
         </div>
 
-        <!-- Painel do Preview (Tela Cheia) -->
+        <!-- ABA PREVIEW: Mostra o resultado em tela cheia -->
         <div id="preview-pane" class="content-pane">
             <iframe id="preview-frame"></iframe>
         </div>
@@ -162,8 +161,10 @@
         const previewFrame = document.getElementById('preview-frame');
 
         const defaultCode = `<h1>Olá!</h1>
-<p>Este é um editor com uma caixa de texto de tamanho fixo.</p>`;
+<p>Este é o editor com abas e uma caixa de texto de tamanho fixo.</p>
+<p>Clique na aba "Preview" para ver o resultado.</p>`;
 
+        // Função para alternar entre as abas
         function showPane(paneName) {
             document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
