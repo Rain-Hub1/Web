@@ -10,9 +10,9 @@
             --fundo-painel: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
-            --cor-aba-ativa: #50fa7b; /* Verde */
-            --cor-aba-inativa: #bd93f9; /* Roxo */
-            --cor-destaque: #8be9fd; /* Ciano para o título */
+            --cor-aba-ativa: #50fa7b;
+            --cor-aba-inativa: #bd93f9;
+            --cor-destaque: #8be9fd;
             --sombra: 0 10px 30px rgba(0, 0, 0, 0.3);
             --raio-borda: 12px;
         }
@@ -28,28 +28,25 @@
             overflow: hidden;
         }
 
-        /* MODIFICAÇÃO 1: O cabeçalho agora usa space-between para o layout de 3 partes */
         .app-header {
             display: flex;
-            justify-content: space-between; /* ESSENCIAL PARA O LAYOUT */
+            justify-content: space-between;
             align-items: center;
             background-color: var(--fundo-painel);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
             flex-shrink: 0;
             border-bottom: 1px solid var(--cor-borda);
-            padding: 0 20px; /* Adiciona espaçamento lateral */
+            padding: 0 20px;
             height: 55px;
         }
 
-        /* MODIFICAÇÃO 2: Estilo para o título central */
         .header-title {
             color: var(--cor-destaque);
             font-size: 1.3em;
             font-weight: 500;
         }
 
-        /* MODIFICAÇÃO 3: Ajuste no estilo dos botões para o novo layout */
         .view-button {
             padding: 8px 20px;
             cursor: pointer;
@@ -68,7 +65,6 @@
             box-shadow: 0 0 10px rgba(80, 250, 123, 0.5);
         }
 
-        /* O resto do CSS permanece o mesmo */
         .main-content {
             flex-grow: 1;
             position: relative;
@@ -96,7 +92,7 @@
             width: 600px;
             height: 400px;
             max-width: 90%; 
-            max-height: 80%;
+            max-height: 70%;
             display: flex;
             flex-direction: column;
             background-color: var(--fundo-painel);
@@ -134,24 +130,27 @@
         #preview-pane {
             padding: 0;
         }
+        
         #preview-frame {
-            width: 100%;
-            height: 100%;
+            width: 700px;
+            height: 500px;
+            max-width: 90%;
+            max-height: 80%;
             border: none;
             background-color: #ffffff;
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra);
         }
     </style>
 </head>
 <body>
 
-    <!-- MODIFICAÇÃO 4: A estrutura do HTML do cabeçalho é alterada */ -->
     <header class="app-header">
         <button id="btn-code" class="view-button active" onclick="showPane('code')">Código</button>
         <div class="header-title">Editor</div>
         <button id="btn-preview" class="view-button" onclick="showPane('preview')">Preview</button>
     </header>
 
-    <!-- O resto do HTML e o JavaScript permanecem os mesmos -->
     <main class="main-content">
         <div id="code-pane" class="content-pane active">
             <div id="code-panel">
@@ -172,13 +171,9 @@
 <p>O botão "Código" está à esquerda, "Editor" no centro, e "Preview" à direita.</p>
 <p>A caixa de texto continua pequena e fixa, como no código original.</p>`;
 
-        // O JavaScript não precisa de nenhuma alteração
         function showPane(paneName) {
-            // Seleciona os botões pelos seus IDs para maior precisão
             const btnCode = document.getElementById('btn-code');
             const btnPreview = document.getElementById('btn-preview');
-            
-            // Seleciona os painéis
             const codePane = document.getElementById('code-pane');
             const previewPane = document.getElementById('preview-pane');
 
