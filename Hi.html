@@ -29,6 +29,14 @@
             background-color: #2d2d30;
             padding: 12px 16px;
             border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
         }
         
         .tabs {
@@ -101,37 +109,10 @@
             overflow: hidden;
         }
         
-        .preview-header {
-            padding: 12px 16px;
-            background-color: #252526;
-            border-bottom: 1px solid #3e3e42;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .preview-actions button {
-            background-color: #0e639c;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
         .preview-content {
             flex: 1;
             background-color: white;
             border: none;
-        }
-        
-        .empty-state {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #888;
-            font-style: italic;
         }
         
         /* Estilos para melhorar a experiência mobile */
@@ -158,6 +139,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="app-title">Code Editor</div>
             <div class="tabs">
                 <div class="tab active" data-tab="all-code">All Code</div>
                 <div class="tab" data-tab="preview">Preview</div>
@@ -173,12 +155,6 @@
             
             <!-- Preview Tab -->
             <div id="preview" class="tab-content">
-                <div class="preview-header">
-                    <h3>Preview</h3>
-                    <div class="preview-actions">
-                        <button id="refresh-preview">Atualizar</button>
-                    </div>
-                </div>
                 <iframe class="preview-content" id="preview-frame"></iframe>
             </div>
         </div>
@@ -191,7 +167,6 @@
             const tabContents = document.querySelectorAll('.tab-content');
             const codeEditor = document.getElementById('code-editor');
             const previewFrame = document.getElementById('preview-frame');
-            const refreshPreviewBtn = document.getElementById('refresh-preview');
             
             // Alternar entre abas
             tabs.forEach(tab => {
@@ -214,8 +189,11 @@
             // Atualizar preview
             function updatePreview() {
                 const code = codeEditor.value;
+                
+                // Se não há código, mostrar uma página em branco
                 if (!code.trim()) {
                     previewFrame.srcdoc = `
+                        <!DOCTYPE html>
                         <html>
                             <head>
                                 <title>Preview</title>
@@ -226,8 +204,9 @@
                                         justify-content: center;
                                         align-items: center;
                                         height: 100vh;
-                                        color: #888;
+                                        margin: 0;
                                         background-color: #f5f5f5;
+                                        color: #666;
                                     }
                                 </style>
                             </head>
@@ -239,24 +218,11 @@
                     return;
                 }
                 
+                // Criar um documento HTML completo com o código fornecido
                 const blob = new Blob([code], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 previewFrame.src = url;
             }
-            
-            // Atualizar preview quando o botão for clicado
-            refreshPreviewBtn.addEventListener('click', updatePreview);
-            
-            // Atualizar preview automaticamente ao digitar (com debounce)
-            let previewTimeout;
-            codeEditor.addEventListener('input', () => {
-                clearTimeout(previewTimeout);
-                previewTimeout = setTimeout(() => {
-                    if (document.getElementById('preview').classList.contains('active')) {
-                        updatePreview();
-                    }
-                }, 1000);
-            });
             
             // Código de exemplo
             codeEditor.value = `<!DOCTYPE html>
@@ -264,7 +230,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Projeto</title>
+    <title>Minha Página</title>
     <style>
         * {
             margin: 0;
@@ -276,7 +242,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -296,7 +262,7 @@
         }
         
         h1 {
-            color: #4a4a4a;
+            color: #2c3e50;
             margin-bottom: 20px;
             font-size: 2.2rem;
         }
@@ -309,7 +275,7 @@
         
         .btn {
             display: inline-block;
-            background: #667eea;
+            background: #6a11cb;
             color: white;
             padding: 12px 24px;
             border-radius: 5px;
@@ -322,7 +288,7 @@
         }
         
         .btn:hover {
-            background: #5a6fd8;
+            background: #5a0db9;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
@@ -340,7 +306,7 @@
         
         .feature-list li:before {
             content: "✓";
-            color: #667eea;
+            color: #6a11cb;
             position: absolute;
             left: 0;
             font-weight: bold;
@@ -349,22 +315,22 @@
 </head>
 <body>
     <div class="container">
-        <h1>Editor de Código Mobile</h1>
-        <p>Este é um exemplo de página criada com o editor. Você pode editar este código na aba "All Code".</p>
+        <h1>Meu Projeto</h1>
+        <p>Esta é uma página de exemplo criada com o editor de código.</p>
         
         <ul class="feature-list">
-            <li>Interface responsiva para dispositivos móveis</li>
-            <li>Visualização em tempo real do código</li>
-            <li>Suporte a HTML, CSS e JavaScript</li>
-            <li>Design moderno e limpo</li>
+            <li>Design responsivo</li>
+            <li>Interface moderna</li>
+            <li>Cores vibrantes</li>
+            <li>Fácil personalização</li>
         </ul>
         
-        <button class="btn" onclick="showMessage()">Clique para testar</button>
+        <button class="btn" onclick="showMessage()">Testar JavaScript</button>
     </div>
 
     <script>
         function showMessage() {
-            alert('Funcionou! O JavaScript está executando corretamente.');
+            alert('JavaScript funcionando perfeitamente!');
         }
     </script>
 </body>
