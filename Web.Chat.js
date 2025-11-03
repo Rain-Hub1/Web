@@ -71,6 +71,13 @@
 
 
 
+
+
+
+
+
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyDJN4ylUCR3GFY-6G-oHIdOKlrLPLYb0OE",
     authDomain: "chat-conversation-71277.firebaseapp.com",
@@ -82,11 +89,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
 let currentGroupId = null;
 let messageListener = null;
-let selectedPhotoFile = null;
 let allGroups = [];
 
 const sidebar = document.getElementById('sidebar');
@@ -450,8 +455,10 @@ document.getElementById('settings-btn').addEventListener('click', () => {
         </div>
         <div class="form-group photo-preview-container">
             <img id="photo-preview" src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName?.replace(/ /g, '+') || 'A'}&background=random&color=fff`}" alt="Preview da foto">
-            <label id="photo-upload-label" for="settings-photo-upload">Alterar foto</label>
-            <input type="file" id="settings-photo-upload" class="hidden" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="settings-photo-url">URL da Foto</label>
+            <input type="text" id="settings-photo-url" value="${user.photoURL || ''}">
         </div>
         <div class="form-group">
             <label for="settings-name">Nome de Exibição</label>
@@ -466,15 +473,14 @@ document.getElementById('settings-btn').addEventListener('click', () => {
     `);
 
     const photoPreview = dialog.querySelector('#photo-preview');
-    const photoUploadInput = dialog.querySelector('#settings-photo-upload');
-    selectedPhotoFile = null;
+    const photoUrlInput = dialog.querySelector('#settings-photo-url');
 
-    photoUploadInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            selectedPhotoFile = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => { photoPreview.src = event.target.result; }
-            reader.readAsDataURL(selectedPhotoFile);
+    photoUrlInput.addEventListener('input', () => {
+        const newUrl = photoUrlInput.value.trim();
+        if (newUrl) {
+            photoPreview.src = newUrl;
+        } else {
+            photoPreview.src = `https://ui-avatars.com/api/?name=${user.displayName?.replace(/ /g, '+') || 'A'}&background=random&color=fff`;
         }
     });
 
@@ -485,29 +491,20 @@ document.getElementById('settings-btn').addEventListener('click', () => {
 
     dialog.querySelector('#update-profile-btn').addEventListener('click', async () => {
         const newName = dialog.querySelector('#settings-name').value;
-        let newPhotoURL = user.photoURL;
+        const newPhotoURL = dialog.querySelector('#settings-photo-url').value.trim();
         const updateButton = dialog.querySelector('#update-profile-btn');
         updateButton.disabled = true;
         updateButton.textContent = 'Salvando...';
 
         try {
-            if (selectedPhotoFile) {
-                const filePath = `profile-pictures/${user.uid}`;
-                const fileSnapshot = await storage.ref(filePath).put(selectedPhotoFile);
-                newPhotoURL = await fileSnapshot.ref.getDownloadURL();
-            }
-            
             if (newName !== user.displayName || newPhotoURL !== user.photoURL) {
                 await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
             }
-            
             alert("Perfil atualizado com sucesso!");
             close();
-
         } catch (err) {
             alert("Erro ao atualizar perfil: " + err.message);
         } finally {
-            selectedPhotoFile = null;
             updateButton.disabled = false;
             updateButton.textContent = 'Salvar Alterações';
         }
