@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor com Abas e TextBox Pequena</title>
+    <title>Editor com Abas Fixas</title>
     <style>
         :root {
             --fundo-app: #1c1e26;
@@ -16,25 +16,25 @@
             --raio-borda: 12px;
         }
 
+        /* 1. O corpo da página é um container flexível vertical que ocupa 100% da tela */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             background: var(--fundo-app);
-            color: var(--cor-texto);
-            height: 100vh;
+            height: 100vh; /* Ocupa a altura total da tela */
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* Impede a rolagem do corpo da página */
         }
 
-        /* CABEÇALHO COM AS ABAS, SEMPRE VISÍVEL */
+        /* 2. O cabeçalho com as abas NÃO PODE encolher, ficando sempre fixo no topo */
         .app-header {
             display: flex;
             background-color: var(--fundo-painel);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
-            flex-shrink: 0;
+            flex-shrink: 0; /* ESSA É A REGRA QUE FIXA AS ABAS NO TOPO */
             border-bottom: 1px solid var(--cor-borda);
         }
 
@@ -57,9 +57,9 @@
             border-bottom-color: var(--cor-aba-ativa);
         }
 
-        /* Container do Conteúdo Principal */
+        /* 3. A área de conteúdo ocupa todo o espaço que sobra */
         .main-content {
-            flex-grow: 1;
+            flex-grow: 1; /* Faz o conteúdo crescer para preencher o espaço */
             position: relative;
             overflow: hidden;
         }
@@ -81,10 +81,10 @@
             opacity: 1;
         }
         
-        /* PAINEL DO EDITOR COM TAMANHO FIXO E PEQUENO */
+        /* Painel do editor com tamanho fixo e pequeno */
         #code-panel {
-            width: 600px;  /* LARGURA FIXA */
-            height: 400px; /* ALTURA FIXA */
+            width: 600px;
+            height: 400px;
             max-width: 90%; 
             max-height: 80%;
             display: flex;
@@ -121,7 +121,7 @@
             outline: none;
         }
 
-        /* Área de Preview (ocupa a tela toda) */
+        /* Área de Preview (tela cheia) */
         #preview-pane {
             padding: 0;
         }
@@ -135,14 +135,12 @@
 </head>
 <body>
 
-    <!-- AS ABAS ESTÃO AQUI, NO CABEÇALHO -->
     <header class="app-header">
         <button id="tab-btn-code" class="tab-button active" onclick="showPane('code')">Código</button>
         <button id="tab-btn-preview" class="tab-button" onclick="showPane('preview')">Preview</button>
     </header>
 
     <main class="main-content">
-        <!-- ABA CÓDIGO: Mostra o painel pequeno e fixo -->
         <div id="code-pane" class="content-pane active">
             <div id="code-panel">
                 <div class="panel-header">Editor</div>
@@ -150,7 +148,6 @@
             </div>
         </div>
 
-        <!-- ABA PREVIEW: Mostra o resultado em tela cheia -->
         <div id="preview-pane" class="content-pane">
             <iframe id="preview-frame"></iframe>
         </div>
@@ -159,19 +156,14 @@
     <script>
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
+        const defaultCode = `<h1>Abas Fixas!</h1>
+<p>Note que as abas "Código" e "Preview" estão sempre visíveis no topo.</p>`;
 
-        const defaultCode = `<h1>Olá!</h1>
-<p>Este é o editor com abas e uma caixa de texto de tamanho fixo.</p>
-<p>Clique na aba "Preview" para ver o resultado.</p>`;
-
-        // Função para alternar entre as abas
         function showPane(paneName) {
             document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-
             document.getElementById(`${paneName}-pane`).classList.add('active');
             document.getElementById(`tab-btn-${paneName}`).classList.add('active');
-            
             if (paneName === 'preview') {
                 updatePreview();
             }
