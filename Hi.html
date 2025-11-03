@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Web Moderno</title>
+    <title>Editor com Layout Dividido</title>
     <style>
         /* Estilos Globais e Variáveis de Cor */
         :root {
             --fundo-app: #1c1e26;
-            --fundo-editor: #282a36;
+            --fundo-painel: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
-            --cor-aba-ativa: #50fa7b; /* Verde vibrante */
-            --cor-aba-inativa: #bd93f9; /* Roxo suave */
+            --cor-destaque: #8be9fd; /* Ciano */
             --sombra: 0 4px 15px rgba(0, 0, 0, 0.2);
             --raio-borda: 10px;
         }
@@ -27,78 +26,68 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Impede a rolagem do corpo principal */
+            overflow: hidden;
         }
 
-        /* Cabeçalho Fixo com as Abas */
+        /* Cabeçalho Fixo */
         .app-header {
-            display: flex;
-            background-color: var(--fundo-editor);
+            background-color: var(--fundo-painel);
+            padding: 12px 25px;
+            border-bottom: 1px solid var(--cor-borda);
             box-shadow: var(--sombra);
             z-index: 10;
-            flex-shrink: 0; /* Garante que o header não encolha */
-            border-bottom: 1px solid var(--cor-borda);
-        }
-
-        .tab-button {
-            flex-grow: 1; /* Faz as abas ocuparem o mesmo espaço */
-            padding: 15px 20px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--cor-aba-inativa);
-            font-size: 16px;
-            font-weight: 500;
+            flex-shrink: 0;
             text-align: center;
-            border-bottom: 4px solid transparent;
-            transition: all 0.3s ease;
         }
 
-        .tab-button:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: var(--cor-destaque);
         }
 
-        .tab-button.active {
-            color: var(--cor-aba-ativa);
-            border-bottom-color: var(--cor-aba-ativa);
+        /* Container Principal com Layout Flexível */
+        .main-container {
+            display: flex;
+            flex-direction: column; /* Empilha os painéis verticalmente */
+            flex-grow: 1;
+            padding: 15px;
+            gap: 15px; /* Espaçamento entre os painéis */
+            overflow: hidden;
         }
 
-        /* Container do Conteúdo Principal */
-        .main-content {
-            flex-grow: 1; /* Ocupa todo o espaço restante */
-            position: relative;
-            overflow-y: auto; /* Permite rolagem dentro do conteúdo, se necessário */
+        /* Painéis de Código e Preview */
+        .panel {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--fundo-painel);
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra);
+            overflow: hidden;
+            flex: 1; /* Faz com que ambos os painéis dividam o espaço igualmente */
         }
 
-        .content-pane {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            background-color: var(--fundo-editor);
-            display: flex; /* Para centralizar ou alinhar conteúdo interno */
+        .panel-header {
+            padding: 10px 15px;
+            background-color: rgba(0,0,0,0.15);
+            font-weight: 500;
+            color: #bd93f9; /* Roxo para os títulos */
+            border-bottom: 1px solid var(--cor-borda);
+            flex-shrink: 0;
         }
 
-        .content-pane.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Editor de Texto */
+        /* Editor de Texto (Text Box) */
         #code-editor {
+            flex-grow: 1;
             width: 100%;
-            height: 100%;
             border: none;
             background: none;
             color: var(--cor-texto);
-            padding: 20px;
+            padding: 15px;
             font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-            font-size: 16px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.5;
             resize: none;
             box-sizing: border-box;
         }
@@ -109,6 +98,7 @@
 
         /* Área de Preview */
         #preview-frame {
+            flex-grow: 1;
             width: 100%;
             height: 100%;
             border: none;
@@ -119,18 +109,19 @@
 <body>
 
     <header class="app-header">
-        <button id="tab-btn-code" class="tab-button active" onclick="showPane('code')">Código</button>
-        <button id="tab-btn-preview" class="tab-button" onclick="showPane('preview')">Preview</button>
+        <h1>Editor Web</h1>
     </header>
 
-    <main class="main-content">
-        <!-- Painel do Editor de Código -->
-        <div id="code-pane" class="content-pane active">
+    <main class="main-container">
+        <!-- Painel do Editor de Código (Metade Superior) -->
+        <div class="panel">
+            <div class="panel-header">Código</div>
             <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
         </div>
 
-        <!-- Painel do Preview -->
-        <div id="preview-pane" class="content-pane">
+        <!-- Painel do Preview (Metade Inferior) -->
+        <div class="panel">
+            <div class="panel-header">Preview</div>
             <iframe id="preview-frame"></iframe>
         </div>
     </main>
@@ -142,56 +133,19 @@
         const defaultCode = `<!DOCTYPE html>
 <html>
 <head>
-    <title>Minha Página</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        
         body { 
-            font-family: 'Inter', sans-serif; 
-            padding: 25px;
-            background-color: #f0f2f5;
-            color: #333;
+            font-family: sans-serif; 
+            padding: 15px;
         }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1c1e26;
-            border-bottom: 2px solid #50fa7b;
-            padding-bottom: 10px;
-        }
-        p {
-            line-height: 1.6;
-        }
+        h1 { color: #007acc; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bem-vindo ao Editor!</h1>
-        <p>Este é o seu ambiente de codificação com um design moderno.</p>
-        <p>Escreva seu código na aba <strong>Código</strong> e veja o resultado na aba <strong>Preview</strong>.</p>
-    </div>
+    <h1>Layout Dividido!</h1>
+    <p>Agora a caixa de texto é menor e você pode ver o resultado ao mesmo tempo.</p>
 </body>
 </html>`;
-
-        // Função para alternar entre os painéis
-        function showPane(paneName) {
-            // Esconde todos os painéis e desativa todas as abas
-            document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-
-            // Mostra o painel e ativa a aba correspondente
-            document.getElementById(`${paneName}-pane`).classList.add('active');
-            document.getElementById(`tab-btn-${paneName}`).classList.add('active');
-            
-            // Atualiza o preview sempre que o usuário mudar para essa aba
-            if (paneName === 'preview') {
-                updatePreview();
-            }
-        }
 
         // Função para atualizar o preview em tempo real
         function updatePreview() {
@@ -205,8 +159,7 @@
         // Inicia o editor com o código padrão
         window.onload = () => {
             codeEditor.value = defaultCode;
-            // Uma pequena espera para garantir que o iframe esteja pronto
-            setTimeout(updatePreview, 50); 
+            updatePreview();
         };
     </script>
 
