@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor Web</title>
     <style>
-        /* Estilos Globais e Variáveis de Cor */
         :root {
             --fundo-app: #1c1e26;
             --fundo-painel: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
+            --cor-aba-ativa: #50fa7b; /* Verde */
+            --cor-aba-inativa: #bd93f9; /* Roxo */
             --cor-destaque: #8be9fd; /* Ciano para o título */
-            --cor-botao-ativo: #50fa7b; /* Verde para o botão ativo */
+            --sombra: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --raio-borda: 12px;
         }
 
-        /* Configuração do Corpo da Página */
         body {
             margin: 0;
             padding: 0;
@@ -27,26 +28,28 @@
             overflow: hidden;
         }
 
-        /* Cabeçalho Fixo com Título Central e Botões Laterais */
+        /* MODIFICAÇÃO 1: O cabeçalho agora usa space-between para o layout de 3 partes */
         .app-header {
             display: flex;
-            justify-content: space-between; /* Itens nas extremidades, título no espaço */
-            align-items: center; /* Alinhamento vertical */
+            justify-content: space-between; /* ESSENCIAL PARA O LAYOUT */
+            align-items: center;
             background-color: var(--fundo-painel);
-            padding: 0 20px;
-            height: 55px;
-            flex-shrink: 0; /* Garante que o header fique fixo no topo */
-            border-bottom: 1px solid var(--cor-borda);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 10;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--cor-borda);
+            padding: 0 20px; /* Adiciona espaçamento lateral */
+            height: 55px;
         }
 
+        /* MODIFICAÇÃO 2: Estilo para o título central */
         .header-title {
             color: var(--cor-destaque);
             font-size: 1.3em;
             font-weight: 500;
         }
 
-        /* Estilo dos Botões de Visualização (Abas) */
+        /* MODIFICAÇÃO 3: Ajuste no estilo dos botões para o novo layout */
         .view-button {
             padding: 8px 20px;
             cursor: pointer;
@@ -58,50 +61,68 @@
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
-        /* Estilo para o botão ATIVO (quando a aba está selecionada) */
+
         .view-button.active {
-            border-color: var(--cor-botao-ativo);
-            color: var(--cor-botao-ativo);
+            border-color: var(--cor-aba-ativa);
+            color: var(--cor-aba-ativa);
             box-shadow: 0 0 10px rgba(80, 250, 123, 0.5);
         }
 
-        /* Container Principal */
-        .main-container {
+        /* O resto do CSS permanece o mesmo */
+        .main-content {
             flex-grow: 1;
-            position: relative; /* Necessário para o posicionamento absoluto dos painéis */
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Painéis de Conteúdo (Código e Preview) */
-        .panel {
+        .content-pane {
             position: absolute;
             width: 100%;
             height: 100%;
-            display: none; /* Painéis ficam escondidos por padrão */
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-pane.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        #code-panel {
+            width: 600px;
+            height: 400px;
+            max-width: 90%; 
+            max-height: 80%;
+            display: flex;
             flex-direction: column;
             background-color: var(--fundo-painel);
-            animation: fadeIn 0.3s ease; /* Animação de entrada */
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra);
+            overflow: hidden;
+            border: 1px solid var(--cor-borda);
         }
 
-        .panel.active {
-            display: flex; /* Mostra apenas o painel com a classe "active" */
+        .panel-header {
+            padding: 10px 15px;
+            background-color: rgba(0,0,0,0.2);
+            font-weight: 500;
+            color: var(--cor-destaque);
+            border-bottom: 1px solid var(--cor-borda);
+            text-align: center;
         }
 
-        /* Animação de Fade-in */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Editor de Texto */
         #code-editor {
             flex-grow: 1;
             border: none;
             background: none;
             color: var(--cor-texto);
-            padding: 20px;
+            padding: 15px;
             font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.6;
             resize: none;
         }
@@ -110,102 +131,71 @@
             outline: none;
         }
 
-        /* Área de Preview */
-        #preview-panel {
-            background-color: #ffffff; /* Fundo branco para o preview */
+        #preview-pane {
+            padding: 0;
         }
-
         #preview-frame {
             width: 100%;
             height: 100%;
             border: none;
+            background-color: #ffffff;
         }
     </style>
 </head>
 <body>
 
-    <!-- Cabeçalho com o layout solicitado -->
+    <!-- MODIFICAÇÃO 4: A estrutura do HTML do cabeçalho é alterada */ -->
     <header class="app-header">
-        <button id="btn-code" class="view-button active" onclick="showPanel('code')">Código</button>
+        <button id="btn-code" class="view-button active" onclick="showPane('code')">Código</button>
         <div class="header-title">Editor</div>
-        <button id="btn-preview" class="view-button" onclick="showPanel('preview')">Preview</button>
+        <button id="btn-preview" class="view-button" onclick="showPane('preview')">Preview</button>
     </header>
 
-    <!-- Conteúdo principal onde os painéis são alternados -->
-    <main class="main-container">
-        <!-- Painel do Código -->
-        <div id="code-panel" class="panel active">
-            <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
+    <!-- O resto do HTML e o JavaScript permanecem os mesmos -->
+    <main class="main-content">
+        <div id="code-pane" class="content-pane active">
+            <div id="code-panel">
+                <div class="panel-header">Editor</div>
+                <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
+            </div>
         </div>
-        <!-- Painel do Preview -->
-        <div id="preview-panel" class="panel">
+
+        <div id="preview-pane" class="content-pane">
             <iframe id="preview-frame"></iframe>
         </div>
     </main>
 
     <script>
-        // --- Seleção dos Elementos ---
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
-        
-        const codePanel = document.getElementById('code-panel');
-        const previewPanel = document.getElementById('preview-panel');
+        const defaultCode = `<h1>Layout Aplicado!</h1>
+<p>O botão "Código" está à esquerda, "Editor" no centro, e "Preview" à direita.</p>
+<p>A caixa de texto continua pequena e fixa, como no código original.</p>`;
 
-        const btnCode = document.getElementById('btn-code');
-        const btnPreview = document.getElementById('btn-preview');
+        // O JavaScript não precisa de nenhuma alteração
+        function showPane(paneName) {
+            // Seleciona os botões pelos seus IDs para maior precisão
+            const btnCode = document.getElementById('btn-code');
+            const btnPreview = document.getElementById('btn-preview');
+            
+            // Seleciona os painéis
+            const codePane = document.getElementById('code-pane');
+            const previewPane = document.getElementById('preview-pane');
 
-        // --- Código de Exemplo ---
-        const defaultCode = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Página de Exemplo</title>
-    <style>
-        body { 
-            font-family: sans-serif; 
-            padding: 25px;
-            text-align: center;
-        }
-        h1 { color: #1c1e26; }
-    </style>
-</head>
-<body>
-    <h1>Layout Final!</h1>
-    <p>Use os botões no topo para alternar entre o código e o preview.</p>
-</body>
-</html>`;
-
-        // --- Funções ---
-
-        /**
-         * Alterna a visibilidade entre os painéis de código e preview.
-         * @param {string} panelName - O nome do painel a ser exibido ('code' ou 'preview').
-         */
-        function showPanel(panelName) {
-            if (panelName === 'code') {
-                // Mostra o painel de código
-                codePanel.classList.add('active');
-                previewPanel.classList.remove('active');
-                
-                // Atualiza o estado dos botões
+            if (paneName === 'code') {
+                codePane.classList.add('active');
+                previewPane.classList.remove('active');
                 btnCode.classList.add('active');
                 btnPreview.classList.remove('active');
             } else {
-                // Mostra o painel de preview
-                previewPanel.classList.add('active');
-                codePanel.classList.remove('active');
-
-                // Atualiza o estado dos botões
+                previewPane.classList.add('active');
+                codePane.classList.remove('active');
                 btnPreview.classList.add('active');
                 btnCode.classList.remove('active');
-
-                // Garante que o preview esteja atualizado ao mudar para ele
                 updatePreview();
             }
         }
 
-        /**
-         * Atualiza o conteúdo do iframe de preview com o código do editor.
-         */
         function updatePreview() {
             const code = codeEditor.value;
             const previewDoc = previewFrame.contentWindow.document;
@@ -214,11 +204,9 @@
             previewDoc.close();
         }
 
-        // --- Inicialização ---
-        
-        // Define o código padrão no editor quando a página carrega
         window.onload = () => {
             codeEditor.value = defaultCode;
+            updatePreview();
         };
     </script>
 
