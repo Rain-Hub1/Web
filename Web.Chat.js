@@ -228,35 +228,37 @@ const selectGroup = async (groupId) => {
     requestsContainer.innerHTML = '';
 
     if (groupId) {
-        const groupDoc = await db.collection('grupos').doc(groupId).get();
-        if (!groupDoc.exists) { resetChatView(); return; }
-        
-        const groupData = groupDoc.data();
-        headerTitle.textContent = groupData.name;
-        document.querySelector(`.group-item[data-group-id="${groupId}"]`)?.classList.add('active');
-        
-        const isCreator = auth.currentUser.uid === groupData.creatorId;
-        const isMember = groupData.members && groupData.members.includes(auth.currentUser.uid);
+        try {
+            const groupDoc = await db.collection('grupos').doc(groupId).get();
+            if (!groupDoc.exists) { resetChatView(); return; }
+            
+            const groupData = groupDoc.data();
+            headerTitle.textContent = groupData.name;
+            document.querySelector(`.group-item[data-group-id="${groupId}"]`)?.classList.add('active');
+            
+            const isCreator = auth.currentUser.uid === groupData.creatorId;
+            const isMember = groupData.members && groupData.members.includes(auth.currentUser.uid);
 
-        if (!isCreator && !isMember) {
+            if (!isCreator && !isMember) {
+                resetChatView();
+                alert("Você não tem permissão para ver este grupo.");
+                return;
+            }
+
+            if (isCreator) {
+                renderJoinRequests(groupId);
+            }
+
+            placeholderScreen.classList.add('hidden');
+            chatContainer.classList.remove('hidden');
+            inputArea.classList.remove('hidden');
+            renderMessages(groupId);
+        } catch (error) {
+            console.error("Erro ao selecionar grupo:", error);
             resetChatView();
-            alert("Você não tem permissão para ver este grupo.");
-            return;
         }
-
-        if (isCreator) {
-            renderJoinRequests(groupId);
-        }
-
-        placeholderScreen.classList.add('hidden');
-        chatContainer.classList.remove('hidden');
-        inputArea.classList.remove('hidden');
-        renderMessages(groupId);
     } else {
-        placeholderScreen.classList.remove('hidden');
-        chatContainer.classList.add('hidden');
-        inputArea.classList.add('hidden');
-        headerTitle.textContent = "Grupos";
+        resetChatView();
     }
 };
 
@@ -308,16 +310,21 @@ const renderMessages = (groupId) => {
             const isCurrentUser = user && user.uid === msg.uid;
             const msgEl = document.createElement('div');
             msgEl.className = `message ${isCurrentUser ? 'user' : 'other'}`;
-            const avatar = msg.photoURL ? `<img src="${msg.photoURL}" alt="avatar">` : (msg.displayName?.charAt(0) || 'U');
+            
+            const displayName = msg.displayName || 'Usuário';
+            const avatar = msg.photoURL ? `<img src="${msg.photoURL}" alt="avatar">` : displayName.charAt(0).toUpperCase();
             
             const deleteBtnHtml = isCurrentUser ? `<button class="delete-msg-btn" data-msg-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>` : '';
-            const messageBodyHtml = `<div class="message-body">${deleteBtnHtml}<div class="message-sender">${msg.displayName}</div><div class="message-content">${msg.text}</div></div>`;
+            const messageBodyHtml = `<div class="message-body">${deleteBtnHtml}<div class="message-sender">${displayName}</div><div class="message-content">${msg.text}</div></div>`;
             const avatarHtml = `<div class="message-avatar">${avatar}</div>`;
 
             msgEl.innerHTML = isCurrentUser ? messageBodyHtml + avatarHtml : avatarHtml + messageBodyHtml;
             chatContainer.appendChild(msgEl);
         });
         mainContent.scrollTop = mainContent.scrollHeight;
+    }, error => {
+        console.error("Erro ao carregar mensagens: ", error);
+        chatContainer.innerHTML = `<p style="text-align: center; color: var(--text-secondary);">Não foi possível carregar as mensagens. Verifique suas regras de segurança do Firestore.</p>`;
     });
 };
 
@@ -331,6 +338,9 @@ const handleSend = () => {
         uid: user.uid,
         displayName: user.displayName,
         photoURL: user.photoURL
+    }).catch(error => {
+        console.error("Erro ao enviar mensagem: ", error);
+        alert("Não foi possível enviar a mensagem. Verifique suas permissões.");
     });
     messageInput.value = '';
 };
@@ -397,10 +407,11 @@ document.getElementById('settings-btn').addEventListener('click', () => {
 
     photoUrlInput.addEventListener('input', () => {
         const newUrl = photoUrlInput.value.trim();
+        const displayName = dialog.querySelector('#settings-name').value || 'A';
         if (newUrl) {
             photoPreview.src = newUrl;
         } else {
-            photoPreview.src = `https://ui-avatars.com/api/?name=${user.displayName?.replace(/ /g, '+') || 'A'}&background=random&color=fff`;
+            photoPreview.src = `https://ui-avatars.com/api/?name=${displayName.replace(/ /g, '+')}&background=random&color=fff`;
         }
     });
 
