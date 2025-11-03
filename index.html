@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Avançado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Tela de Login/Cadastro -->
+    <div id="auth-container" class="container">
+        <div id="login-view">
+            <h1>Login</h1>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Senha">
+            <button id="login-button">Entrar</button>
+            <button id="google-login-button">Entrar com Google</button>
+            <p>Não tem uma conta? <a href="#" id="show-register">Cadastre-se</a></p>
+        </div>
+
+        <div id="register-view" class="hidden">
+            <h1>Cadastro</h1>
+            <input type="text" id="register-name" placeholder="Seu Nome">
+            <input type="email" id="register-email" placeholder="Email">
+            <input type="password" id="register-password" placeholder="Senha">
+            <button id="register-button">Cadastrar</button>
+            <p>Já tem uma conta? <a href="#" id="show-login">Faça Login</a></p>
+        </div>
+    </div>
+
+    <!-- Tela Principal do Chat -->
+    <div id="chat-container" class="container hidden">
+        <div class="header">
+            <h1 id="welcome-message"></h1>
+            <div>
+                <button id="settings-button">⚙️</button>
+                <button id="logout-button">Sair</button>
+            </div>
+        </div>
+        <div id="chat-box"></div>
+        <div id="chat-controls">
+            <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+            <button id="send-button">➤</button>
+        </div>
+    </div>
+
+    <!-- Tela de Configurações -->
+    <div id="settings-container" class="container hidden">
+        <h1>Configurações do Perfil</h1>
+        <img id="settings-photo" src="" alt="Foto do Perfil" class="profile-pic">
+        <p><strong>Email:</strong> <span id="settings-email"></span></p>
+        <input type="text" id="settings-name" placeholder="Novo nome de exibição">
+        <input type="text" id="settings-photo-url" placeholder="URL da nova foto">
+        <button id="update-profile-button">Salvar Alterações</button>
+        <button id="back-to-chat-button">Voltar para o Chat</button>
+    </div>
+
+    <!-- Scripts do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- Nosso script principal -->
+    <script src="app.js"></script>
+</body>
+</html>
