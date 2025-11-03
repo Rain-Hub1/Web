@@ -2,211 +2,181 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport essencial para design responsivo e mobile-first -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editor HTML Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Web Moderno</title>
     <style>
-        /* Estilos Globais com foco em Mobile */
+        /* Estilos Globais e Variáveis de Cor */
         :root {
-            --cor-fundo: #1a1a1a;
-            --cor-texto: #e0e0e0;
-            --cor-borda: #333;
-            --cor-destaque: #0095ff;
-            --cor-aba-ativa: #007acc;
-            --cor-aba-inativa: #2a2a2a;
-            --tamanho-header: 50px; /* Altura fixa para as abas */
-            --tamanho-toolbar: 45px; /* Altura da barra de ferramentas */
+            --fundo-app: #1c1e26;
+            --fundo-editor: #282a36;
+            --cor-texto: #f8f8f2;
+            --cor-borda: #44475a;
+            --cor-destaque: #8be9fd;
+            --sombra: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --raio-borda: 10px;
         }
 
-        html, body {
+        /* Reset e Configuração do Corpo da Página */
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--cor-fundo);
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1c1e26, #21232d);
             color: var(--cor-texto);
-            overflow: hidden; /* Previne rolagem do corpo da página */
-        }
-
-        /* Container principal que organiza a tela */
-        .editor-container {
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh; /* Ocupa 100% da altura da tela */
+            overflow: hidden; /* Evita barras de rolagem no corpo */
         }
 
-        /* Abas de navegação (Header) */
-        .tabs {
-            display: flex;
-            height: var(--tamanho-header);
-            background-color: #202020;
+        /* Cabeçalho Fixo */
+        .app-header {
+            background-color: var(--fundo-editor);
+            padding: 12px 25px;
+            border-bottom: 1px solid var(--cor-borda);
+            box-shadow: var(--sombra);
+            z-index: 10;
             flex-shrink: 0; /* Impede que o header encolha */
         }
 
-        .tab-button {
-            flex-grow: 1; /* Faz as abas ocuparem o mesmo espaço */
-            padding: 0;
-            cursor: pointer;
-            border: none;
-            background-color: var(--cor-aba-inativa);
-            color: var(--cor-texto);
-            font-size: 16px;
+        .app-header h1 {
+            margin: 0;
+            font-size: 1.2em;
             font-weight: 500;
-            border-bottom: 4px solid transparent;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-
-        .tab-button.active {
-            background-color: var(--cor-fundo);
-            border-bottom-color: var(--cor-destaque);
             color: var(--cor-destaque);
+            text-shadow: 0 0 5px rgba(139, 233, 253, 0.3);
         }
 
-        /* Área de conteúdo principal */
-        .content-area {
-            flex-grow: 1;
-            position: relative;
+        /* Container Principal com Layout Flexível */
+        .main-container {
+            display: flex;
+            flex-grow: 1; /* Ocupa todo o espaço restante */
+            padding: 20px;
+            gap: 20px; /* Espaçamento entre as colunas */
             overflow: hidden;
         }
 
-        .content {
-            display: none;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .content.active {
-            display: flex; /* Usando flex para organizar o editor e a toolbar */
+        /* Painéis de Código e Preview */
+        .panel {
+            display: flex;
             flex-direction: column;
+            background-color: var(--fundo-editor);
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra);
+            overflow: hidden; /* Garante que o conteúdo não vaze */
+            flex: 1; /* Cada painel ocupa metade do espaço */
         }
 
-        /* Editor de Código */
+        .panel-header {
+            padding: 10px 15px;
+            background-color: rgba(0,0,0,0.15);
+            font-weight: 500;
+            color: #bd93f9; /* Roxo para os títulos dos painéis */
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        /* Editor de Texto */
         #code-editor {
-            flex-grow: 1; /* Ocupa todo o espaço disponível */
+            flex-grow: 1;
             width: 100%;
-            background-color: var(--cor-fundo);
-            color: var(--cor-texto);
             border: none;
-            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
-            font-size: 16px;
+            background: none;
+            color: var(--cor-texto);
             padding: 15px;
+            font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.5;
             resize: none;
             box-sizing: border-box;
-            /* Melhora a rolagem em iOS */
-            -webkit-overflow-scrolling: touch;
         }
 
         #code-editor:focus {
             outline: none;
         }
 
-        /* Barra de Ferramentas de Acesso Rápido */
-        .quick-toolbar {
-            display: flex;
-            align-items: center;
-            background-color: #252526;
-            height: var(--tamanho-toolbar);
-            padding: 0 5px;
-            overflow-x: auto; /* Permite rolar a barra se houver muitos botões */
-        }
-        
-        .tool-button {
-            background: #3c3c3c;
-            color: var(--cor-texto);
-            border: none;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px 15px;
-            margin: 0 4px;
-            flex-shrink: 0;
-        }
-
         /* Área de Preview */
         #preview-frame {
+            flex-grow: 1;
             width: 100%;
             height: 100%;
             border: none;
-            background-color: #fff;
+            background-color: #ffffff;
+        }
+
+        /* Responsividade para Telas Pequenas (Mobile) */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column; /* Empilha os painéis verticalmente */
+                padding: 10px;
+                gap: 10px;
+            }
+
+            body {
+                /* Permite rolagem em telas pequenas se o conteúdo for grande */
+                overflow: auto; 
+            }
+            
+            .panel {
+                /* Define uma altura mínima para cada painel no modo mobile */
+                min-height: 45vh; 
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="editor-container">
-        <!-- Abas -->
-        <header class="tabs">
-            <button id="tab-btn-code" class="tab-button active" onclick="showTab('code')">Código</button>
-            <button id="tab-btn-preview" class="tab-button" onclick="showTab('preview')">Preview</button>
-        </header>
+    <header class="app-header">
+        <h1>Editor Web Moderno</h1>
+    </header>
 
-        <!-- Área de Conteúdo -->
-        <main class="content-area">
-            <!-- Editor de Código com Barra de Ferramentas -->
-            <div id="code" class="content active">
-                <textarea id="code-editor" oninput="updatePreview()" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-                <div class="quick-toolbar">
-                    <button class="tool-button" onclick="insertChar('<')">&lt;</button>
-                    <button class="tool-button" onclick="insertChar('>')">&gt;</button>
-                    <button class="tool-button" onclick="insertChar('/')">/</button>
-                    <button class="tool-button" onclick="insertChar('=')">=</button>
-                    <button class="tool-button" onclick="insertChar('\"')">"</button>
-                    <button class="tool-button" onclick="insertChar('\'')">'</button>
-                    <button class="tool-button" onclick="insertChar('\t')">Tab</button>
-                </div>
-            </div>
-            <!-- Pré-visualização -->
-            <div id="preview" class="content">
-                <iframe id="preview-frame"></iframe>
-            </div>
-        </main>
-    </div>
+    <main class="main-container">
+        <!-- Painel do Editor de Código -->
+        <div class="panel">
+            <div class="panel-header">Código Fonte</div>
+            <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Painel do Preview -->
+        <div class="panel">
+            <div class="panel-header">Preview</div>
+            <iframe id="preview-frame"></iframe>
+        </div>
+    </main>
 
     <script>
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
-        const defaultCode = `<!-- Bem-vindo ao Editor Mobile! -->
-<style>
-    body { 
-        font-family: sans-serif; 
-        padding: 15px;
-        background-color: #f0f0f0;
-    }
-    h1 { color: #007acc; }
-    button {
-        background-color: #007acc;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-</style>
 
-<h1>Olá, Mobile!</h1>
-<p>Use a barra de ferramentas abaixo para digitar mais rápido.</p>
-<button onclick="alert('Funciona!')">Clique</button>
-`;
-
-        // Função para alternar entre as abas
-        function showTab(tabName) {
-            document.getElementById('code').classList.remove('active');
-            document.getElementById('preview').classList.remove('active');
-            document.getElementById('tab-btn-code').classList.remove('active');
-            document.getElementById('tab-btn-preview').classList.remove('active');
-
-            document.getElementById(tabName).classList.add('active');
-            document.getElementById(`tab-btn-${tabName}`).classList.add('active');
-            
-            if (tabName === 'preview') {
-                updatePreview();
-            }
+        const defaultCode = `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            margin: 20px;
         }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Design Moderno!</h1>
+        <p>Seu código aqui, resultado ao lado.</p>
+    </div>
+</body>
+</html>`;
 
-        // Função para atualizar o preview
+        // Função para atualizar o preview em tempo real
         function updatePreview() {
             const code = codeEditor.value;
             const previewDoc = previewFrame.contentWindow.document;
@@ -215,26 +185,11 @@
             previewDoc.close();
         }
 
-        // Função para inserir caracteres da barra de ferramentas
-        function insertChar(char) {
-            const start = codeEditor.selectionStart;
-            const end = codeEditor.selectionEnd;
-            const text = codeEditor.value;
-            
-            codeEditor.value = text.substring(0, start) + char + text.substring(end);
-            codeEditor.selectionStart = codeEditor.selectionEnd = start + char.length;
-            
-            codeEditor.focus(); // Mantém o foco no editor
-            updatePreview(); // Atualiza o preview após a inserção
-        }
-
-        // Inicia o editor com código de exemplo
-        function initializeEditor() {
+        // Inicia o editor com o código padrão
+        window.onload = () => {
             codeEditor.value = defaultCode;
             updatePreview();
-        }
-
-        window.onload = initializeEditor;
+        };
     </script>
 
 </body>
