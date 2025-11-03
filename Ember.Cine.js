@@ -1,17 +1,16 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyD-mHbd5e5zzS7sGnFtMbeFii5nyXxD3MI",
-  authDomain: "ember-cine.firebaseapp.com",
-  projectId: "ember-cine",
-  storageBucket: "ember-cine.firebasestorage.app",
-  messagingSenderId: "1071616566981",
-  appId: "1:1071616566981:web:5a08c0aea216a4c37ef2ac"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// --- Seletores de Elementos ---
 const authContainer = document.getElementById('auth-container');
 const userContent = document.getElementById('user-content');
 const userInfo = document.getElementById('user-info');
@@ -25,7 +24,6 @@ const logoutButton = document.getElementById('logout-button');
 const animeList = document.getElementById('anime-list');
 const animeTitleInput = document.getElementById('anime-title-input');
 
-// --- Abas de Login/Cadastro ---
 const showLoginTab = document.getElementById('show-login-tab');
 const showSignupTab = document.getElementById('show-signup-tab');
 
@@ -43,7 +41,6 @@ showSignupTab.addEventListener('click', () => {
     showSignupTab.classList.add('active');
 });
 
-// --- Lógica de Autenticação ---
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('signup-email').value;
@@ -65,7 +62,6 @@ logoutButton.addEventListener('click', () => {
     auth.signOut();
 });
 
-// --- Lógica do Firestore ---
 addAnimeForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const user = auth.currentUser;
@@ -110,17 +106,14 @@ function loadAnimes(userId) {
       });
 }
 
-// --- Gerenciador de Estado da UI ---
 auth.onAuthStateChanged(user => {
     if (user) {
-        // Logado
         authContainer.classList.add('hidden');
         userContent.classList.remove('hidden');
         userInfo.classList.remove('hidden');
         userEmailSpan.textContent = user.email;
         loadAnimes(user.uid);
     } else {
-        // Deslogado
         authContainer.classList.remove('hidden');
         userContent.classList.add('hidden');
         userInfo.classList.add('hidden');
