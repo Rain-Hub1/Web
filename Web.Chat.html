@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Chat</title>
+    <title>GitChat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #131314;
-            --surface-color: #1f1f1f;
-            --text-primary: #e3e3e3;
-            --text-secondary: #9b9b9b;
-            --accent-color: #4a7cf4;
-            --input-bg: #2d2d2f;
-            --user-bubble: #2d2d2f;
-            --other-bubble: #1f1f1f;
-            --danger-color: #ef4444;
+            --bg-color: #0d1117;
+            --surface-color: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #58a6ff;
+            --accent-hover: #79c0ff;
+            --success-color: #238636;
+            --danger-color: #da3633;
+            --btn-bg: #21262d;
+            --btn-hover-bg: #30363d;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
             background-color: var(--bg-color);
             color: var(--text-primary);
             display: flex;
             flex-direction: column;
+            font-size: 14px;
         }
         .hidden { display: none !important; }
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
-            width: 85%; max-width: 320px;
-            background-color: var(--bg-color);
-            border-right: 1px solid var(--surface-color);
+            width: 85%; max-width: 300px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column;
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
@@ -46,51 +49,57 @@
         }
         .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
         .sidebar-header {
-            padding: 16px; border-bottom: 1px solid var(--surface-color);
+            padding: 16px; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .sidebar-header h2 { font-size: 20px; font-weight: 500; }
+        .sidebar-header h2 { font-size: 16px; font-weight: 600; }
         .action-btn {
-            background: none; border: none; color: var(--text-secondary);
-            font-size: 22px; cursor: pointer; padding: 8px;
-            border-radius: 50%; transition: background-color 0.2s;
+            background: none; border: 1px solid transparent; color: var(--text-secondary);
+            font-size: 20px; cursor: pointer; padding: 8px;
+            border-radius: 6px; transition: background-color 0.2s, border-color 0.2s;
         }
-        .action-btn:hover { background-color: var(--surface-color); }
-        .auth-view, .groups-view { padding: 16px; }
-        .auth-view input {
-            width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px;
-            border: 1px solid var(--input-bg); background-color: var(--surface-color);
-            color: var(--text-primary); font-size: 16px;
+        .action-btn:hover { background-color: var(--btn-hover-bg); border-color: var(--border-color); }
+        .auth-view, .groups-view { padding: 8px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+        .form-group input {
+            width: 100%; padding: 8px 12px; border-radius: 6px;
+            border: 1px solid var(--border-color); background-color: var(--bg-color);
+            color: var(--text-primary); font-size: 14px;
         }
-        .auth-view button {
-            width: 100%; padding: 12px; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;
+        .form-group button {
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px;
+            transition: background-color 0.2s;
         }
-        .auth-view .primary-btn { background-color: var(--accent-color); color: white; }
-        .auth-view .secondary-btn { background-color: var(--input-bg); color: var(--text-primary); }
-        .auth-view p { text-align: center; margin-top: 16px; color: var(--text-secondary); }
-        .auth-view a { color: var(--accent-color); cursor: pointer; }
+        .form-group .primary-btn { background-color: var(--success-color); color: white; border-color: var(--success-color); }
+        .form-group .secondary-btn { background-color: var(--btn-bg); color: var(--text-primary); }
+        .form-group p { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-secondary); }
+        .form-group a { color: var(--accent-color); cursor: pointer; text-decoration: none; }
         .group-list { list-style: none; }
         .group-item {
-            padding: 16px; border-radius: 8px; margin-bottom: 8px;
+            padding: 12px 16px; border-radius: 6px; margin-bottom: 4px;
             cursor: pointer; transition: background-color 0.2s;
+            font-weight: 500; border: 1px solid transparent;
         }
-        .group-item:hover { background-color: var(--surface-color); }
+        .group-item:hover { background-color: var(--btn-hover-bg); }
         .group-item.active { background-color: var(--accent-color); color: white; }
         .header {
             display: flex; align-items: center; padding: 16px;
-            flex-shrink: 0; border-bottom: 1px solid var(--surface-color);
+            flex-shrink: 0; border-bottom: 1px solid var(--border-color);
+            background-color: var(--surface-color);
         }
-        .header-title { font-size: 20px; font-weight: 500; margin-left: 24px; }
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .header-title { font-size: 16px; font-weight: 600; margin-left: 16px; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; padding: 16px; overflow-y: auto; }
         .placeholder-screen {
             flex-grow: 1; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
             color: var(--text-secondary);
         }
-        .chat-container { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+        .placeholder-screen i { font-size: 40px; margin-bottom: 16px; }
+        .chat-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
         .message { display: flex; gap: 16px; max-width: 85%; }
-        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message.user { align-self: flex-end; }
         .message-avatar {
             width: 32px; height: 32px; border-radius: 50%;
             background-color: var(--accent-color); flex-shrink: 0;
@@ -98,28 +107,27 @@
             font-weight: 600; overflow: hidden;
         }
         .message-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .message-body { width: 100%; }
         .message-content {
-            background-color: var(--other-bubble); padding: 12px 16px;
-            border-radius: 12px; line-height: 1.6;
+            background-color: var(--surface-color); padding: 12px 16px;
+            border-radius: 6px; line-height: 1.5; border: 1px solid var(--border-color);
         }
-        .message.user .message-content { background-color: var(--user-bubble); }
-        .message-sender { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-        .input-area { padding: 12px 8px; flex-shrink: 0; background-color: var(--bg-color); }
+        .message-sender { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+        .input-area { padding: 16px; flex-shrink: 0; background-color: var(--bg-color); border-top: 1px solid var(--border-color); }
         .input-wrapper {
-            display: flex; align-items: center; background-color: var(--input-bg);
-            border-radius: 28px; padding: 4px;
+            display: flex; align-items: center; background-color: var(--surface-color);
+            border: 1px solid var(--border-color); border-radius: 6px; padding: 4px;
         }
         .message-input {
             flex-grow: 1; background: none; border: none; color: var(--text-primary);
-            font-size: 16px; padding: 12px 16px; outline: none;
+            font-size: 14px; padding: 8px 12px; outline: none;
         }
-        .message-input::placeholder { color: var(--text-secondary); }
         .send-button {
-            background-color: var(--accent-color); color: white; border-radius: 50%;
-            width: 44px; height: 44px; font-size: 18px; margin-left: 4px;
+            background-color: var(--success-color); color: white; border-radius: 6px;
+            padding: 8px 12px; font-size: 14px;
             border: none; cursor: pointer; transition: opacity 0.2s;
         }
-        .send-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .send-button:disabled { opacity: 0.6; cursor: not-allowed; }
         .modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.7); z-index: 1001;
@@ -128,23 +136,13 @@
         }
         .modal.active { opacity: 1; pointer-events: auto; }
         .modal-content {
-            background: var(--surface-color); border-radius: 16px; padding: 24px;
-            width: 90%; max-width: 400px; border: 1px solid var(--input-bg);
+            background: var(--surface-color); border-radius: 6px; padding: 24px;
+            width: 90%; max-width: 400px; border: 1px solid var(--border-color);
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-header h2 { font-size: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
-        .form-group input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--input-bg);
-            background-color: var(--bg-color); color: var(--text-primary); font-size: 16px;
-        }
-        .modal-content button {
-            width: 100%; padding: 12px; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;
-        }
-        .modal-content .primary-btn { background-color: var(--accent-color); color: white; }
-        .modal-content .danger-btn { background-color: var(--danger-color); color: white; margin-top: 16px; }
+        .modal-content button.primary-btn { background-color: var(--success-color); color: white; border-color: var(--success-color); }
+        .modal-content button.danger-btn { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
     </style>
 </head>
 <body>
@@ -180,7 +178,7 @@
     <footer id="input-area" class="input-area hidden">
         <div class="input-wrapper">
             <input type="text" id="message-input" class="message-input" placeholder="Enviar mensagem...">
-            <button id="send-button" class="send-button" title="Enviar"><i class="fa-solid fa-arrow-up"></i></button>
+            <button id="send-button" class="send-button" title="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </footer>
 
@@ -198,8 +196,12 @@
                 <label for="settings-photo">URL da Foto</label>
                 <input type="text" id="settings-photo" placeholder="https://exemplo.com/foto.jpg">
             </div>
-            <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
-            <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
+            <div class="form-group">
+                <button id="update-profile-btn" class="primary-btn">Salvar Alterações</button>
+            </div>
+            <div class="form-group">
+                <button id="logout-btn" class="danger-btn">Sair (Logout)</button>
+            </div>
         </div>
     </div>
 
@@ -285,8 +287,22 @@
             } else {
                 authContainer.innerHTML = `
                     <div class="sidebar-header"><h2>Login</h2><button id="close-sidebar-btn-auth" class="action-btn">&times;</button></div>
-                    <div id="login-view" class="auth-view"><input type="email" id="login-email" placeholder="Email"><input type="password" id="login-password" placeholder="Senha"><button id="login-button" class="primary-btn">Entrar</button><button id="google-login-button" class="secondary-btn">Entrar com Google</button><p>Não tem conta? <a id="show-register">Cadastre-se</a></p></div>
-                    <div id="register-view" class="auth-view hidden"><input type="text" id="register-name" placeholder="Seu Nome"><input type="email" id="register-email" placeholder="Email"><input type="password" id="register-password" placeholder="Senha"><button id="register-button" class="primary-btn">Cadastrar</button><p>Já tem conta? <a id="show-login">Faça Login</a></p></div>`;
+                    <div class="auth-view">
+                        <div id="login-view" class="form-group">
+                            <label for="login-email">Email</label><input type="email" id="login-email">
+                            <label for="login-password">Senha</label><input type="password" id="login-password">
+                            <button id="login-button" class="primary-btn">Entrar</button>
+                            <button id="google-login-button" class="secondary-btn">Entrar com Google</button>
+                            <p>Não tem conta? <a id="show-register">Cadastre-se</a></p>
+                        </div>
+                        <div id="register-view" class="form-group hidden">
+                            <label for="register-name">Nome</label><input type="text" id="register-name">
+                            <label for="register-email">Email</label><input type="email" id="register-email">
+                            <label for="register-password">Senha</label><input type="password" id="register-password">
+                            <button id="register-button" class="primary-btn">Cadastrar</button>
+                            <p>Já tem conta? <a id="show-login">Faça Login</a></p>
+                        </div>
+                    </div>`;
                 attachAuthListeners();
             }
         });
@@ -383,9 +399,9 @@
                     const avatar = msg.photoURL ? `<img src="${msg.photoURL}" alt="avatar">` : (msg.displayName?.charAt(0) || 'U');
                     msgEl.innerHTML = `
                         <div class="message-avatar">${avatar}</div>
-                        <div class="message-content">
+                        <div class="message-body">
                             <div class="message-sender">${msg.displayName}</div>
-                            ${msg.text}
+                            <div class="message-content">${msg.text}</div>
                         </div>`;
                     chatContainer.appendChild(msgEl);
                 });
