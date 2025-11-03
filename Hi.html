@@ -73,6 +73,12 @@
             padding: 16px;
         }
         
+        .code-info {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #888;
+        }
+        
         .code-editor {
             flex: 1;
             background-color: #1e1e1e;
@@ -83,98 +89,8 @@
             color: #d4d4d4;
             resize: none;
             overflow: auto;
-        }
-        
-        /* Project Codes Tab */
-        #project-codes {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background-color: #252526;
-            border-bottom: 1px solid #3e3e42;
-        }
-        
-        .project-actions button {
-            background-color: #0e639c;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-        
-        .project-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .file-explorer {
-            width: 200px;
-            background-color: #252526;
-            border-right: 1px solid #3e3e42;
-            overflow-y: auto;
-            padding: 8px 0;
-        }
-        
-        .file-list {
-            list-style: none;
-        }
-        
-        .file-item, .folder-item {
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .file-item:hover, .folder-item:hover {
-            background-color: #2a2d2e;
-        }
-        
-        .file-item.active, .folder-item.active {
-            background-color: #37373d;
-        }
-        
-        .folder-children {
-            padding-left: 16px;
-            display: none;
-        }
-        
-        .folder-item.expanded .folder-children {
-            display: block;
-        }
-        
-        .file-editor {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .file-name {
-            padding: 8px 16px;
-            background-color: #2d2d30;
-            border-bottom: 1px solid #3e3e42;
-        }
-        
-        .file-content {
-            flex: 1;
-            background-color: #1e1e1e;
-            border: none;
-            font-family: 'Courier New', monospace;
-            padding: 12px;
-            color: #d4d4d4;
-            resize: none;
-            overflow: auto;
+            font-size: 14px;
+            line-height: 1.4;
         }
         
         /* Preview Tab */
@@ -209,29 +125,6 @@
             border: none;
         }
         
-        .icon {
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-        }
-        
-        .folder-icon::before {
-            content: "📁";
-        }
-        
-        .file-icon::before {
-            content: "📄";
-        }
-        
-        .chevron::before {
-            content: "▶";
-            transition: transform 0.2s;
-        }
-        
-        .folder-item.expanded .chevron::before {
-            transform: rotate(90deg);
-        }
-        
         .empty-state {
             flex: 1;
             display: flex;
@@ -240,6 +133,26 @@
             color: #888;
             font-style: italic;
         }
+        
+        /* Estilos para melhorar a experiência mobile */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 12px;
+            }
+            
+            .tab {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            #all-code {
+                padding: 12px;
+            }
+            
+            .code-editor {
+                font-size: 16px; /* Melhor legibilidade em mobile */
+            }
+        }
     </style>
 </head>
 <body>
@@ -247,7 +160,6 @@
         <div class="header">
             <div class="tabs">
                 <div class="tab active" data-tab="all-code">All Code</div>
-                <div class="tab" data-tab="project-codes">Project Codes</div>
                 <div class="tab" data-tab="preview">Preview</div>
             </div>
         </div>
@@ -255,29 +167,8 @@
         <div class="content">
             <!-- All Code Tab -->
             <div id="all-code" class="tab-content active">
-                <textarea class="code-editor" placeholder="Escreva seu código aqui..."></textarea>
-            </div>
-            
-            <!-- Project Codes Tab -->
-            <div id="project-codes" class="tab-content">
-                <div class="project-header">
-                    <h3>Projeto</h3>
-                    <div class="project-actions">
-                        <button id="add-folder">Nova Pasta</button>
-                        <button id="add-file">Novo Arquivo</button>
-                    </div>
-                </div>
-                <div class="project-content">
-                    <div class="file-explorer">
-                        <ul class="file-list" id="file-tree">
-                            <!-- Estrutura de arquivos será gerada dinamicamente -->
-                        </ul>
-                    </div>
-                    <div class="file-editor">
-                        <div class="file-name" id="current-file-name">Nenhum arquivo selecionado</div>
-                        <textarea class="file-content" id="file-content" placeholder="Selecione um arquivo para editar..."></textarea>
-                    </div>
-                </div>
+                <div class="code-info">Escreva seu código HTML, CSS e JavaScript abaixo:</div>
+                <textarea class="code-editor" id="code-editor" placeholder="Escreva seu código aqui..."></textarea>
             </div>
             
             <!-- Preview Tab -->
@@ -298,18 +189,9 @@
             // Elementos da interface
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
-            const allCodeEditor = document.querySelector('#all-code .code-editor');
-            const fileTree = document.getElementById('file-tree');
-            const fileContent = document.getElementById('file-content');
-            const currentFileName = document.getElementById('current-file-name');
+            const codeEditor = document.getElementById('code-editor');
             const previewFrame = document.getElementById('preview-frame');
-            const addFolderBtn = document.getElementById('add-folder');
-            const addFileBtn = document.getElementById('add-file');
             const refreshPreviewBtn = document.getElementById('refresh-preview');
-            
-            // Estado da aplicação
-            let projectStructure = [];
-            let currentFile = null;
             
             // Alternar entre abas
             tabs.forEach(tab => {
@@ -331,149 +213,165 @@
             
             // Atualizar preview
             function updatePreview() {
-                const code = allCodeEditor.value;
+                const code = codeEditor.value;
+                if (!code.trim()) {
+                    previewFrame.srcdoc = `
+                        <html>
+                            <head>
+                                <title>Preview</title>
+                                <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        height: 100vh;
+                                        color: #888;
+                                        background-color: #f5f5f5;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div>Escreva algum código na aba "All Code" para ver o preview aqui</div>
+                            </body>
+                        </html>
+                    `;
+                    return;
+                }
+                
                 const blob = new Blob([code], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 previewFrame.src = url;
             }
             
-            // Adicionar pasta
-            addFolderBtn.addEventListener('click', () => {
-                const folderName = prompt('Nome da pasta:');
-                if (folderName) {
-                    projectStructure.push({
-                        type: 'folder',
-                        name: folderName,
-                        children: []
-                    });
-                    renderFileTree();
-                }
-            });
-            
-            // Adicionar arquivo
-            addFileBtn.addEventListener('click', () => {
-                const fileName = prompt('Nome do arquivo:');
-                if (fileName) {
-                    projectStructure.push({
-                        type: 'file',
-                        name: fileName,
-                        content: ''
-                    });
-                    renderFileTree();
-                }
-            });
-            
-            // Renderizar árvore de arquivos
-            function renderFileTree() {
-                fileTree.innerHTML = '';
-                
-                if (projectStructure.length === 0) {
-                    fileTree.innerHTML = '<div class="empty-state">Nenhum arquivo ou pasta</div>';
-                    return;
-                }
-                
-                projectStructure.forEach(item => {
-                    fileTree.appendChild(createFileTreeItem(item));
-                });
-            }
-            
-            // Criar item da árvore de arquivos
-            function createFileTreeItem(item) {
-                const li = document.createElement('li');
-                
-                if (item.type === 'folder') {
-                    li.classList.add('folder-item');
-                    li.innerHTML = `
-                        <span class="chevron"></span>
-                        <span class="icon folder-icon"></span>
-                        <span class="name">${item.name}</span>
-                    `;
-                    
-                    const childrenUl = document.createElement('ul');
-                    childrenUl.classList.add('folder-children');
-                    
-                    item.children.forEach(child => {
-                        childrenUl.appendChild(createFileTreeItem(child));
-                    });
-                    
-                    li.appendChild(childrenUl);
-                    
-                    // Alternar expansão da pasta
-                    li.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        li.classList.toggle('expanded');
-                    });
-                    
-                } else {
-                    li.classList.add('file-item');
-                    li.innerHTML = `
-                        <span class="icon file-icon"></span>
-                        <span class="name">${item.name}</span>
-                    `;
-                    
-                    // Selecionar arquivo
-                    li.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        document.querySelectorAll('.file-item, .folder-item').forEach(el => {
-                            el.classList.remove('active');
-                        });
-                        li.classList.add('active');
-                        
-                        currentFile = item;
-                        currentFileName.textContent = item.name;
-                        fileContent.value = item.content;
-                    });
-                }
-                
-                return li;
-            }
-            
-            // Salvar conteúdo do arquivo
-            fileContent.addEventListener('input', () => {
-                if (currentFile) {
-                    currentFile.content = fileContent.value;
-                }
-            });
-            
-            // Atualizar preview
+            // Atualizar preview quando o botão for clicado
             refreshPreviewBtn.addEventListener('click', updatePreview);
             
-            // Inicializar
-            renderFileTree();
+            // Atualizar preview automaticamente ao digitar (com debounce)
+            let previewTimeout;
+            codeEditor.addEventListener('input', () => {
+                clearTimeout(previewTimeout);
+                previewTimeout = setTimeout(() => {
+                    if (document.getElementById('preview').classList.contains('active')) {
+                        updatePreview();
+                    }
+                }, 1000);
+            });
             
             // Código de exemplo
-            allCodeEditor.value = `<!DOCTYPE html>
-<html>
+            codeEditor.value = `<!DOCTYPE html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Projeto</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        h1 {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #667eea;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Olá, Mundo!</h1>
-        <p>Este é um exemplo de código HTML.</p>
-        <button onclick="alert('Funcionou!')">Clique aqui</button>
+        <h1>Editor de Código Mobile</h1>
+        <p>Este é um exemplo de página criada com o editor. Você pode editar este código na aba "All Code".</p>
+        
+        <ul class="feature-list">
+            <li>Interface responsiva para dispositivos móveis</li>
+            <li>Visualização em tempo real do código</li>
+            <li>Suporte a HTML, CSS e JavaScript</li>
+            <li>Design moderno e limpo</li>
+        </ul>
+        
+        <button class="btn" onclick="showMessage()">Clique para testar</button>
     </div>
+
+    <script>
+        function showMessage() {
+            alert('Funcionou! O JavaScript está executando corretamente.');
+        }
+    </script>
 </body>
 </html>`;
+            
+            // Inicializar o preview
+            updatePreview();
         });
     </script>
 </body>
