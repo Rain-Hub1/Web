@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Web Completo</title>
+    <title>Editor Web</title>
     <style>
         /* Estilos Globais e Variáveis de Cor */
         :root {
@@ -27,7 +27,7 @@
             overflow: hidden;
         }
 
-        /* Cabeçalho Fixo com Título e Botões */
+        /* Cabeçalho Fixo com Título Central e Botões Laterais */
         .app-header {
             display: flex;
             justify-content: space-between; /* Itens nas extremidades, título no espaço */
@@ -35,7 +35,7 @@
             background-color: var(--fundo-painel);
             padding: 0 20px;
             height: 55px;
-            flex-shrink: 0; /* Impede que o header encolha */
+            flex-shrink: 0; /* Garante que o header fique fixo no topo */
             border-bottom: 1px solid var(--cor-borda);
             z-index: 10;
         }
@@ -68,7 +68,6 @@
 
         /* Container Principal */
         .main-container {
-            display: flex;
             flex-grow: 1;
             position: relative; /* Necessário para o posicionamento absoluto dos painéis */
         }
@@ -125,7 +124,7 @@
 </head>
 <body>
 
-    <!-- Cabeçalho com os botões funcionais -->
+    <!-- Cabeçalho com o layout solicitado -->
     <header class="app-header">
         <button id="btn-code" class="view-button active" onclick="showPanel('code')">Código</button>
         <div class="header-title">Editor</div>
@@ -170,7 +169,7 @@
     </style>
 </head>
 <body>
-    <h1>Editor Completo!</h1>
+    <h1>Layout Final!</h1>
     <p>Use os botões no topo para alternar entre o código e o preview.</p>
 </body>
 </html>`;
@@ -220,7 +219,6 @@
         // Define o código padrão no editor quando a página carrega
         window.onload = () => {
             codeEditor.value = defaultCode;
-            // A aba de código já começa ativa, não precisa chamar updatePreview() ainda.
         };
     </script>
 
