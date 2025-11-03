@@ -3,106 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor com Abas Fixas</title>
+    <title>Editor Web</title>
     <style>
         :root {
             --fundo-app: #1c1e26;
             --fundo-painel: #282a36;
             --cor-texto: #f8f8f2;
             --cor-borda: #44475a;
-            --cor-aba-ativa: #50fa7b; /* Verde */
-            --cor-aba-inativa: #bd93f9; /* Roxo */
-            --sombra: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --cor-destaque: #8be9fd; /* Ciano */
+            --cor-botao-ativo: #50fa7b; /* Verde */
+            --sombra: 0 4px 15px rgba(0, 0, 0, 0.2);
             --raio-borda: 12px;
         }
 
-        /* 1. O corpo da página é um container flexível vertical que ocupa 100% da tela */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             background: var(--fundo-app);
-            height: 100vh; /* Ocupa a altura total da tela */
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Impede a rolagem do corpo da página */
+            overflow: hidden;
         }
 
-        /* 2. O cabeçalho com as abas NÃO PODE encolher, ficando sempre fixo no topo */
+        /* CABEÇALHO COM TÍTULO CENTRAL E BOTÕES LATERAIS */
         .app-header {
             display: flex;
+            justify-content: space-between; /* Empurra os itens para as extremidades */
+            align-items: center; /* Alinha verticalmente */
             background-color: var(--fundo-painel);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            flex-shrink: 0; /* ESSA É A REGRA QUE FIXA AS ABAS NO TOPO */
+            padding: 0 20px;
+            height: 55px;
+            flex-shrink: 0;
             border-bottom: 1px solid var(--cor-borda);
+            box-shadow: var(--sombra);
+            z-index: 10;
         }
 
-        .tab-button {
-            flex-grow: 1;
-            padding: 15px 20px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--cor-aba-inativa);
-            font-size: 16px;
+        .header-title {
+            color: var(--cor-destaque);
+            font-size: 1.3em;
             font-weight: 500;
-            text-align: center;
-            border-bottom: 4px solid transparent;
+        }
+
+        .view-button {
+            padding: 8px 20px;
+            cursor: pointer;
+            border: 2px solid var(--cor-borda);
+            border-radius: 8px;
+            background: none;
+            color: var(--cor-texto);
+            font-size: 14px;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .tab-button.active {
-            color: var(--cor-aba-ativa);
-            border-bottom-color: var(--cor-aba-ativa);
+        .view-button:hover {
+            background-color: var(--cor-borda);
+            border-color: var(--cor-destaque);
         }
-
-        /* 3. A área de conteúdo ocupa todo o espaço que sobra */
-        .main-content {
-            flex-grow: 1; /* Faz o conteúdo crescer para preencher o espaço */
-            position: relative;
+        
+        /* LAYOUT PRINCIPAL DIVIDIDO (SPLIT-SCREEN) */
+        .main-container {
+            display: flex;
+            flex-grow: 1;
             overflow: hidden;
         }
 
-        .content-pane {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .content-pane.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        /* Painel do editor com tamanho fixo e pequeno */
-        #code-panel {
-            width: 600px;
-            height: 400px;
-            max-width: 90%; 
-            max-height: 80%;
+        /* PAINEL DO CÓDIGO (MENOR) */
+        .code-panel {
+            width: 40%; /* Largura menor para o código */
             display: flex;
             flex-direction: column;
             background-color: var(--fundo-painel);
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra);
-            overflow: hidden;
-            border: 1px solid var(--cor-borda);
+            border-right: 2px solid var(--cor-borda);
+        }
+
+        /* PAINEL DO PREVIEW (MAIOR) */
+        .preview-panel {
+            width: 60%; /* Largura maior para o preview */
+            display: flex;
+            flex-direction: column;
         }
 
         .panel-header {
             padding: 10px 15px;
             background-color: rgba(0,0,0,0.2);
             font-weight: 500;
-            color: var(--cor-destaque);
-            border-bottom: 1px solid var(--cor-borda);
-            text-align: center;
+            color: #bd93f9; /* Roxo */
+            flex-shrink: 0;
         }
 
         #code-editor {
@@ -121,10 +111,6 @@
             outline: none;
         }
 
-        /* Área de Preview (tela cheia) */
-        #preview-pane {
-            padding: 0;
-        }
         #preview-frame {
             width: 100%;
             height: 100%;
@@ -136,19 +122,26 @@
 <body>
 
     <header class="app-header">
-        <button id="tab-btn-code" class="tab-button active" onclick="showPane('code')">Código</button>
-        <button id="tab-btn-preview" class="tab-button" onclick="showPane('preview')">Preview</button>
+        <!-- Botão "Código" à esquerda -->
+        <button class="view-button">Código</button>
+        
+        <!-- Título "Editor" no centro -->
+        <div class="header-title">Editor</div>
+        
+        <!-- Botão "Preview" à direita -->
+        <button class="view-button">Preview</button>
     </header>
 
-    <main class="main-content">
-        <div id="code-pane" class="content-pane active">
-            <div id="code-panel">
-                <div class="panel-header">Editor</div>
-                <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
-            </div>
+    <main class="main-container">
+        <!-- Painel do Código (40% da tela) -->
+        <div class="code-panel">
+            <div class="panel-header">HTML / CSS / JS</div>
+            <textarea id="code-editor" oninput="updatePreview()" spellcheck="false"></textarea>
         </div>
 
-        <div id="preview-pane" class="content-pane">
+        <!-- Painel do Preview (60% da tela) -->
+        <div class="preview-panel">
+            <div class="panel-header">Resultado</div>
             <iframe id="preview-frame"></iframe>
         </div>
     </main>
@@ -156,18 +149,33 @@
     <script>
         const codeEditor = document.getElementById('code-editor');
         const previewFrame = document.getElementById('preview-frame');
-        const defaultCode = `<h1>Abas Fixas!</h1>
-<p>Note que as abas "Código" e "Preview" estão sempre visíveis no topo.</p>`;
 
-        function showPane(paneName) {
-            document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-            document.getElementById(`${paneName}-pane`).classList.add('active');
-            document.getElementById(`tab-btn-${paneName}`).classList.add('active');
-            if (paneName === 'preview') {
-                updatePreview();
-            }
+        const defaultCode = `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            padding: 25px;
+            background-color: #f0f2f5;
         }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1c1e26; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Layout Dividido!</h1>
+        <p>O código fica na esquerda e o resultado na direita, com o preview sendo maior.</p>
+    </div>
+</body>
+</html>`;
 
         function updatePreview() {
             const code = codeEditor.value;
