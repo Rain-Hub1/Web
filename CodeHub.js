@@ -10,7 +10,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// A constante 'storage' foi removida
 
 const appRoot = document.getElementById('app-root');
 const userActions = document.getElementById('user-actions');
@@ -20,6 +19,7 @@ const routes = {
     '/Login': { templateId: 'template-login', isPublic: true, title: 'Login' },
     '/Cadastro': { templateId: 'template-cadastro', isPublic: true, title: 'Cadastro' },
     '/Upload': { templateId: 'template-submit', isPublic: false, title: 'Enviar Script' },
+    '/settings': { templateId: 'template-settings', isPublic: false, title: 'Configurações' },
     '/:scriptId': { templateId: 'template-script-view', isPublic: true, title: 'Visualizando Script' },
     '/:userId/:username': { templateId: 'template-user-profile', isPublic: true, title: 'Perfil de Usuário' }
 };
@@ -28,7 +28,7 @@ function showNotification(message, isError = true) {
     const notificationArea = document.getElementById('notification-area');
     const notification = document.createElement('div');
     notification.className = 'notification';
-    if (!isError) { notification.style.backgroundColor = 'var(--color-accent)'; }
+    if (!isError) { notification.classList.add('success'); }
     notification.textContent = message;
     notificationArea.appendChild(notification);
     setTimeout(() => { notification.remove(); }, 4000);
@@ -64,6 +64,7 @@ async function attachEventListeners(path, params) {
     else if (path === '/Login') { document.getElementById('login-form').addEventListener('submit', handleLogin); }
     else if (path === '/Cadastro') { document.getElementById('signup-form').addEventListener('submit', handleSignup); }
     else if (path === '/Upload') { document.getElementById('submit-script-form').addEventListener('submit', handleSubmitScript); }
+    else if (path === '/settings') { setupSettingsPage(); }
     else if (params.scriptId) { await loadScriptDetails(params.scriptId); }
     else if (params.userId) { await loadUserProfile(params.userId); }
 }
@@ -84,41 +85,61 @@ function handleSignup(e) {
     });
 }
 
-// Função de setup do formulário foi removida por não ser mais necessária
 async function handleSubmitScript(e) {
     e.preventDefault();
     const user = auth.currentUser;
     const submitButton = document.getElementById('submit-button');
     submitButton.disabled = true;
     submitButton.textContent = 'Publicando...';
-
     const title = document.getElementById('script-title').value;
     const gameId = document.getElementById('script-game-id').value;
     const tags = document.getElementById('script-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    const thumbnailUrl = document.getElementById('script-thumbnail-url').value; // Pega a URL do campo de texto
+    const thumbnailUrl = document.getElementById('script-thumbnail-url').value;
     const description = document.getElementById('script-description').value;
     const code = document.getElementById('script-code').value;
-
-    if (!thumbnailUrl) {
-        showNotification('Por favor, adicione a URL de uma imagem.');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Publicar';
-        return;
-    }
-
+    if (!thumbnailUrl) { showNotification('Por favor, adicione a URL de uma imagem.'); submitButton.disabled = false; submitButton.textContent = 'Publicar'; return; }
     try {
-        const docRef = await db.collection('scripts').add({
-            title, gameId, tags, description, code, thumbnailUrl,
-            authorId: user.uid,
-            authorUsername: user.displayName,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            starCount: 0
-        });
+        const docRef = await db.collection('scripts').add({ title, gameId, tags, description, code, thumbnailUrl, authorId: user.uid, authorUsername: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp(), starCount: 0 });
         window.location.hash = `/${docRef.id}`;
     } catch (err) {
         showNotification('Erro ao publicar o script.');
         submitButton.disabled = false;
         submitButton.textContent = 'Publicar';
+    }
+}
+
+function setupSettingsPage() {
+    document.getElementById('update-username-form').addEventListener('submit', handleUpdateUsername);
+    document.getElementById('update-password-form').addEventListener('submit', handleUpdatePassword);
+}
+
+async function handleUpdateUsername(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    const newUsername = document.getElementById('new-username').value.trim();
+    if (!user || !newUsername) return;
+
+    try {
+        await user.updateProfile({ displayName: newUsername });
+        await db.collection('users').doc(user.uid).update({ username: newUsername });
+        showNotification('Nome de usuário atualizado com sucesso!', false);
+    } catch (error) {
+        showNotification('Erro ao atualizar o nome de usuário.');
+    }
+}
+
+async function handleUpdatePassword(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    const newPassword = document.getElementById('new-password').value;
+    if (!user || !newPassword) return;
+
+    try {
+        await user.updatePassword(newPassword);
+        showNotification('Senha atualizada com sucesso!', false);
+        document.getElementById('new-password').value = '';
+    } catch (error) {
+        showNotification('Erro ao atualizar a senha. Pode ser necessário fazer login novamente.');
     }
 }
 
@@ -131,13 +152,8 @@ async function handleStarClick(scriptId) {
     db.runTransaction(async (t) => {
         const scriptDoc = await t.get(scriptRef);
         const currentStarCount = scriptDoc.data().starCount || 0;
-        if (starDoc.exists) {
-            t.delete(starRef);
-            t.update(scriptRef, { starCount: currentStarCount - 1 });
-        } else {
-            t.set(starRef, { starredAt: firebase.firestore.FieldValue.serverTimestamp() });
-            t.update(scriptRef, { starCount: currentStarCount + 1 });
-        }
+        if (starDoc.exists) { t.delete(starRef); t.update(scriptRef, { starCount: currentStarCount - 1 }); }
+        else { t.set(starRef, { starredAt: firebase.firestore.FieldValue.serverTimestamp() }); t.update(scriptRef, { starCount: currentStarCount + 1 }); }
     }).catch(err => showNotification('Erro ao processar a estrela.'));
 }
 
@@ -316,6 +332,7 @@ function updateUserUI(user) {
     if (user) {
         userActions.innerHTML = `
             <a href="#/${user.uid}/${user.displayName}" class="user-display">${user.displayName || user.email}</a>
+            <a href="#/settings" class="btn btn-secondary"><i class="fa-solid fa-gear"></i></a>
             <button id="logout-button" class="btn btn-secondary">Sair</button>
         `;
         document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
