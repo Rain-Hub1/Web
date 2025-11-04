@@ -92,10 +92,36 @@ function handleSubmitScript(e) {
     const code = document.getElementById('script-code').value;
 
     if (user && title && description && code) {
-        db.collection('scripts').add({ title, description, code, authorId: user.uid, authorUsername: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp(), views: 0 })
+        db.collection('scripts').add({ title, description, code, authorId: user.uid, authorUsername: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp(), starCount: 0 })
             .then(docRef => { window.location.hash = `/script/${docRef.id}`; })
             .catch(err => alert(err.message));
     }
+}
+
+async function handleStarClick(scriptId) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Você precisa estar logado para dar uma estrela.');
+        window.location.hash = '/Login';
+        return;
+    }
+
+    const scriptRef = db.collection('scripts').doc(scriptId);
+    const starRef = scriptRef.collection('stars').doc(user.uid);
+    const starDoc = await starRef.get();
+
+    const transaction = db.runTransaction(async (t) => {
+        const scriptDoc = await t.get(scriptRef);
+        const currentStarCount = scriptDoc.data().starCount || 0;
+
+        if (starDoc.exists) {
+            t.delete(starRef);
+            t.update(scriptRef, { starCount: currentStarCount - 1 });
+        } else {
+            t.set(starRef, { starredAt: firebase.firestore.FieldValue.serverTimestamp() });
+            t.update(scriptRef, { starCount: currentStarCount + 1 });
+        }
+    });
 }
 
 async function loadRecentScripts() {
@@ -105,48 +131,85 @@ async function loadRecentScripts() {
     grid.innerHTML = '';
     snapshot.forEach(doc => {
         const script = doc.data();
-        const card = document.createElement('a');
+        const card = document.createElement('div');
         card.className = 'script-card';
-        card.href = `#/script/${doc.id}`;
+        
         card.innerHTML = `
             <div class="script-card-glow"></div>
-            <h3>${script.title}</h3>
-            <p>${script.description.substring(0, 80)}${script.description.length > 80 ? '...' : ''}</p>
+            <div class="script-card-content">
+                <a href="#/script/${doc.id}" class="script-link"><h3>${script.title}</h3></a>
+                <p>${script.description.substring(0, 80)}${script.description.length > 80 ? '...' : ''}</p>
+            </div>
             <div class="script-card-footer">
-                <i class="fa-regular fa-user"></i>
-                <span>${script.authorUsername || 'Anônimo'}</span>
+                <div class="author-info">
+                    <i class="fa-regular fa-user"></i>
+                    <span>${script.authorUsername || 'Anônimo'}</span>
+                </div>
+                <button class="star-button" data-script-id="${doc.id}">
+                    <i class="fa-regular fa-star"></i>
+                    <span class="star-count">${script.starCount || 0}</span>
+                </button>
             </div>
         `;
+        
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
             card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
             card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
         });
+
+        const starButton = card.querySelector('.star-button');
+        starButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleStarClick(doc.id);
+        });
+
         grid.appendChild(card);
     });
 }
 
 async function loadScriptDetails(scriptId) {
     const contentArea = document.getElementById('script-details-content');
-    const doc = await db.collection('scripts').doc(scriptId).get();
-    if (!doc.exists) { window.location.hash = '/404'; return; }
+    const scriptRef = db.collection('scripts').doc(scriptId);
+    
+    scriptRef.onSnapshot(async (doc) => {
+        if (!doc.exists) { window.location.hash = '/404'; return; }
 
-    const script = doc.data();
-    contentArea.innerHTML = `
-        <h1 class="title">${script.title}</h1>
-        <p class="author">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
-        <div class="box">
-            <div class="box-header">Descrição</div>
-            <div class="box-body">${script.description.replace(/\n/g, '<br>')}</div>
-        </div>
-        <div class="box">
-            <div class="box-header">Código Fonte</div>
-            <div class="box-body">
-                <pre><code class="language-lua hljs">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+        const script = doc.data();
+        const user = auth.currentUser;
+        let userHasStarred = false;
+
+        if (user) {
+            const starDoc = await scriptRef.collection('stars').doc(user.uid).get();
+            userHasStarred = starDoc.exists;
+        }
+
+        contentArea.innerHTML = `
+            <div class="title-header">
+                <div>
+                    <h1 class="title">${script.title}</h1>
+                    <p class="author">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
+                </div>
+                <button class="star-button large ${userHasStarred ? 'starred' : ''}" id="details-star-button">
+                    <i class="fa-${userHasStarred ? 'solid' : 'regular'} fa-star"></i>
+                    <span class="star-count">${script.starCount || 0}</span>
+                </button>
             </div>
-        </div>
-    `;
-    hljs.highlightAll();
+            <div class="box">
+                <div class="box-header">Descrição</div>
+                <div class="box-body">${script.description.replace(/\n/g, '<br>')}</div>
+            </div>
+            <div class="box">
+                <div class="box-header">Código Fonte</div>
+                <div class="box-body">
+                    <pre><code class="language-lua hljs">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('details-star-button').addEventListener('click', () => handleStarClick(scriptId));
+        hljs.highlightAll();
+    });
 }
 
 function updateUserUI(user) {
