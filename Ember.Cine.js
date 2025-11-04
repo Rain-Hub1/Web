@@ -2,7 +2,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD-mHbd5e5zzS7sGnFtMbeFii5nyXxD3MI",
   authDomain: "ember-cine.firebaseapp.com",
   projectId: "ember-cine",
-  storageBucket: "ember-cine.firebasestorage.app",
+  storageBucket: "ember-cine.appspot.com",
   messagingSenderId: "1071616566981",
   appId: "1:1071616566981:web:5a08c0aea216a4c37ef2ac"
 };
