@@ -9,6 +9,7 @@
     --color-text-muted: #88878D;
     --color-accent: #007CF0;
     --color-accent-glow: rgba(0, 124, 240, 0.5);
+    --color-star: #FFC700;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -92,13 +93,33 @@ a:hover { color: #3399ff; }
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 .script-card:hover { transform: translateY(-5px); border-color: var(--color-accent); }
 .script-card-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.1), transparent 40%); opacity: 0; transition: opacity 0.3s; }
 .script-card:hover .script-card-glow { opacity: 1; }
+.script-card-content { flex-grow: 1; }
 .script-card h3 { font-size: 1.5rem; margin-bottom: 8px; }
 .script-card p { color: var(--color-text-muted); }
-.script-card-footer { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.9rem; color: var(--color-text-muted); }
+.script-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; font-size: 0.9rem; color: var(--color-text-muted); }
+.author-info { display: flex; align-items: center; gap: 8px; }
+
+.star-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+}
+.star-button:hover { color: var(--color-star); }
+.star-button.starred { color: var(--color-star); }
+.star-button .fa-star { font-size: 1.1rem; }
 
 .auth-wrapper { max-width: 420px; margin: 60px auto; }
 .form-card { background: var(--color-bg-glass); border: 1px solid var(--color-border); border-radius: 12px; padding: 32px; }
@@ -125,7 +146,8 @@ a:hover { color: #3399ff; }
 .submit-form { max-width: 800px; margin: 0 auto; }
 .form-footer { text-align: right; margin-top: 24px; }
 
-#script-details-content .title { font-size: 3rem; font-weight: 700; margin-bottom: 8px; }
+#script-details-content .title-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+#script-details-content .title { font-size: 3rem; font-weight: 700; }
 #script-details-content .author { color: var(--color-text-muted); margin-bottom: 32px; }
 #script-details-content .box { background: var(--color-bg-glass); border: 1px solid var(--color-border); border-radius: 12px; margin-bottom: 24px; }
 #script-details-content .box-header { padding: 16px 24px; border-bottom: 1px solid var(--color-border); font-weight: 600; font-size: 1.2rem; }
