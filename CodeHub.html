@@ -75,21 +75,12 @@
     </template>
 
     <template id="template-submit">
-        <div class="page-header">
-            <h1>Publicar Script</h1>
-            <p>Contribua com a comunidade compartilhando seu trabalho.</p>
-        </div>
+        <div class="page-header"><h1>Publicar Script</h1><p>Contribua com a comunidade compartilhando seu trabalho.</p></div>
         <form id="submit-script-form" class="form-card submit-form">
             <div class="input-group"><label for="script-title">Título do Script</label><input type="text" id="script-title" placeholder="Ex: Sistema de inventário avançado" required></div>
             <div class="input-group"><label for="script-game-id">Game ID (Opcional)</label><input type="text" id="script-game-id" placeholder="Ex: 873764231"></div>
             <div class="input-group"><label for="script-tags">Tags (separadas por vírgula)</label><input type="text" id="script-tags" placeholder="Ex: farm, autofarm, pvp, hub"></div>
-            
-            <!-- CAMPO DE UPLOAD SUBSTITUÍDO POR CAMPO DE URL -->
-            <div class="input-group">
-                <label for="script-thumbnail-url">URL da Thumbnail</label>
-                <input type="url" id="script-thumbnail-url" placeholder="https://exemplo.com/imagem.png" required>
-            </div>
-
+            <div class="input-group"><label for="script-thumbnail-url">URL da Thumbnail</label><input type="url" id="script-thumbnail-url" placeholder="https://exemplo.com/imagem.png" required></div>
             <div class="input-group"><label for="script-description">Descrição</label><textarea id="script-description" rows="4" placeholder="Detalhe o que seu script faz e como usá-lo." required></textarea></div>
             <div class="input-group"><label for="script-code">Código</label><textarea id="script-code" class="code-input" rows="15" placeholder="loadstring(game:HttpGet(...))" required></textarea></div>
             <div class="form-footer"><button type="submit" class="btn btn-primary" id="submit-button">Publicar</button></div>
@@ -108,6 +99,36 @@
         <div id="profile-content"></div>
     </template>
 
+    <!-- NOVO TEMPLATE DE CONFIGURAÇÕES -->
+    <template id="template-settings">
+        <div class="page-header">
+            <h1>Configurações da Conta</h1>
+            <p>Gerencie suas informações e segurança.</p>
+        </div>
+        <div class="settings-wrapper">
+            <div class="form-card">
+                <h3 class="form-title">Alterar Nome de Usuário</h3>
+                <form id="update-username-form">
+                    <div class="input-group">
+                        <label for="new-username">Novo nome de usuário</label>
+                        <input type="text" id="new-username" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Salvar Nome</button>
+                </form>
+            </div>
+            <div class="form-card">
+                <h3 class="form-title">Alterar Senha</h3>
+                <form id="update-password-form">
+                    <div class="input-group">
+                        <label for="new-password">Nova Senha</label>
+                        <input type="password" id="new-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Salvar Senha</button>
+                </form>
+            </div>
+        </div>
+    </template>
+
     <template id="template-404">
         <div class="fullscreen-message">
             <i class="fa-solid fa-satellite-dish"></i>
@@ -120,7 +141,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <!-- A linha do Firebase Storage foi removida -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     <script src="CodeHub.js"></script>
 </body>
