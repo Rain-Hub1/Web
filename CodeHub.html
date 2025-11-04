@@ -6,99 +6,120 @@
     <title>CodeHub</title>
     <link rel="stylesheet" href="CodeHub.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <!-- Biblioteca para realce de sintaxe do código -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/github-dark.min.css">
 </head>
 <body>
 
-    <header class="header">
-        <div class="container">
-            <a href="#" class="header-logo-link">
-                <i class="fas fa-code-branch header-logo"></i>
-                <h1>CodeHub</h1>
+    <header class="Header">
+        <div class="Header-item">
+            <a href="#" class="Header-link">
+                <i class="fab fa-github Header-logo"></i>
+                <span class="Header-link-text">CodeHub</span>
             </a>
+        </div>
+        <div class="Header-item Header-item--full">
             <nav id="main-nav">
-                <a href="#/Scripts">Explorar</a>
-                <a href="#/Submit" class="btn btn-success btn-sm">Postar Script</a>
+                <a href="#/Scripts" class="nav-item">Explorar</a>
             </nav>
-            <div id="user-actions">
-                <!-- Carregado pelo JS -->
-            </div>
+        </div>
+        <div class="Header-item" id="user-actions">
+            <!-- Carregado pelo JS -->
         </div>
     </header>
 
-    <main id="app-root" class="container"></main>
+    <main id="app-root" class="container-xl"></main>
 
     <!-- ======================= -->
     <!-- TEMPLATES DAS PÁGINAS -->
     <!-- ======================= -->
 
     <template id="template-home">
-        <div class="hero-section">
-            <h2>Encontre os Melhores Scripts</h2>
-            <p>Explore, compartilhe e utilize scripts enviados pela comunidade.</p>
+        <div class="pagehead">
+            <h1>Scripts da Comunidade</h1>
+            <p class="lead">Explore os scripts mais recentes e populares enviados por outros desenvolvedores.</p>
         </div>
-        <h3><i class="fas fa-history"></i> Scripts Recentes</h3>
-        <div id="scripts-grid" class="scripts-grid">
+        <div id="scripts-grid" class="repo-list">
             <!-- Scripts serão carregados aqui -->
         </div>
     </template>
 
     <template id="template-login">
         <div class="auth-container">
-            <div class="auth-box">
-                <h2>Bem-vindo de volta</h2>
-                <form id="login-form">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" class="form-control" required>
-                    <label for="login-password">Senha</label>
-                    <input type="password" id="login-password" class="form-control" required>
-                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-                </form>
-                <div class="auth-prompt">
-                    Novo no CodeHub? <a href="#/Cadastro">Crie uma conta</a>.
+            <div class="Box auth-box">
+                <div class="Box-header">
+                    <h3 class="Box-title">Sign in to CodeHub</h3>
                 </div>
+                <div class="Box-body">
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Senha</label>
+                            <input type="password" id="login-password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                    </form>
+                </div>
+            </div>
+            <div class="Box auth-prompt">
+                Novo no CodeHub? <a href="#/Cadastro">Crie uma conta</a>.
             </div>
         </div>
     </template>
 
     <template id="template-cadastro">
         <div class="auth-container">
-            <div class="auth-box">
-                <h2>Junte-se ao CodeHub</h2>
-                <form id="signup-form">
-                    <label for="signup-username">Nome de usuário</label>
-                    <input type="text" id="signup-username" class="form-control" required>
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" class="form-control" required>
-                    <label for="signup-password">Senha</label>
-                    <input type="password" id="signup-password" class="form-control" required>
-                    <button type="submit" class="btn btn-success btn-block">Criar Conta</button>
-                </form>
-                <div class="auth-prompt">
-                    Já tem uma conta? <a href="#/Login">Faça o login</a>.
+            <div class="Box auth-box">
+                <div class="Box-header">
+                    <h3 class="Box-title">Create your account</h3>
+                </div>
+                <div class="Box-body">
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="signup-username">Username</label>
+                            <input type="text" id="signup-username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Sign up</button>
+                    </form>
                 </div>
             </div>
         </div>
     </template>
 
     <template id="template-submit">
-        <div class="submit-container">
-            <h2><i class="fas fa-upload"></i> Enviar um novo Script</h2>
-            <form id="submit-script-form" class="form-card">
-                <div class="form-group">
-                    <label for="script-title">Título do Script</label>
-                    <input type="text" id="script-title" class="form-control" placeholder="Ex: Auto-farm para Jogo X" required>
+        <div class="pagehead">
+            <h1>Novo Repositório de Script</h1>
+            <p class="lead">Compartilhe seu código com a comunidade.</p>
+        </div>
+        <div class="Box">
+            <form id="submit-script-form">
+                <div class="Box-body">
+                    <div class="form-group">
+                        <label for="script-title">Título do Repositório</label>
+                        <input type="text" id="script-title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="script-description">Descrição</label>
+                        <textarea id="script-description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="script-code">Código Fonte</label>
+                        <textarea id="script-code" class="form-control code-input" rows="12" required></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="script-description">Descrição</label>
-                    <textarea id="script-description" class="form-control" rows="4" placeholder="Uma breve descrição do que o script faz, como usar, etc." required></textarea>
+                <div class="Box-footer text-right">
+                    <button type="submit" class="btn btn-primary">Commit new script</button>
                 </div>
-                <div class="form-group">
-                    <label for="script-code">Código</label>
-                    <textarea id="script-code" class="form-control code-input" rows="15" placeholder="Cole seu código aqui..." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Publicar Script</button>
             </form>
         </div>
     </template>
@@ -110,15 +131,14 @@
     </template>
 
     <template id="template-404">
-        <div class="page-404">
-            <i class="fas fa-ghost"></i>
-            <h2>404 - Não Encontrado</h2>
-            <p>O script ou a página que você procura não existe.</p>
-            <a href="#">Voltar para o início</a>
+        <div class="blankslate">
+            <i class="fas fa-ghost blankslate-icon"></i>
+            <h3 class="blankslate-heading">404 - Not Found</h3>
+            <p>Este não é o repositório que você está procurando.</p>
+            <a href="#" class="btn">Voltar para o início</a>
         </div>
     </template>
 
-    <!-- Scripts JS -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
