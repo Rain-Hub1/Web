@@ -17,10 +17,7 @@
 
     <header class="header">
         <div class="container">
-            <a href="#" class="header-logo">
-                <i class="fa-solid fa-layer-group"></i>
-                <span>Code Hub</span>
-            </a>
+            <a href="#" class="header-logo"><i class="fa-solid fa-layer-group"></i><span>CodeHub</span></a>
             <nav id="main-nav">
                 <a href="#">Explorar</a>
                 <a href="#/Upload" class="hidden">Enviar</a>
@@ -30,117 +27,21 @@
     </header>
 
     <main id="app-root" class="container"></main>
-
     <div id="notification-area"></div>
 
-    <!-- ======================= -->
-    <!-- TEMPLATES DAS PÁGINAS -->
-    <!-- ======================= -->
+    <!-- TEMPLATES -->
+    <template id="template-home"><div class="hero"><h1 class="hero-title">Onde os Scripts Ganham Vida</h1><p class="hero-subtitle">Explore, compartilhe e eleve seu jogo com a criatividade da comunidade.</p></div><div id="scripts-grid" class="scripts-grid"></div></template>
+    <template id="template-login"><div class="auth-wrapper"><div class="form-card"><h2 class="form-title">Acessar sua Conta</h2><form id="login-form"><div class="input-group"><label for="login-email">Email</label><input type="email" id="login-email" required></div><div class="input-group"><label for="login-password">Senha</label><input type="password" id="login-password" required></div><button type="submit" class="btn btn-primary btn-block">Entrar</button></form><p class="form-switch">Novo por aqui? <a href="#/Cadastro">Crie uma conta</a>.</p></div></div></template>
+    <template id="template-cadastro"><div class="auth-wrapper"><div class="form-card"><h2 class="form-title">Criar Nova Conta</h2><form id="signup-form"><div class="input-group"><label for="signup-username">Nome de usuário</label><input type="text" id="signup-username" required></div><div class="input-group"><label for="signup-email">Email</label><input type="email" id="signup-email" required></div><div class="input-group"><label for="signup-password">Senha</label><input type="password" id="signup-password" required></div><button type="submit" class="btn btn-primary btn-block">Criar Conta</button></form><p class="form-switch">Já tem uma conta? <a href="#/Login">Faça login</a>.</p></div></div></template>
+    <template id="template-submit"><div class="page-header"><h1>Publicar Script</h1><p>Contribua com a comunidade compartilhando seu trabalho.</p></div><form id="submit-script-form" class="form-card submit-form"><div class="input-group"><label for="script-title">Título do Script</label><input type="text" id="script-title" required></div><div class="input-group"><label for="script-game-id">Game ID (Opcional)</label><input type="text" id="script-game-id"></div><div class="input-group"><label for="script-tags">Tags (separadas por vírgula)</label><input type="text" id="script-tags"></div><div class="input-group"><label for="script-thumbnail-url">URL da Thumbnail</label><input type="url" id="script-thumbnail-url" required></div><div class="input-group"><label for="script-description">Descrição</label><textarea id="script-description" rows="4" required></textarea></div><div class="input-group"><label for="script-code">Código</label><textarea id="script-code" class="code-input" rows="15" required></textarea></div><div class="form-footer"><button type="submit" class="btn btn-primary" id="submit-button">Publicar</button></div></form></template>
+    <template id="template-script-view"><div id="script-details-content"></div><div id="tags-and-comments-section"><div class="box" id="tags-box"><div class="box-header">Tags</div><div class="box-body" id="tags-container"></div></div><div class="box" id="comments-box"><div class="box-header">Comentários</div><div class="box-body"><div id="comments-list"></div><form id="comment-form" class="comment-form"><textarea id="comment-input" placeholder="Escreva seu comentário..." required></textarea><button type="submit" class="btn btn-primary">Enviar</button></form></div></div></div></template>
+    <template id="template-user-profile"><div id="profile-content"></div></template>
+    <template id="template-settings"><div class="page-header"><h1>Configurações da Conta</h1><p>Gerencie suas informações e segurança.</p></div><div class="settings-wrapper"><div class="form-card"><h3 class="form-title">Alterar Nome de Usuário</h3><form id="update-username-form"><div class="input-group"><label for="new-username">Novo nome de usuário</label><input type="text" id="new-username" required></div><button type="submit" class="btn btn-primary btn-block">Salvar Nome</button></form></div><div class="form-card"><h3 class="form-title">Alterar Senha</h3><form id="update-password-form"><div class="input-group"><label for="new-password">Nova Senha</label><input type="password" id="new-password" required></div><button type="submit" class="btn btn-primary btn-block">Salvar Senha</button></form></div></div></template>
+    <template id="template-404"><div class="fullscreen-message"><i class="fa-solid fa-satellite-dish"></i><h1>404</h1><p>Sinal perdido. Não encontramos a página que você procura.</p><a href="#" class="btn btn-secondary">Voltar à base</a></div></template>
 
-    <template id="template-home">
-        <div class="hero">
-            <h1 class="hero-title">Onde os Scripts Ganham Vida</h1>
-            <p class="hero-subtitle">Explore, compartilhe e eleve seu jogo com a criatividade da comunidade.</p>
-        </div>
-        <div id="scripts-grid" class="scripts-grid"></div>
-    </template>
-
-    <template id="template-login">
-        <div class="auth-wrapper">
-            <div class="form-card">
-                <h2 class="form-title">Acessar sua Conta</h2>
-                <form id="login-form">
-                    <div class="input-group"><label for="login-email">Email</label><input type="email" id="login-email" required></div>
-                    <div class="input-group"><label for="login-password">Senha</label><input type="password" id="login-password" required></div>
-                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-                </form>
-                <p class="form-switch">Novo por aqui? <a href="#/Cadastro">Crie uma conta</a>.</p>
-            </div>
-        </div>
-    </template>
-
-    <template id="template-cadastro">
-        <div class="auth-wrapper">
-            <div class="form-card">
-                <h2 class="form-title">Criar Nova Conta</h2>
-                <form id="signup-form">
-                    <div class="input-group"><label for="signup-username">Nome de usuário</label><input type="text" id="signup-username" required></div>
-                    <div class="input-group"><label for="signup-email">Email</label><input type="email" id="signup-email" required></div>
-                    <div class="input-group"><label for="signup-password">Senha</label><input type="password" id="signup-password" required></div>
-                    <button type="submit" class="btn btn-primary btn-block">Criar Conta</button>
-                </form>
-                <p class="form-switch">Já tem uma conta? <a href="#/Login">Faça login</a>.</p>
-            </div>
-        </div>
-    </template>
-
-    <template id="template-submit">
-        <div class="page-header"><h1>Publicar Script</h1><p>Contribua com a comunidade compartilhando seu trabalho.</p></div>
-        <form id="submit-script-form" class="form-card submit-form">
-            <div class="input-group"><label for="script-title">Título do Script</label><input type="text" id="script-title" placeholder="Ex: Sistema de inventário avançado" required></div>
-            <div class="input-group"><label for="script-game-id">Game ID (Opcional)</label><input type="text" id="script-game-id" placeholder="Ex: 873764231"></div>
-            <div class="input-group"><label for="script-tags">Tags (separadas por vírgula)</label><input type="text" id="script-tags" placeholder="Ex: farm, autofarm, pvp, hub"></div>
-            <div class="input-group"><label for="script-thumbnail-url">URL da Thumbnail</label><input type="url" id="script-thumbnail-url" placeholder="https://exemplo.com/imagem.png" required></div>
-            <div class="input-group"><label for="script-description">Descrição</label><textarea id="script-description" rows="4" placeholder="Detalhe o que seu script faz e como usá-lo." required></textarea></div>
-            <div class="input-group"><label for="script-code">Código</label><textarea id="script-code" class="code-input" rows="15" placeholder="loadstring(game:HttpGet(...))" required></textarea></div>
-            <div class="form-footer"><button type="submit" class="btn btn-primary" id="submit-button">Publicar</button></div>
-        </form>
-    </template>
-
-    <template id="template-script-view">
-        <div id="script-details-content"></div>
-        <div id="tags-and-comments-section">
-            <div class="box" id="tags-box"><div class="box-header">Tags</div><div class="box-body" id="tags-container"></div></div>
-            <div class="box" id="comments-box"><div class="box-header">Comentários</div><div class="box-body"><div id="comments-list"></div><form id="comment-form" class="comment-form"><textarea id="comment-input" placeholder="Escreva seu comentário..." required></textarea><button type="submit" class="btn btn-primary">Enviar</button></form></div></div>
-        </div>
-    </template>
-
-    <template id="template-user-profile">
-        <div id="profile-content"></div>
-    </template>
-
-    <!-- NOVO TEMPLATE DE CONFIGURAÇÕES -->
-    <template id="template-settings">
-        <div class="page-header">
-            <h1>Configurações da Conta</h1>
-            <p>Gerencie suas informações e segurança.</p>
-        </div>
-        <div class="settings-wrapper">
-            <div class="form-card">
-                <h3 class="form-title">Alterar Nome de Usuário</h3>
-                <form id="update-username-form">
-                    <div class="input-group">
-                        <label for="new-username">Novo nome de usuário</label>
-                        <input type="text" id="new-username" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Salvar Nome</button>
-                </form>
-            </div>
-            <div class="form-card">
-                <h3 class="form-title">Alterar Senha</h3>
-                <form id="update-password-form">
-                    <div class="input-group">
-                        <label for="new-password">Nova Senha</label>
-                        <input type="password" id="new-password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Salvar Senha</button>
-                </form>
-            </div>
-        </div>
-    </template>
-
-    <template id="template-404">
-        <div class="fullscreen-message">
-            <i class="fa-solid fa-satellite-dish"></i>
-            <h1>404</h1>
-            <p>Sinal perdido. Não encontramos a página que você procura.</p>
-            <a href="#" class="btn btn-secondary">Voltar à base</a>
-        </div>
-    </template>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <!-- BIBLIOTECA DO SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     <script src="CodeHub.js"></script>
 </body>
