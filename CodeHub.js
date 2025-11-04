@@ -23,6 +23,20 @@ const routes = {
     '/script/:id': { templateId: 'template-script-view', isPublic: true, title: 'Visualizando Script' }
 };
 
+function showNotification(message) {
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+
 function render(templateId) {
     const template = document.getElementById(templateId);
     appRoot.innerHTML = template.innerHTML;
@@ -67,7 +81,15 @@ async function attachEventListeners(routeKey, params) {
     }
 }
 
-function handleLogin(e) { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => alert(err.message)); }
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    auth.signInWithEmailAndPassword(email, password).catch(err => {
+        const message = err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' ? 'Email ou senha inválidos.' : 'Ocorreu um erro.';
+        showNotification(message);
+    });
+}
 
 function handleSignup(e) {
     e.preventDefault();
@@ -76,11 +98,20 @@ function handleSignup(e) {
     const password = document.getElementById('signup-password').value;
 
     db.collection('users').where('username', '==', username).get().then(snapshot => {
-        if (!snapshot.empty) { alert('Este nome de usuário já existe.'); return; }
+        if (!snapshot.empty) {
+            showNotification('Este nome de usuário já existe.');
+            return;
+        }
         auth.createUserWithEmailAndPassword(email, password)
             .then(cred => db.collection('users').doc(cred.user.uid).set({ username: username }))
-            .then(() => { alert('Conta criada com sucesso!'); window.location.hash = '/'; })
-            .catch(err => alert(err.message));
+            .then(() => {
+                showNotification('Conta criada com sucesso!');
+                window.location.hash = '/';
+            })
+            .catch(err => {
+                const message = err.code === 'auth/email-already-in-use' ? 'Este email já está em uso.' : 'Ocorreu um erro no cadastro.';
+                showNotification(message);
+            });
     });
 }
 
@@ -94,14 +125,14 @@ function handleSubmitScript(e) {
     if (user && title && description && code) {
         db.collection('scripts').add({ title, description, code, authorId: user.uid, authorUsername: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp(), starCount: 0 })
             .then(docRef => { window.location.hash = `/script/${docRef.id}`; })
-            .catch(err => alert(err.message));
+            .catch(err => showNotification('Erro ao publicar o script.'));
     }
 }
 
 async function handleStarClick(scriptId) {
     const user = auth.currentUser;
     if (!user) {
-        alert('Você precisa estar logado para dar uma estrela.');
+        showNotification('Você precisa estar logado para dar uma estrela.');
         window.location.hash = '/Login';
         return;
     }
@@ -110,7 +141,7 @@ async function handleStarClick(scriptId) {
     const starRef = scriptRef.collection('stars').doc(user.uid);
     const starDoc = await starRef.get();
 
-    const transaction = db.runTransaction(async (t) => {
+    db.runTransaction(async (t) => {
         const scriptDoc = await t.get(scriptRef);
         const currentStarCount = scriptDoc.data().starCount || 0;
 
@@ -121,7 +152,7 @@ async function handleStarClick(scriptId) {
             t.set(starRef, { starredAt: firebase.firestore.FieldValue.serverTimestamp() });
             t.update(scriptRef, { starCount: currentStarCount + 1 });
         }
-    });
+    }).catch(err => showNotification('Erro ao processar a estrela.'));
 }
 
 async function loadRecentScripts() {
@@ -137,7 +168,7 @@ async function loadRecentScripts() {
         card.innerHTML = `
             <div class="script-card-glow"></div>
             <div class="script-card-content">
-                <a href="#/script/${doc.id}" class="script-link"><h3>${script.title}</h3></a>
+                <a href="#/script/${doc.id}" class="script-link" style="text-decoration: none; color: inherit;"><h3>${script.title}</h3></a>
                 <p>${script.description.substring(0, 80)}${script.description.length > 80 ? '...' : ''}</p>
             </div>
             <div class="script-card-footer">
@@ -152,6 +183,11 @@ async function loadRecentScripts() {
             </div>
         `;
         
+        card.querySelector('.script-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.hash = `#/script/${doc.id}`;
+        });
+
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
             card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
