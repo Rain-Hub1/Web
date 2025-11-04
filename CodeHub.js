@@ -67,12 +67,7 @@ async function attachEventListeners(routeKey, params) {
     }
 }
 
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-}
+function handleLogin(e) { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => alert(err.message)); }
 
 function handleSignup(e) {
     e.preventDefault();
@@ -81,18 +76,10 @@ function handleSignup(e) {
     const password = document.getElementById('signup-password').value;
 
     db.collection('users').where('username', '==', username).get().then(snapshot => {
-        if (!snapshot.empty) {
-            alert('Este nome de usuário já existe.');
-            return;
-        }
+        if (!snapshot.empty) { alert('Este nome de usuário já existe.'); return; }
         auth.createUserWithEmailAndPassword(email, password)
-            .then(cred => {
-                return db.collection('users').doc(cred.user.uid).set({ username: username });
-            })
-            .then(() => {
-                alert('Conta criada com sucesso!');
-                window.location.hash = '/';
-            })
+            .then(cred => db.collection('users').doc(cred.user.uid).set({ username: username }))
+            .then(() => { alert('Conta criada com sucesso!'); window.location.hash = '/'; })
             .catch(err => alert(err.message));
     });
 }
@@ -105,64 +92,58 @@ function handleSubmitScript(e) {
     const code = document.getElementById('script-code').value;
 
     if (user && title && description && code) {
-        db.collection('scripts').add({
-            title,
-            description,
-            code,
-            authorId: user.uid,
-            authorUsername: user.displayName,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            views: 0
-        }).then(docRef => {
-            window.location.hash = `/script/${docRef.id}`;
-        }).catch(err => alert(err.message));
+        db.collection('scripts').add({ title, description, code, authorId: user.uid, authorUsername: user.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp(), views: 0 })
+            .then(docRef => { window.location.hash = `/script/${docRef.id}`; })
+            .catch(err => alert(err.message));
     }
 }
 
 async function loadRecentScripts() {
     const grid = document.getElementById('scripts-grid');
     if (!grid) return;
-    const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').limit(10).get();
+    const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').limit(9).get();
     grid.innerHTML = '';
     snapshot.forEach(doc => {
         const script = doc.data();
-        const card = document.createElement('div');
-        card.className = 'repo-card';
+        const card = document.createElement('a');
+        card.className = 'script-card';
+        card.href = `#/script/${doc.id}`;
         card.innerHTML = `
-            <h3><a href="#/script/${doc.id}">${script.title}</a></h3>
-            <p>${script.description.substring(0, 100)}${script.description.length > 100 ? '...' : ''}</p>
-            <div class="meta">
-                <span>Criado por <strong>${script.authorUsername || 'Anônimo'}</strong></span>
+            <div class="script-card-glow"></div>
+            <h3>${script.title}</h3>
+            <p>${script.description.substring(0, 80)}${script.description.length > 80 ? '...' : ''}</p>
+            <div class="script-card-footer">
+                <i class="fa-regular fa-user"></i>
+                <span>${script.authorUsername || 'Anônimo'}</span>
             </div>
         `;
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        });
         grid.appendChild(card);
     });
 }
 
 async function loadScriptDetails(scriptId) {
     const contentArea = document.getElementById('script-details-content');
-    const docRef = db.collection('scripts').doc(scriptId);
-    const doc = await docRef.get();
-
-    if (!doc.exists) {
-        window.location.hash = '/404';
-        return;
-    }
+    const doc = await db.collection('scripts').doc(scriptId).get();
+    if (!doc.exists) { window.location.hash = '/404'; return; }
 
     const script = doc.data();
     contentArea.innerHTML = `
-        <div class="pagehead">
-            <h1>${script.title}</h1>
-            <p class="lead">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
+        <h1 class="title">${script.title}</h1>
+        <p class="author">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
+        <div class="box">
+            <div class="box-header">Descrição</div>
+            <div class="box-body">${script.description.replace(/\n/g, '<br>')}</div>
         </div>
-        <div class="Box">
-            <div class="Box-header"><h3 class="Box-title">Descrição</h3></div>
-            <div class="Box-body">${script.description.replace(/\n/g, '<br>')}</div>
-        </div>
-        <br>
-        <div class="Box">
-            <div class="Box-header"><h3 class="Box-title">Código Fonte</h3></div>
-            <pre><code class="language-lua hljs">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+        <div class="box">
+            <div class="box-header">Código Fonte</div>
+            <div class="box-body">
+                <pre><code class="language-lua hljs">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+            </div>
         </div>
     `;
     hljs.highlightAll();
@@ -171,15 +152,14 @@ async function loadScriptDetails(scriptId) {
 function updateUserUI(user) {
     if (user) {
         userActions.innerHTML = `
-            <a href="#/Submit" class="btn btn-primary">Novo</a>
-            <span class="Header-link">${user.displayName || user.email}</span>
-            <button id="logout-button" class="btn">Sair</button>
+            <span class="user-display">${user.displayName || user.email}</span>
+            <button id="logout-button" class="btn btn-secondary">Sair</button>
         `;
         document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
     } else {
         userActions.innerHTML = `
-            <a href="#/Login" class="btn">Sign in</a>
-            <a href="#/Cadastro" class="btn btn-primary">Sign up</a>
+            <a href="#/Login" class="btn btn-secondary">Login</a>
+            <a href="#/Cadastro" class="btn btn-primary">Criar Conta</a>
         `;
     }
 }
@@ -187,9 +167,7 @@ function updateUserUI(user) {
 auth.onAuthStateChanged(async user => {
     if (user && !user.displayName) {
         const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-            await user.updateProfile({ displayName: userDoc.data().username });
-        }
+        if (userDoc.exists) { await user.updateProfile({ displayName: userDoc.data().username }); }
     }
     updateUserUI(user);
     router();
