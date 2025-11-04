@@ -28,14 +28,10 @@ function showNotification(message, isError = true) {
     const notificationArea = document.getElementById('notification-area');
     const notification = document.createElement('div');
     notification.className = 'notification';
-    if (!isError) {
-        notification.style.backgroundColor = 'var(--color-accent-secondary)';
-    }
+    if (!isError) { notification.style.backgroundColor = 'var(--color-accent)'; }
     notification.textContent = message;
     notificationArea.appendChild(notification);
-    setTimeout(() => {
-        notification.remove();
-    }, 4000);
+    setTimeout(() => { notification.remove(); }, 4000);
 }
 
 function render(templateId) {
@@ -68,11 +64,7 @@ async function attachEventListeners(routeKey, params) {
     else if (routeKey === '/script/:id' && params) { await loadScriptDetails(params.id); }
 }
 
-function handleLogin(e) {
-    e.preventDefault();
-    auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value)
-        .catch(err => showNotification(err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' ? 'Email ou senha inválidos.' : 'Ocorreu um erro.'));
-}
+function handleLogin(e) { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => showNotification(err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' ? 'Email ou senha inválidos.' : 'Ocorreu um erro.')); }
 
 function handleSignup(e) {
     e.preventDefault();
@@ -94,21 +86,11 @@ function setupSubmitForm() {
     const fileInput = document.getElementById('script-thumbnail-input');
     const preview = document.getElementById('thumbnail-preview');
     let fileToUpload = null;
-
     uploadBox.addEventListener('click', () => fileInput.click());
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => uploadBox.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }));
     ['dragenter', 'dragover'].forEach(eventName => uploadBox.addEventListener(eventName, () => uploadBox.classList.add('dragover')));
     ['dragleave', 'drop'].forEach(eventName => uploadBox.addEventListener(eventName, () => uploadBox.classList.remove('dragover')));
-    
-    function handleFile(file) {
-        if (file && file.type.startsWith('image/')) {
-            fileToUpload = file;
-            const reader = new FileReader();
-            reader.onload = (e) => { preview.src = e.target.result; preview.classList.remove('hidden'); };
-            reader.readAsDataURL(file);
-        } else { showNotification('Por favor, selecione um arquivo de imagem.'); }
-    }
-
+    function handleFile(file) { if (file && file.type.startsWith('image/')) { fileToUpload = file; const reader = new FileReader(); reader.onload = (e) => { preview.src = e.target.result; preview.classList.remove('hidden'); }; reader.readAsDataURL(file); } else { showNotification('Por favor, selecione um arquivo de imagem.'); } }
     uploadBox.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
     form.addEventListener('submit', (e) => handleSubmitScript(e, fileToUpload));
@@ -120,45 +102,10 @@ async function handleSubmitScript(e, file) {
     const submitButton = document.getElementById('submit-button');
     submitButton.disabled = true;
     submitButton.textContent = 'Publicando...';
-
-    if (!file) {
-        showNotification('Por favor, adicione uma imagem de thumbnail.');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Publicar';
-        return;
-    }
-
+    if (!file) { showNotification('Por favor, adicione uma imagem de thumbnail.'); submitButton.disabled = false; submitButton.textContent = 'Publicar'; return; }
     const title = document.getElementById('script-title').value;
     const gameId = document.getElementById('script-game-id').value;
     const tags = document.getElementById('script-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
     const description = document.getElementById('script-description').value;
     const code = document.getElementById('script-code').value;
-
-    try {
-        const filePath = `thumbnails/${user.uid}/${Date.now()}_${file.name}`;
-        const fileRef = storage.ref(filePath);
-        await fileRef.put(file);
-        const thumbnailUrl = await fileRef.getDownloadURL();
-
-        const docRef = await db.collection('scripts').add({
-            title, gameId, tags, description, code, thumbnailUrl,
-            authorId: user.uid,
-            authorUsername: user.displayName,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            starCount: 0
-        });
-        
-        window.location.hash = `/script/${docRef.id}`;
-    } catch (err) {
-        showNotification('Erro ao publicar o script.');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Publicar';
-    }
-}
-
-async function handleStarClick(scriptId) {
-    const user = auth.currentUser;
-    if (!user) { showNotification('Você precisa estar logado para dar uma estrela.'); window.location.hash = '/Login'; return; }
-    const scriptRef = db.collection('scripts').doc(scriptId);
-    const starRef = scriptRef.collection('stars').doc(user.uid);
-    const starDoc = await starRef.get();
+    try
