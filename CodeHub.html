@@ -4,138 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="CodeHub.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/atom-one-dark.min.css">
 </head>
 <body>
 
-    <header class="Header">
-        <div class="Header-item">
-            <a href="#" class="Header-link">
-                <i class="fab fa-github Header-logo"></i>
-                <span class="Header-link-text">CodeHub</span>
+    <div class="background-glow"></div>
+
+    <header class="header">
+        <div class="container">
+            <a href="#" class="header-logo">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>CodeHub</span>
             </a>
-        </div>
-        <div class="Header-item Header-item--full">
             <nav id="main-nav">
-                <a href="#/Scripts" class="nav-item">Explorar</a>
+                <a href="#/Scripts">Explorar</a>
+                <a href="#/Submit">Enviar</a>
             </nav>
-        </div>
-        <div class="Header-item" id="user-actions">
-            <!-- Carregado pelo JS -->
+            <div class="header-actions" id="user-actions">
+                <!-- Carregado pelo JS -->
+            </div>
         </div>
     </header>
 
-    <main id="app-root" class="container-xl"></main>
+    <main id="app-root" class="container"></main>
 
     <!-- ======================= -->
     <!-- TEMPLATES DAS PÁGINAS -->
     <!-- ======================= -->
 
     <template id="template-home">
-        <div class="pagehead">
-            <h1>Scripts da Comunidade</h1>
-            <p class="lead">Explore os scripts mais recentes e populares enviados por outros desenvolvedores.</p>
+        <div class="hero">
+            <h1 class="hero-title">Onde os Scripts Ganham Vida</h1>
+            <p class="hero-subtitle">Explore, compartilhe e eleve seu jogo com a criatividade da comunidade.</p>
         </div>
-        <div id="scripts-grid" class="repo-list">
-            <!-- Scripts serão carregados aqui -->
+        <div id="scripts-grid" class="scripts-grid">
+            <!-- Scripts carregados aqui -->
         </div>
     </template>
 
     <template id="template-login">
-        <div class="auth-container">
-            <div class="Box auth-box">
-                <div class="Box-header">
-                    <h3 class="Box-title">Sign in to CodeHub</h3>
-                </div>
-                <div class="Box-body">
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label for="login-email">Email</label>
-                            <input type="email" id="login-email" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="login-password">Senha</label>
-                            <input type="password" id="login-password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-                    </form>
-                </div>
-            </div>
-            <div class="Box auth-prompt">
-                Novo no CodeHub? <a href="#/Cadastro">Crie uma conta</a>.
+        <div class="auth-wrapper">
+            <div class="form-card">
+                <h2 class="form-title">Acessar sua Conta</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                </form>
+                <p class="form-switch">Novo por aqui? <a href="#/Cadastro">Crie uma conta</a>.</p>
             </div>
         </div>
     </template>
 
     <template id="template-cadastro">
-        <div class="auth-container">
-            <div class="Box auth-box">
-                <div class="Box-header">
-                    <h3 class="Box-title">Create your account</h3>
-                </div>
-                <div class="Box-body">
-                    <form id="signup-form">
-                        <div class="form-group">
-                            <label for="signup-username">Username</label>
-                            <input type="text" id="signup-username" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-email">Email</label>
-                            <input type="email" id="signup-email" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-password">Password</label>
-                            <input type="password" id="signup-password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-success btn-block">Sign up</button>
-                    </form>
-                </div>
+        <div class="auth-wrapper">
+            <div class="form-card">
+                <h2 class="form-title">Criar Nova Conta</h2>
+                <form id="signup-form">
+                    <div class="input-group">
+                        <label for="signup-username">Nome de usuário</label>
+                        <input type="text" id="signup-username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-password">Senha</label>
+                        <input type="password" id="signup-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Criar Conta</button>
+                </form>
+                <p class="form-switch">Já tem uma conta? <a href="#/Login">Faça login</a>.</p>
             </div>
         </div>
     </template>
 
     <template id="template-submit">
-        <div class="pagehead">
-            <h1>Novo Repositório de Script</h1>
-            <p class="lead">Compartilhe seu código com a comunidade.</p>
+        <div class="page-header">
+            <h1>Publicar Script</h1>
+            <p>Contribua com a comunidade compartilhando seu trabalho.</p>
         </div>
-        <div class="Box">
-            <form id="submit-script-form">
-                <div class="Box-body">
-                    <div class="form-group">
-                        <label for="script-title">Título do Repositório</label>
-                        <input type="text" id="script-title" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="script-description">Descrição</label>
-                        <textarea id="script-description" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="script-code">Código Fonte</label>
-                        <textarea id="script-code" class="form-control code-input" rows="12" required></textarea>
-                    </div>
-                </div>
-                <div class="Box-footer text-right">
-                    <button type="submit" class="btn btn-primary">Commit new script</button>
-                </div>
-            </form>
-        </div>
+        <form id="submit-script-form" class="form-card submit-form">
+            <div class="input-group">
+                <label for="script-title">Título do Script</label>
+                <input type="text" id="script-title" placeholder="Ex: Sistema de inventário avançado" required>
+            </div>
+            <div class="input-group">
+                <label for="script-description">Descrição</label>
+                <textarea id="script-description" rows="4" placeholder="Detalhe o que seu script faz e como usá-lo." required></textarea>
+            </div>
+            <div class="input-group">
+                <label for="script-code">Código</label>
+                <textarea id="script-code" class="code-input" rows="15" placeholder="loadstring(game:HttpGet(...))" required></textarea>
+            </div>
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary">Publicar</button>
+            </div>
+        </form>
     </template>
 
     <template id="template-script-view">
         <div id="script-details-content">
-            <!-- Conteúdo do script carregado pelo JS -->
+            <!-- Conteúdo do script carregado aqui -->
         </div>
     </template>
 
     <template id="template-404">
-        <div class="blankslate">
-            <i class="fas fa-ghost blankslate-icon"></i>
-            <h3 class="blankslate-heading">404 - Not Found</h3>
-            <p>Este não é o repositório que você está procurando.</p>
-            <a href="#" class="btn">Voltar para o início</a>
+        <div class="fullscreen-message">
+            <i class="fa-solid fa-satellite-dish"></i>
+            <h1>404</h1>
+            <p>Sinal perdido. Não encontramos a página que você procura.</p>
+            <a href="#" class="btn btn-secondary">Voltar à base</a>
         </div>
     </template>
 
