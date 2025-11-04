@@ -23,32 +23,25 @@ const routes = {
     '/script/:id': { templateId: 'template-script-view', isPublic: true, title: 'Visualizando Script' }
 };
 
-function render(templateId, data = {}) {
+function render(templateId) {
     const template = document.getElementById(templateId);
-    let html = template.innerHTML;
-    for (const key in data) {
-        html = html.replace(new RegExp(`{{${key}}}`, 'g'), data[key]);
-    }
-    appRoot.innerHTML = html;
+    appRoot.innerHTML = template.innerHTML;
 }
 
 async function router() {
     const path = window.location.hash.slice(1) || '/';
     const user = auth.currentUser;
     
-    let route, params;
+    let routeKey = path;
+    let params;
     const pathParts = path.split('/');
-    if (pathParts[1] === 'script' && pathParts[2]) {
-        route = routes['/script/:id'];
-        params = { id: pathParts[2] };
-    } else {
-        route = routes[path] || routes['/404'];
-    }
 
-    if (!route) {
-        render('template-404');
-        return;
+    if (pathParts[1] === 'script' && pathParts[2]) {
+        routeKey = '/script/:id';
+        params = { id: pathParts[2] };
     }
+    
+    const route = routes[routeKey] || { templateId: 'template-404', isPublic: true, title: 'Não Encontrado' };
 
     if (!route.isPublic && !user) {
         window.location.hash = '/Login';
@@ -57,19 +50,19 @@ async function router() {
 
     render(route.templateId);
     document.title = `CodeHub - ${route.title}`;
-    await attachEventListeners(path, params);
+    await attachEventListeners(routeKey, params);
 }
 
-async function attachEventListeners(path, params) {
-    if (path === '/' || path === '/Scripts') {
-        loadRecentScripts();
-    } else if (path === '/Login') {
+async function attachEventListeners(routeKey, params) {
+    if (routeKey === '/' || routeKey === '/Scripts') {
+        await loadRecentScripts();
+    } else if (routeKey === '/Login') {
         document.getElementById('login-form').addEventListener('submit', handleLogin);
-    } else if (path === '/Cadastro') {
+    } else if (routeKey === '/Cadastro') {
         document.getElementById('signup-form').addEventListener('submit', handleSignup);
-    } else if (path === '/Submit') {
+    } else if (routeKey === '/Submit') {
         document.getElementById('submit-script-form').addEventListener('submit', handleSubmitScript);
-    } else if (route.path === '/script/:id' && params) {
+    } else if (routeKey === '/script/:id' && params) {
         await loadScriptDetails(params.id);
     }
 }
@@ -129,20 +122,19 @@ function handleSubmitScript(e) {
 async function loadRecentScripts() {
     const grid = document.getElementById('scripts-grid');
     if (!grid) return;
-    const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').limit(12).get();
+    const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').limit(10).get();
     grid.innerHTML = '';
     snapshot.forEach(doc => {
         const script = doc.data();
         const card = document.createElement('div');
-        card.className = 'script-card';
-        card.dataset.id = doc.id;
+        card.className = 'repo-card';
         card.innerHTML = `
-            <h4>${script.title}</h4>
-            <p>por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
+            <h3><a href="#/script/${doc.id}">${script.title}</a></h3>
+            <p>${script.description.substring(0, 100)}${script.description.length > 100 ? '...' : ''}</p>
+            <div class="meta">
+                <span>Criado por <strong>${script.authorUsername || 'Anônimo'}</strong></span>
+            </div>
         `;
-        card.addEventListener('click', () => {
-            window.location.hash = `/script/${doc.id}`;
-        });
         grid.appendChild(card);
     });
 }
@@ -159,12 +151,19 @@ async function loadScriptDetails(scriptId) {
 
     const script = doc.data();
     contentArea.innerHTML = `
-        <h2>${script.title}</h2>
-        <p class="author-info">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
-        <h3>Descrição</h3>
-        <p class="description">${script.description.replace(/\n/g, '<br>')}</p>
-        <h3>Código</h3>
-        <pre><code class="language-lua">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+        <div class="pagehead">
+            <h1>${script.title}</h1>
+            <p class="lead">Enviado por <strong>${script.authorUsername || 'Anônimo'}</strong></p>
+        </div>
+        <div class="Box">
+            <div class="Box-header"><h3 class="Box-title">Descrição</h3></div>
+            <div class="Box-body">${script.description.replace(/\n/g, '<br>')}</div>
+        </div>
+        <br>
+        <div class="Box">
+            <div class="Box-header"><h3 class="Box-title">Código Fonte</h3></div>
+            <pre><code class="language-lua hljs">${script.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+        </div>
     `;
     hljs.highlightAll();
 }
@@ -172,19 +171,21 @@ async function loadScriptDetails(scriptId) {
 function updateUserUI(user) {
     if (user) {
         userActions.innerHTML = `
-            <span>${user.displayName || user.email}</span>
-            <button id="logout-button" class="btn btn-secondary btn-sm">Sair</button>
+            <a href="#/Submit" class="btn btn-primary">Novo</a>
+            <span class="Header-link">${user.displayName || user.email}</span>
+            <button id="logout-button" class="btn">Sair</button>
         `;
         document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
     } else {
         userActions.innerHTML = `
-            <a href="#/Login" class="btn btn-secondary btn-sm">Login</a>
+            <a href="#/Login" class="btn">Sign in</a>
+            <a href="#/Cadastro" class="btn btn-primary">Sign up</a>
         `;
     }
 }
 
 auth.onAuthStateChanged(async user => {
-    if (user) {
+    if (user && !user.displayName) {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
             await user.updateProfile({ displayName: userDoc.data().username });
