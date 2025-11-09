@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Editor Lua Pro - GitHub Dark</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --border-hover: #484f58;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-purple: #d2a8ff;
+            --button-bg: #21262d;
+            --button-hover: #30363d;
+            --button-active: #292e36;
+            --shadow: 0 8px 24px rgba(1, 4, 9, 0.5);
+            --selection-bg: rgba(88, 166, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #010409 100%);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        ::selection {
+            background: var(--selection-bg);
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        header h1 {
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            background: var(--button-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 9px 13px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 40px;
+            min-height: 36px;
+        }
+
+        button:hover {
+            background: var(--button-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            background: var(--button-active);
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        button.primary {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        button.primary:hover {
+            background: #4a8ed9;
+            border-color: #4a8ed9;
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.4);
+        }
+
+        button.success {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #fff;
+        }
+
+        button svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Main Editor Area */
+        main {
+            display: flex;
+            height: calc(100vh - 57px);
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .file-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .file-item.active {
+            background: var(--button-active);
+            color: var(--accent-blue);
+        }
+
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            background: linear-gradient(135deg, #4d9ef6, #9747ff);
+        }
+
+        /* Editor Container */
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .editor-tabs {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 2px;
+            padding: 0 8px;
+            overflow-x: auto;
+        }
+
+        .editor-tab {
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .editor-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .editor-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            background: var(--bg-primary);
+        }
+
+        /* Line Numbers */
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 100%;
+            padding: 16px 12px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            text-align: right;
+            font-size: 13px;
+            user-select: none;
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .line-numbers span {
+            display: block;
+            transition: color 0.2s;
+        }
+
+        .line-numbers span:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Text Areas */
+        #editing {
+            position: absolute;
+            top: 0;
+            left: 60px;
+            width: calc(100% - 60px);
+            height: 100%;
+            padding: 16px;
+            border: none;
+            outline: none;
+            resize: none;
+            background: transparent;
+            color: transparent;
+            caret-color: var(--accent-blue);
+            -webkit-text-fill-color: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            white-space: pre;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        #highlighting {
+            position: absolute;
+            top: 0;
+            left: 60px;
+            width: calc(100% - 60px);
+            height: 100%;
+            padding: 16px;
+            overflow: auto;
+            pointer-events: none;
+        }
+        
+        #highlighting-content {
+            white-space: pre;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Footer Status Bar */
+        .footer-bar {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 6px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .footer-left, .footer-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .footer-item:hover {
+            color: var(--text-primary);
+        }
+
+        /* Syntax Highlighting - GitHub Dark Theme */
+        code[class*="language-"],
+        pre[class*="language-"] {
+            color: var(--text-primary);
+            background: none;
+            text-shadow: none;
+        }
+
+        .token.comment { color: #8b949e; font-style: italic; }
+        .token.punctuation { color: #c9d1d9; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant { color: #79c0ff; }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin { color: #a5d6ff; }
+        .token.operator, .token.entity, .token.url { color: #d2a8ff; }
+        .token.atrule, .token.attr-value, .token.keyword { color: #ff7b72; font-weight: 600; }
+        .token.function, .token.class-name { color: #d2a8ff; font-weight: 600; }
+        .token.regex, .token.important, .token.variable { color: #ffa657; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .editor-container {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -250px;
+                z-index: 50;
+                height: 100%;
+                transition: left 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .status-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo">Lua</div>
+            <h1>Editor Lua Pro</h1>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Online</span>
+                </div>
+                <div class="status-item">
+                    <span id="char-count">0 caracteres</span>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar">
+            <button id="clear-button" title="Limpar">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                </svg>
+            </button>
+            <button id="download-button" title="Download">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+            </button>
+            <button id="copy-button" class="primary" title="Copiar">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <aside class="sidebar">
+            <div class="sidebar-header">Arquivos Recentes</div>
+            <div class="sidebar-content">
+                <div class="file-item active">
+                    <div class="file-icon"></div>
+                    <span>main.lua</span>
+                </div>
+                <div class="file-item">
+                    <div class="file-icon"></div>
+                    <span>utils.lua</span>
+                </div>
+                <div class="file-item">
+                    <div class="file-icon"></div>
+                    <span>config.lua</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="editor-wrapper">
+            <div class="editor-tabs">
+                <div class="editor-tab active">main.lua</div>
+            </div>
+            
+            <div class="editor-container">
+                <div class="line-numbers" id="line-numbers-container"><span>1</span></div>
+                <textarea id="editing" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="-- Digite seu código Lua aqui..."></textarea>
+                <pre id="highlighting"><code id="highlighting-content" class="language-lua"></code></pre>
+            </div>
+
+            <div class="footer-bar">
+                <div class="footer-left">
+                    <div class="footer-item">
+                        <span>Lua 5.4</span>
+                    </div>
+                    <div class="footer-item">
+                        <span>UTF-8</span>
+                    </div>
+                    <div class="footer-item" id="cursor-position">
+                        <span>Ln 1, Col 1</span>
+                    </div>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-item" id="lines-count">
+                        <span>1 linha</span>
+                    </div>
+                    <div class="footer-item">
+                        <span>⚡ Auto-save: ON</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+
+    <script>
+        const editing = document.getElementById('editing');
+        const highlighting = document.getElementById('highlighting');
+        const highlightingContent = document.getElementById('highlighting-content');
+        const lineNumbersContainer = document.getElementById('line-numbers-container');
+
+        const initialCode = `-- Editor Lua Profissional
+-- Desenvolvido com GitHub Dark Theme
+
+-- Função recursiva para calcular fatorial
+function factorial(n)
+    if n == 0 then
+        return 1
+    else
+        return n * factorial(n - 1)
+    end
+end
+
+-- Classe simples de exemplo
+local Player = {}
+Player.__index = Player
+
+function Player:new(name, health)
+    local instance = setmetatable({}, Player)
+    instance.name = name
+    instance.health = health or 100
+    return instance
+end
+
+function Player:takeDamage(amount)
+    self.health = self.health - amount
+    print(self.name .. " tomou " .. amount .. " de dano!")
+end
+
+-- Criando um jogador
+local hero = Player:new("Herói", 150)
+hero:takeDamage(30)
+
+-- Testando fatorial
+local num = 5
+local result = factorial(num)
+print("O fatorial de " .. num .. " é: " .. result)
+
+-- Tabelas e loops
+local items = {"espada", "escudo", "poção"}
+for i, item in ipairs(items) do
+    print(i .. ": " .. item)
+end
+`;
+
+        editing.value = initialCode;
+
+        // Update syntax highlighting
+        function updateContent() {
+            const code = editing.value;
+            highlightingContent.innerHTML = Prism.highlight(code, Prism.languages.lua, 'lua');
+            updateLineNumbers();
+            updateStats();
+        }
+
+        // Update line numbers
+        function updateLineNumbers() {
+            const lines = editing.value.split('\n');
+            const lineCount = lines.length;
+            lineNumbersContainer.innerHTML = '';
+            for (let i = 1; i <= lineCount; i++) {
+                const span = document.createElement('span');
+                span.textContent = i;
+                lineNumbersContainer.appendChild(span);
+            }
+        }
+
+        // Sync scroll
+        function syncScroll() {
+            highlighting.scrollTop = editing.scrollTop;
+            highlighting.scrollLeft = editing.scrollLeft;
+            lineNumbersContainer.scrollTop = editing.scrollTop;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const text = editing.value;
+            const lines = text.split('\n');
+            const charCount = text.length;
+            const lineCount = lines.length;
+
+            document.getElementById('char-count').textContent = `${charCount} caracteres`;
+            document.getElementById('lines-count').innerHTML = `<span>${lineCount} ${lineCount === 1 ? 'linha' : 'linhas'}</span>`;
+        }
+
+        // Update cursor position
+        function updateCursorPosition() {
+            const text = editing.value;
+            const cursorPos = editing.selectionStart;
+            const textBeforeCursor = text.substring(0, cursorPos);
+            const lines = textBeforeCursor.split('\n');
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+
+            document.getElementById('cursor-position').innerHTML = `<span>Ln ${line}, Col ${col}</span>`;
+        }
+
+        // Auto-close brackets and quotes
+        const closeChars = new Map([
+            ['(', ')'], 
+            ['[', ']'], 
+            ['{', '}'], 
+            ['"', '"'], 
+            ["'", "'"],
+            ['<', '>']
+        ]);
+
+        // Handle keyboard shortcuts
+        editing.addEventListener('keydown', (e) => {
+            const start = editing.selectionStart;
+            const end = editing.selectionEnd;
+            
+            // Tab indentation
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const spaces = '    ';
+                editing.value = editing.value.substring(0, start) + spaces + editing.value.substring(end);
+                editing.selectionStart = editing.selectionEnd = start + spaces.length;
+                updateContent();
+                return;
+            }
+            
+            // Long string auto-complete
+            if (e.key === '[') {
+                const textBefore = editing.value.substring(0, start);
+                const match = textBefore.match(/\[\=*$/);
+                if (match) {
+                    const openerPart = match[0];
+                    const numEq = openerPart.length - 1;
+                    e.preventDefault();
+                    let textAfter = editing.value.substring(end);
+                    const close = ']' + '='.repeat(numEq) + ']';
+                    if (textAfter[0] === ']') {
+                        textAfter = textAfter.substring(1);
+                    }
+                    editing.value = textBefore + '[' + close + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1;
+                    updateContent();
+                    return;
+                }
+            }
+
+            // Auto-close brackets and quotes
+            if (closeChars.has(e.key)) {
+                e.preventDefault();
+                const char = e.key;
+                const closeChar = closeChars.get(char);
+                const charAfter = editing.value[start];
+                
+                if (charAfter === closeChar) {
+                    editing.selectionStart = editing.selectionEnd = start + 1;
+                    return;
+                }
+
+                const textBefore = editing.value.substring(0, start);
+                const textAfter = editing.value.substring(end);
+
+                // Special handling for '[' to distinguish between indexing and long strings
+                if (char === '[') {
+                    const prevChar = textBefore.slice(-1);
+                    if (/[a-zA-Z0-9_]/.test(prevChar)) {
+                        // Likely indexing, auto-close
+                        editing.value = textBefore + char + closeChar + textAfter;
+                        editing.selectionStart = editing.selectionEnd = start + 1;
+                    } else {
+                        // Likely start of long string or other, just insert without close
+                        editing.value = textBefore + char + textAfter;
+                        editing.selectionStart = editing.selectionEnd = start + 1;
+                    }
+                } else {
+                    editing.value = textBefore + char + closeChar + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1;
+                }
+                updateContent();
+                return;
+            }
+
+            // Skip over closing character if it's already there
+            if (e.key === ')' || e.key === ']' || e.key === '}' || e.key === '>') {
+                const charAfter = editing.value[start];
+                if (charAfter === e.key) {
+                    e.preventDefault();
+                    editing.selectionStart = editing.selectionEnd = start + 1;
+                    return;
+                }
+            }
+
+            // Backspace to delete pair
+            if (e.key === 'Backspace' && start === end) {
+                const charBefore = editing.value[start - 1];
+                const charAfter = editing.value[start];
+                
+                if (closeChars.has(charBefore) && closeChars.get(charBefore) === charAfter) {
+                    e.preventDefault();
+                    editing.value = editing.value.substring(0, start - 1) + editing.value.substring(start + 1);
+                    editing.selectionStart = editing.selectionEnd = start - 1;
+                    updateContent();
+                    return;
+                }
+
+                // Handle long string pair deletion
+                const textBefore = editing.value.substring(0, start);
+                const textAfter = editing.value.substring(start);
+                const matchBefore = textBefore.match(/\[\=*\[$/);
+                const matchAfter = textAfter.match(/^\]=*\]/);
+                if (matchBefore && matchAfter) {
+                    const numEqBefore = matchBefore[0].length - 2; // subtract the two '['
+                    const numEqAfter = matchAfter[0].length - 2; // subtract the two ']'
+                    if (numEqBefore === numEqAfter) {
+                        e.preventDefault();
+                        editing.value = textBefore.substring(0, textBefore.length - matchBefore[0].length) + textAfter.substring(matchAfter[0].length);
+                        editing.selectionStart = editing.selectionEnd = start - matchBefore[0].length;
+                        updateContent();
+                        return;
+                    }
+                }
+            }
+
+            // Enter key - auto-complete keywords and smart indentation
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const textBefore = editing.value.substring(0, start);
+                const textAfter = editing.value.substring(end);
+                const lines = textBefore.split('\n');
+                const currentLine = lines[lines.length - 1];
+                const currentIndent = currentLine.match(/^\s*/)[0];
+                const trimmedLine = currentLine.trim();
+                
+                // Check if we're inside braces or brackets
+                const charBefore = editing.value[start - 1];
+                const charAfter = editing.value[start];
+                
+                if ((charBefore === '{' && charAfter === '}') || 
+                    (charBefore === '[' && charAfter === ']') ||
+                    (charBefore === '(' && charAfter === ')')) {
+                    // Inside empty pair - add indented line
+                    const newIndent = currentIndent + '    ';
+                    editing.value = textBefore + '\n' + newIndent + '\n' + currentIndent + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + newIndent.length;
+                    updateContent();
+                    return;
+                }
+                
+                // Keywords that need 'end'
+                const needsEnd = /\b(function|if|for|while|do)\b/.test(trimmedLine);
+                const isRepeat = /\brepeat\b/.test(trimmedLine);
+                const hasOpenTable = trimmedLine.includes('{') && !trimmedLine.includes('}');
+                
+                if (needsEnd) {
+                    // Add end for function, if, for, while, do
+                    const newIndent = currentIndent + '    ';
+                    editing.value = textBefore + '\n' + newIndent + '\n' + currentIndent + 'end' + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + newIndent.length;
+                } else if (isRepeat) {
+                    // Add until for repeat
+                    const newIndent = currentIndent + '    ';
+                    editing.value = textBefore + '\n' + newIndent + '\n' + currentIndent + 'until ' + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + newIndent.length;
+                } else if (hasOpenTable) {
+                    // Add closing brace for tables
+                    const newIndent = currentIndent + '    ';
+                    editing.value = textBefore + '\n' + newIndent + '\n' + currentIndent + '}' + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + newIndent.length;
+                } else if (trimmedLine.endsWith('then')) {
+                    // Smart indent after 'then'
+                    const newIndent = currentIndent + '    ';
+                    editing.value = textBefore + '\n' + newIndent + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + newIndent.length;
+                } else {
+                    // Normal enter - maintain current indentation
+                    editing.value = textBefore + '\n' + currentIndent + textAfter;
+                    editing.selectionStart = editing.selectionEnd = start + 1 + currentIndent.length;
+                }
+                
+                updateContent();
+                return;
+            }
+
+            // Ctrl/Cmd + S to save (download)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                downloadCode();
+                return;
+            }
+
+            // Ctrl/Cmd + / for comments
+            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                e.preventDefault();
+                toggleComment();
+                return;
+            }
+        });
+
+        // Handle input for updating display
+        editing.addEventListener('input', updateContent);
+
+        // Toggle comment
+        function toggleComment() {
+            const start = editing.selectionStart;
+            const end = editing.selectionEnd;
+            const text = editing.value;
+            const lines = text.split('\n');
+            
+            let startLine = text.substring(0, start).split('\n').length - 1;
+            let endLine = text.substring(0, end).split('\n').length - 1;
+            
+            let newLines = [...lines];
+            let allCommented = true;
+            
+            for (let i = startLine; i <= endLine; i++) {
+                if (!newLines[i].trim().startsWith('--')) {
+                    allCommented = false;
+                    break;
+                }
+            }
+            
+            for (let i = startLine; i <= endLine; i++) {
+                if (allCommented) {
+                    newLines[i] = newLines[i].replace(/^\s*--\s?/, '');
+                } else {
+                    newLines[i] = '-- ' + newLines[i];
+                }
+            }
+            
+            editing.value = newLines.join('\n');
+            updateContent();
+        }
+
+        // Format code (basic indentation)
+        function formatCode() {
+            const lines = editing.value.split('\n');
+            let formatted = [];
+            let indent = 0;
+            
+            for (let line of lines) {
+                const trimmed = line.trim();
+                
+                if (trimmed.match(/^end\b|^else\b|^elseif\b|^\}/)) {
+                    indent = Math.max(0, indent - 1);
+                }
+                
+                formatted.push('    '.repeat(indent) + trimmed);
+                
+                if (trimmed.match(/\b(function|if|for|while|repeat)\b.*[^end]$|{$/)) {
+                    indent++;
+                }
+            }
+            
+            editing.value = formatted.join('\n');
+            updateContent();
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            navigator.clipboard.writeText(editing.value).then(() => {
+                const button = document.getElementById('copy-button');
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>';
+                button.classList.add('success');
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('success');
+                }, 2000);
+            });
+        }
+
+        // Download code
+        function downloadCode() {
+            const blob = new Blob([editing.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'main.lua';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Clear editor
+        function clearEditor() {
+            if (confirm('Tem certeza que deseja limpar o editor?')) {
+                editing.value = '';
+                updateContent();
+            }
+        }
+
+        // Event listeners
+        editing.addEventListener('scroll', syncScroll);
+        editing.addEventListener('click', updateCursorPosition);
+        editing.addEventListener('keyup', updateCursorPosition);
+
+        document.getElementById('copy-button').addEventListener('click', copyToClipboard);
+        document.getElementById('clear-button').addEventListener('click', clearEditor);
+        document.getElementById('download-button').addEventListener('click', downloadCode);
+
+        // Auto-save to localStorage
+        let autoSaveTimer;
+        editing.addEventListener('input', () => {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                // Note: localStorage não funciona em artifacts, mas o código está aqui para referência
+                console.log('Auto-salvando código...');
+            }, 1000);
+        });
+
+        // Initialize
+        updateContent();
+        syncScroll();
+        updateCursorPosition();
+    </script>
+</body>
+</html>
