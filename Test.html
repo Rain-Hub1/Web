@@ -141,7 +141,9 @@
         .chat-container {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 16px;
+            padding-bottom: 24px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -279,7 +281,8 @@
 
         /* Input Container */
         .input-container {
-            padding: 12px 16px 12px 16px;
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
             border-top: 1px solid var(--border);
             background: var(--bg);
         }
