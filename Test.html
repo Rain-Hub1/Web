@@ -703,7 +703,7 @@
     <script>
         const GEMINI_API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I';
         const MANUS_API_KEY = 'Ov23li8dDqV5qbOi23k3';
-        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
         const GITHUB_API_URL = 'https://api.github.com';
         
         let GITHUB_TOKEN = null;
@@ -940,19 +940,32 @@ Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalme
                 parts: [{ text: m.text }]
             }));
 
-            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [...contents, { role: 'user', parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
-                })
-            });
+            try {
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [...contents, { role: 'user', parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
+                    })
+                });
 
-            if (!response.ok) throw new Error('Erro na API do Gemini');
-            
-            const data = await response.json();
-            return data.candidates[0]?.content?.parts[0]?.text || 'Sem resposta';
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `Erro ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0]) {
+                    throw new Error('API retornou resposta vazia');
+                }
+                
+                return data.candidates[0]?.content?.parts[0]?.text || 'Sem resposta';
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                throw error;
+            }
         }
 
         // Chat
@@ -961,14 +974,25 @@ Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalme
             const input = document.getElementById('chat-input');
             const prompt = input.value.trim();
             
-            if (!prompt || !getSelectedRepo()) return;
+            if (!prompt) return;
+            
+            const repo = getSelectedRepo();
+            if (!repo) return;
 
             addMessage('user', prompt);
             input.value = '';
             input.style.height = 'auto';
 
             try {
+                addMessage('system', '💭 Pensando...');
                 const aiResponse = await sendToGemini(prompt);
+                
+                // Remove "Pensando..." message
+                const messages = document.querySelectorAll('.message');
+                const lastSystem = messages[messages.length - 1];
+                if (lastSystem && lastSystem.classList.contains('system')) {
+                    lastSystem.remove();
+                }
                 
                 if (aiResponse.trim().startsWith('/')) {
                     const result = await processCommand(aiResponse.trim());
@@ -977,7 +1001,15 @@ Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalme
                     addMessage('ai', aiResponse);
                 }
             } catch (error) {
-                addMessage('system', `❌ ${error.message}`);
+                // Remove "Pensando..." message
+                const messages = document.querySelectorAll('.message');
+                const lastSystem = messages[messages.length - 1];
+                if (lastSystem && lastSystem.classList.contains('system')) {
+                    lastSystem.remove();
+                }
+                
+                addMessage('system', `❌ Erro: ${error.message}\n\nVerifique:\n• Se a API Key do Gemini está correta\n• Se você tem acesso à API\n• Sua conexão com a internet`);
+                console.error('Error details:', error);
             }
         });
 
