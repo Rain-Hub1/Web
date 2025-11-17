@@ -3,248 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Gemini Dev Assistant - GitHub UI</title>
+    <title>Gemini Dev Assistant</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --bg-primary: #0d1117; 
-            --bg-secondary: #161b22; 
-            --border-color: #30363d;
-            --text-color: #c9d1d9;
-            --link-color: #58a6ff;
-            --ai-bubble-bg: #21262d; 
-            --user-bubble-bg: #2d3840;
-            --button-bg: #238636; 
-            --button-hover: #2ea043;
-            --code-bg: rgba(110, 118, 129, 0.4);
-            --radius: 6px;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2128;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #7d8590;
+            --accent: #2f81f7;
+            --accent-hover: #1f6feb;
+            --success: #238636;
+            --danger: #da3633;
+            --warning: #9e6a03;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-color);
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
         }
 
-        hgroup h1, hgroup p, h3 { color: var(--text-color); }
-
-        #chat-container {
-            height: 70vh;
-            overflow-y: scroll;
-            padding: 15px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            margin-bottom: 20px;
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #0d1117 0%, #1c2128 100%);
         }
 
-        .message-box {
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: var(--radius);
-            max-width: 85%;
-            word-wrap: break-word;
-            line-height: 1.5;
-        }
-
-        .user-message {
-            background-color: var(--user-bubble-bg);
-            margin-left: auto; 
-            border: 1px solid var(--border-color);
-        }
-
-        .ai-message {
-            background-color: var(--ai-bubble-bg);
-            margin-right: auto;
-            border: 1px solid var(--border-color);
-        }
-
-        .system-message {
-            background-color: rgba(88, 166, 255, 0.1);
-            border: 1px solid var(--link-color);
-            margin: 10px auto;
+        .login-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 48px;
+            max-width: 480px;
+            width: 90%;
             text-align: center;
-            font-style: italic;
-            color: var(--link-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
-        #input-area {
-            display: flex;
-            gap: 10px;
+        .login-box h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #2f81f7 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        #chat-input {
-            flex-grow: 1;
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            color: var(--text-color);
-            font-size: 16px;
+        .login-box p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 14px;
         }
 
-        button {
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            border: none;
-            background-color: var(--button-bg);
+        .github-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--accent);
             color: white;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: 700;
-        }
-
-        button:hover {
-            background-color: var(--button-hover);
-        }
-
-        .github-tools {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: var(--bg-secondary);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .select-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        #repo-select {
-            padding: 8px 15px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-primary);
-            color: var(--text-color);
+            border: none;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s;
         }
 
-        code {
-            font-family: 'IBM Plex Mono', monospace;
-            background-color: var(--code-bg);
-            padding: 2px 4px;
-            border-radius: 4px;
-            color: var(--text-color);
+        .github-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
         }
 
-        pre {
-            background-color: var(--code-bg);
-            padding: 10px;
-            border-radius: var(--radius);
+        .divider {
+            margin: 24px 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            background: var(--bg-secondary);
+            padding: 0 16px;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .token-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .token-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .app-container.active {
+            display: flex;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2f81f7 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .repo-selector {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+            min-width: 250px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.6;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.system {
+            align-self: center;
+            background: rgba(47, 129, 247, 0.1);
+            border: 1px solid rgba(47, 129, 247, 0.3);
+            color: var(--accent);
+            font-size: 13px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .message pre {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
             overflow-x: auto;
-            font-family: 'IBM Plex Mono', monospace;
+            margin: 8px 0;
+            font-size: 13px;
         }
 
-        .view-btn {
-            background-color: #30363d;
-            padding: 8px 15px;
-            margin-top: 10px;
+        /* Input Area */
+        .input-container {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 16px 24px;
         }
 
-        .view-btn:hover {
-            background-color: #454d56;
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <hgroup>
-        <h1>🤖 Gemini Dev Assistant</h1>
-        <p>Chat com IA para gerenciar e corrigir código no GitHub. A IA decide automaticamente quando usar ferramentas.</p>
-    </hgroup>
-    <hr style="border-color: var(--border-color);">
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <h1>🤖 Gemini Dev Assistant</h1>
+            <p>Assistente de IA para gerenciar seus repositórios GitHub</p>
+            
+            <button class="github-btn" onclick="githubOAuth()">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                Conectar com GitHub
+            </button>
 
-    <div id="chat-container">
+            <div class="divider">
+                <span>ou use um token</span>
+            </div>
+
+            <input type="password" id="token-input" class="token-input" placeholder="ghp_xxxxxxxxxxxx">
+            <button class="github-btn" onclick="loginWithToken()">Entrar com Token</button>
+            
+            <p class="helper-text">
+                Crie um token em: <a href="https://github.com/settings/tokens" target="_blank" class="link">github.com/settings/tokens</a>
+                <br>Selecione scope: <strong>repo</strong>
+            </p>
+        </div>
     </div>
 
-    <form id="chat-form">
-        <div id="input-area">
-            <input type="text" id="chat-input" name="prompt" placeholder="Ex: 'mostre o conteúdo do README', 'crie um arquivo teste.js', 'corrija o erro no index.js'">
-            <button type="submit">Enviar</button>
-        </div>
-    </form>
-
-    <div class="github-tools">
-        <h3>🔧 Configurações GitHub</h3>
-        
-        <div class="select-container">
-            <label for="repo-select">Repositório Selecionado:</label>
-            <select id="repo-select">
-                <option value="">Carregando repositórios...</option>
-            </select>
+    <!-- Main App -->
+    <div id="app-screen" class="app-container">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">Gemini Assistant</div>
+                <select id="repo-select" class="repo-selector">
+                    <option value="">Carregando repositórios...</option>
+                </select>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
 
-        <button class="view-btn" onclick="viewRepoStructure()">🔍 Ver Estrutura do Repositório</button>
+        <div id="chat-container" class="chat-container">
+        </div>
 
-        <div style="margin-top: 10px; padding: 10px; background-color: var(--bg-primary); border-radius: var(--radius);">
-            <p style="margin: 5px 0; font-size: 14px;"><strong>💡 Dicas de uso:</strong></p>
-            <p style="margin: 5px 0; font-size: 13px;">• "Mostre o conteúdo do arquivo X"</p>
-            <p style="margin: 5px 0; font-size: 13px;">• "Crie um arquivo novo chamado Y com o código Z"</p>
-            <p style="margin: 5px 0; font-size: 13px;">• "Edite o arquivo X e adicione Y"</p>
-            <p style="margin: 5px 0; font-size: 13px;">• "Delete o arquivo X"</p>
-            <p style="margin: 5px 0; font-size: 13px;">• "Corrija o erro no arquivo X"</p>
+        <div class="toolbar">
+            <button class="tool-btn" onclick="viewRepoStructure()">📂 Ver Estrutura</button>
+            <button class="tool-btn" onclick="insertCommand('/Read { ')">/Read</button>
+            <button class="tool-btn" onclick="insertCommand('/Create { ')">/Create</button>
+            <button class="tool-btn" onclick="insertCommand('/Edit { ')">/Edit</button>
+            <button class="tool-btn" onclick="insertCommand('/Delete { ')">/Delete</button>
+        </div>
+
+        <div class="input-container">
+            <form id="chat-form" class="input-wrapper">
+                <textarea 
+                    id="chat-input" 
+                    class="chat-input" 
+                    placeholder="Ex: 'mostre o README', 'crie um index.html', 'corrija o erro no main.js'"
+                    rows="1"
+                ></textarea>
+                <button type="submit" class="send-btn">Enviar</button>
+            </form>
         </div>
     </div>
 
     <script>
-        const chatContainer = document.getElementById('chat-container');
-        const chatForm = document.getElementById('chat-form');
-        const repoSelect = document.getElementById('repo-select');
-        const STORAGE_KEY = 'geminiChatHistory';
-        
-        const API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I'; 
-        const GITHUB_PAT = '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'; 
+        const GEMINI_API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I';
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
         const GITHUB_API_URL = 'https://api.github.com';
+        const GITHUB_CLIENT_ID = 'Ov23li8dDqV5qbOi23k3';
+        const GITHUB_REDIRECT_URI = window.location.origin + window.location.pathname;
         
-        const SYSTEM_INSTRUCTION = `Você é o 'Gemini Code Assistant', um assistente especializado em GitHub que pode executar ações automaticamente.
+        let GITHUB_TOKEN = null;
 
-Quando o usuário pedir para:
-- LER/VER/MOSTRAR um arquivo → responda APENAS: /Read { caminho/arquivo }
-- CRIAR/ADICIONAR um arquivo → responda APENAS: /Create { caminho/arquivo, conteúdo completo }
-- EDITAR/MODIFICAR/ATUALIZAR um arquivo → responda APENAS: /Edit { caminho/arquivo, conteúdo completo novo }
-- DELETAR/REMOVER um arquivo → responda APENAS: /Delete { caminho/arquivo }
+        const SYSTEM_INSTRUCTION = `Você é o Gemini Code Assistant. Quando o usuário pedir para:
+- LER arquivo → responda: /Read { caminho }
+- CRIAR arquivo → responda: /Create { caminho, conteúdo }
+- EDITAR arquivo → responda: /Edit { caminho, conteúdo }
+- DELETAR arquivo → responda: /Delete { caminho }
+Use APENAS o comando, sem texto extra.`;
 
-IMPORTANTE:
-1. Use APENAS o comando sem texto adicional quando for executar uma ação
-2. No /Edit e /Create, sempre coloque o conteúdo COMPLETO do arquivo
-3. Se não souber o conteúdo atual, primeiro use /Read para ler
-4. Para correções de erro: primeiro leia o arquivo, analise, depois edite
-5. Para perguntas gerais sobre código, responda normalmente SEM comandos
-
-Exemplos:
-Usuário: "mostre o README"
-Você: /Read { README.md }
-
-Usuário: "crie um index.html básico"
-Você: /Create { index.html, <!DOCTYPE html><html><head><title>Test</title></head><body><h1>Hello</h1></body></html> }
-
-Usuário: "o que é uma API REST?"
-Você: [explicação normal sem comando]`;
-
-        function getSelectedRepo() {
-            const full_name = repoSelect.value;
-            if (!full_name) {
-                appendMessage('system', '⚠️ Selecione um repositório antes de continuar');
-                return null;
-            }
-            const [owner, name] = full_name.split('/');
-            return { owner, name, full_name };
+        // GitHub OAuth
+        function githubOAuth() {
+            alert('Para usar OAuth:\n\n1. Crie uma OAuth App em:\nhttps://github.com/settings/developers\n\n2. Configure:\n- Homepage URL: ' + window.location.origin + '\n- Callback URL: ' + GITHUB_REDIRECT_URI + '\n\n3. Substitua GITHUB_CLIENT_ID no código\n\nPor enquanto, use "Entrar com Token"');
         }
 
-        async function githubApiFetch(url, options = {}) {
+        function loginWithToken() {
+            const token = document.getElementById('token-input').value.trim();
+            if (!token || !token.startsWith('ghp_')) {
+                alert('Token inválido! Deve começar com ghp_');
+                return;
+            }
+            GITHUB_TOKEN = token;
+            localStorage.setItem('github_token', token);
+            initApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('github_token');
+            localStorage.removeItem('chat_history');
+            GITHUB_TOKEN = null;
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('app-screen').classList.remove('active');
+        }
+
+        async function initApp() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').classList.add('active');
+            
+            await loadRepositories();
+            loadChatHistory();
+        }
+
+        async function githubFetch(url, options = {}) {
             const headers = {
-                'Authorization': `token ${GITHUB_PAT}`,
+                'Authorization': `token ${GITHUB_TOKEN}`,
                 'Accept': 'application/vnd.github.v3+json',
                 ...options.headers
             };
@@ -252,166 +505,159 @@ Você: [explicação normal sem comando]`;
             const response = await fetch(url, { ...options, headers });
             
             if (!response.ok) {
-                let errorDetails = await response.text();
-                throw new Error(`Erro ${response.status}: ${errorDetails}`);
+                const error = await response.json();
+                throw new Error(error.message || 'Erro na API do GitHub');
             }
             
             return response.json();
         }
 
-        async function fetchRepositories() {
-            repoSelect.innerHTML = '<option value="">Carregando...</option>';
+        async function loadRepositories() {
+            const select = document.getElementById('repo-select');
+            select.innerHTML = '<option value="">Carregando...</option>';
+            
             try {
-                const repos = await githubApiFetch(`${GITHUB_API_URL}/user/repos?type=owner&sort=updated&per_page=100`);
-                repoSelect.innerHTML = '<option value="">-- Selecione um Repositório --</option>';
+                const repos = await githubFetch(`${GITHUB_API_URL}/user/repos?sort=updated&per_page=100`);
+                select.innerHTML = '<option value="">-- Selecione um Repositório --</option>';
                 repos.forEach(repo => {
                     const option = document.createElement('option');
                     option.value = repo.full_name;
                     option.textContent = repo.full_name;
-                    repoSelect.appendChild(option);
+                    select.appendChild(option);
                 });
             } catch (error) {
-                repoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                appendMessage('system', `❌ Erro ao carregar repositórios: ${error.message}`);
+                select.innerHTML = '<option value="">Erro ao carregar</option>';
+                addMessage('system', `❌ Erro: ${error.message}. Verifique seu token.`);
             }
+        }
+
+        function getSelectedRepo() {
+            const fullName = document.getElementById('repo-select').value;
+            if (!fullName) {
+                addMessage('system', '⚠️ Selecione um repositório primeiro');
+                return null;
+            }
+            const [owner, name] = fullName.split('/');
+            return { owner, name, fullName };
         }
 
         async function readFile(repo, path) {
             const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
-            const fileData = await githubApiFetch(url);
-            
-            if (fileData.content) {
-                return {
-                    content: decodeURIComponent(escape(atob(fileData.content))),
-                    sha: fileData.sha
-                };
-            }
-            throw new Error(`Arquivo vazio ou inválido`);
-        }
-
-        async function deleteFile(repo, path, sha) {
-            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
-            await githubApiFetch(url, {
-                method: 'DELETE',
-                body: JSON.stringify({
-                    message: `Delete ${path} via Gemini Assistant`,
-                    sha: sha,
-                    branch: 'main'
-                })
-            });
+            const data = await githubFetch(url);
+            return {
+                content: decodeURIComponent(escape(atob(data.content))),
+                sha: data.sha
+            };
         }
 
         async function createOrEditFile(repo, path, content, sha = null) {
             const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
-            const encodedContent = btoa(unescape(encodeURIComponent(content)));
-            const action = sha ? 'Update' : 'Create';
+            const encoded = btoa(unescape(encodeURIComponent(content)));
             
-            const body = {
-                message: `${action} ${path} via Gemini Assistant`,
-                content: encodedContent,
-                branch: 'main'
-            };
-            if (sha) body.sha = sha;
-
-            await githubApiFetch(url, {
+            await githubFetch(url, {
                 method: 'PUT',
-                body: JSON.stringify(body)
+                body: JSON.stringify({
+                    message: `${sha ? 'Update' : 'Create'} ${path}`,
+                    content: encoded,
+                    branch: 'main',
+                    ...(sha && { sha })
+                })
             });
         }
 
-        async function fetchRepoTree(repo) {
-            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/git/trees/main?recursive=1`;
-            const data = await githubApiFetch(url);
-            return data.tree || [];
+        async function deleteFile(repo, path, sha) {
+            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
+            await githubFetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    message: `Delete ${path}`,
+                    sha,
+                    branch: 'main'
+                })
+            });
         }
 
         async function viewRepoStructure() {
             const repo = getSelectedRepo();
             if (!repo) return;
             
-            appendMessage('system', '📂 Carregando estrutura do repositório...');
+            addMessage('system', '📂 Carregando estrutura...');
             
             try {
-                const tree = await fetchRepoTree(repo);
-                const files = tree.filter(item => item.type === 'blob').map(item => item.path);
-                const folders = tree.filter(item => item.type === 'tree').map(item => item.path);
+                const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/git/trees/main?recursive=1`;
+                const data = await githubFetch(url);
+                const files = data.tree.filter(i => i.type === 'blob').map(i => i.path);
                 
-                let structure = `📂 Estrutura de ${repo.full_name}:\n\n`;
-                structure += `📁 Pastas (${folders.length}):\n${folders.map(f => '  └─ ' + f).join('\n')}\n\n`;
-                structure += `📄 Arquivos (${files.length}):\n${files.map(f => '  └─ ' + f).join('\n')}`;
-                
-                appendMessage('ai', structure);
+                let msg = `📂 ${repo.fullName}\n\n`;
+                msg += files.map(f => '  📄 ' + f).join('\n');
+                addMessage('ai', msg);
             } catch (error) {
-                appendMessage('system', `❌ Erro: ${error.message}`);
+                addMessage('system', `❌ ${error.message}`);
             }
         }
 
-        async function processCommand(command) {
+        async function processCommand(cmd) {
             const repo = getSelectedRepo();
             if (!repo) return null;
 
-            const readMatch = command.match(/^\/Read\s+\{\s*(.+?)\s*\}$/i);
-            const deleteMatch = command.match(/^\/Delete\s+\{\s*(.+?)\s*\}$/i);
-            const createMatch = command.match(/^\/Create\s+\{\s*(.+?)\s*,\s*(.+)\s*\}$/is);
-            const editMatch = command.match(/^\/Edit\s+\{\s*(.+?)\s*,\s*(.+)\s*\}$/is);
+            const readMatch = cmd.match(/^\/Read\s+\{\s*(.+?)\s*\}$/i);
+            const createMatch = cmd.match(/^\/Create\s+\{\s*(.+?)\s*,\s*(.+)\s*\}$/is);
+            const editMatch = cmd.match(/^\/Edit\s+\{\s*(.+?)\s*,\s*(.+)\s*\}$/is);
+            const deleteMatch = cmd.match(/^\/Delete\s+\{\s*(.+?)\s*\}$/i);
 
             try {
                 if (readMatch) {
                     const path = readMatch[1].trim();
-                    appendMessage('system', `📖 Lendo arquivo: ${path}`);
+                    addMessage('system', `📖 Lendo: ${path}`);
                     const file = await readFile(repo, path);
                     return `Conteúdo de ${path}:\n\n\`\`\`\n${file.content}\n\`\`\``;
-                }
-
-                if (deleteMatch) {
-                    const path = deleteMatch[1].trim();
-                    appendMessage('system', `🗑️ Deletando arquivo: ${path}`);
-                    const file = await readFile(repo, path);
-                    await deleteFile(repo, path, file.sha);
-                    return `✅ Arquivo ${path} deletado com sucesso!`;
                 }
 
                 if (createMatch) {
                     const path = createMatch[1].trim();
                     const content = createMatch[2].trim();
-                    appendMessage('system', `➕ Criando arquivo: ${path}`);
+                    addMessage('system', `➕ Criando: ${path}`);
                     await createOrEditFile(repo, path, content);
-                    return `✅ Arquivo ${path} criado com sucesso!`;
+                    return `✅ Arquivo ${path} criado!`;
                 }
 
                 if (editMatch) {
                     const path = editMatch[1].trim();
                     const content = editMatch[2].trim();
-                    appendMessage('system', `✏️ Editando arquivo: ${path}`);
-                    
+                    addMessage('system', `✏️ Editando: ${path}`);
                     let sha = null;
                     try {
                         const file = await readFile(repo, path);
                         sha = file.sha;
-                    } catch (e) {
-                        appendMessage('system', `⚠️ Arquivo não encontrado, criando novo...`);
-                    }
-                    
+                    } catch(e) {}
                     await createOrEditFile(repo, path, content, sha);
-                    return `✅ Arquivo ${path} atualizado com sucesso!`;
+                    return `✅ Arquivo ${path} atualizado!`;
+                }
+
+                if (deleteMatch) {
+                    const path = deleteMatch[1].trim();
+                    addMessage('system', `🗑️ Deletando: ${path}`);
+                    const file = await readFile(repo, path);
+                    await deleteFile(repo, path, file.sha);
+                    return `✅ Arquivo ${path} deletado!`;
                 }
             } catch (error) {
-                return `❌ Erro ao executar comando: ${error.message}`;
+                return `❌ Erro: ${error.message}`;
             }
-            
+
             return null;
         }
 
         async function sendToGemini(prompt) {
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-                .filter(msg => msg.sender !== 'system');
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]')
+                .filter(m => m.sender !== 'system');
             
-            const contents = history.map(msg => ({
-                role: msg.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
+            const contents = history.map(m => ({
+                role: m.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: m.text }]
             }));
 
-            const response = await fetch(`${GEMINI_API_URL}?key=${API_KEY}`, {
+            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -419,99 +665,84 @@ Você: [explicação normal sem comando]`;
                     systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
                 })
             });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Erro na API');
-            }
 
+            if (!response.ok) throw new Error('Erro na API do Gemini');
+            
             const data = await response.json();
-            return data.candidates[0]?.content?.parts[0]?.text || 'Sem resposta da IA';
+            return data.candidates[0]?.content?.parts[0]?.text || 'Sem resposta';
         }
 
-        chatForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const input = document.getElementById('chat-input');
             const prompt = input.value.trim();
             
-            if (!prompt) return;
-            if (!getSelectedRepo()) return;
+            if (!prompt || !getSelectedRepo()) return;
 
-            appendMessage('user', prompt);
+            addMessage('user', prompt);
             input.value = '';
 
             try {
                 const aiResponse = await sendToGemini(prompt);
                 
-                // Verifica se a IA retornou um comando
                 if (aiResponse.trim().startsWith('/')) {
-                    const commandResult = await processCommand(aiResponse.trim());
-                    if (commandResult) {
-                        appendMessage('ai', commandResult);
-                    } else {
-                        appendMessage('ai', aiResponse);
-                    }
+                    const result = await processCommand(aiResponse.trim());
+                    addMessage('ai', result || aiResponse);
                 } else {
-                    appendMessage('ai', aiResponse);
+                    addMessage('ai', aiResponse);
                 }
             } catch (error) {
-                appendMessage('system', `❌ Erro: ${error.message}`);
+                addMessage('system', `❌ ${error.message}`);
             }
         });
 
-        function saveChatHistory() {
-            const historyElements = chatContainer.querySelectorAll('.message-box');
-            const historyToSave = [];
-
-            historyElements.forEach(el => {
-                let sender = 'ai';
-                if (el.classList.contains('user-message')) sender = 'user';
-                if (el.classList.contains('system-message')) sender = 'system';
-                
-                historyToSave.push({
-                    sender: sender,
-                    text: el.textContent.trim()
-                });
-            });
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(historyToSave));
+        function addMessage(sender, text) {
+            const container = document.getElementById('chat-container');
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.textContent = text;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+            
+            saveChatHistory();
         }
 
-        function appendMessage(sender, text, shouldSave = true) {
-            const messageEl = document.createElement('div');
-            messageEl.classList.add('message-box');
-            
-            if (sender === 'user') {
-                messageEl.classList.add('user-message');
-            } else if (sender === 'system') {
-                messageEl.classList.add('system-message');
-            } else {
-                messageEl.classList.add('ai-message');
-            }
-            
-            messageEl.textContent = text;
-            chatContainer.appendChild(messageEl);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            if (shouldSave) saveChatHistory();
+        function saveChatHistory() {
+            const messages = Array.from(document.querySelectorAll('.message')).map(el => ({
+                sender: el.classList.contains('user') ? 'user' : el.classList.contains('system') ? 'system' : 'ai',
+                text: el.textContent
+            }));
+            localStorage.setItem('chat_history', JSON.stringify(messages));
         }
 
         function loadChatHistory() {
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             if (history.length === 0) {
-                history.push({ 
-                    sender: 'ai', 
-                    text: '👋 Olá! Sou o Gemini Assistant. Selecione um repositório e me peça para ler, criar, editar ou deletar arquivos. Eu decido automaticamente qual ferramenta usar!' 
-                });
+                addMessage('ai', '👋 Olá! Selecione um repositório e me diga o que precisa fazer.');
+            } else {
+                history.forEach(m => addMessage(m.sender, m.text));
             }
-
-            chatContainer.innerHTML = '';
-            history.forEach(msg => appendMessage(msg.sender, msg.text, false));
         }
 
-        fetchRepositories();
-        loadChatHistory();
+        function insertCommand(cmd) {
+            document.getElementById('chat-input').value = cmd;
+            document.getElementById('chat-input').focus();
+        }
+
+        // Auto textarea resize
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+
+        // Check login
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('github_token');
+            if (token) {
+                GITHUB_TOKEN = token;
+                initApp();
+            }
+        });
     </script>
 </body>
 </html>
