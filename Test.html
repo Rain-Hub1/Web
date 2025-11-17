@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Dev Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gemini Assistant</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -12,202 +12,145 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1c2128;
-            --border: #30363d;
-            --text-primary: #e6edf3;
-            --text-secondary: #7d8590;
-            --accent: #2f81f7;
-            --accent-hover: #1f6feb;
-            --success: #238636;
-            --danger: #da3633;
-            --warning: #9e6a03;
+            --bg: #000000;
+            --surface: #1a1a1a;
+            --border: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent: #4a9eff;
+            --message-ai: #1a1a1a;
+            --message-user: #2a2a2a;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
             color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
-        }
-
-        /* Login Screen */
-        .login-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #0d1117 0%, #1c2128 100%);
-        }
-
-        .login-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 48px;
-            max-width: 480px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        .login-box h1 {
-            font-size: 32px;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #2f81f7 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .login-box p {
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-            font-size: 14px;
-        }
-
-        .github-btn {
-            width: 100%;
-            padding: 14px 24px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: all 0.2s;
-        }
-
-        .github-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-        }
-
-        .divider {
-            margin: 24px 0;
-            position: relative;
-            text-align: center;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .divider span {
-            background: var(--bg-secondary);
-            padding: 0 16px;
-            position: relative;
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .token-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-            margin-bottom: 12px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .token-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        /* Main App */
-        .app-container {
-            display: none;
-            height: 100vh;
             flex-direction: column;
         }
 
-        .app-container.active {
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .login-screen h1 {
+            font-size: 32px;
+            margin-bottom: 48px;
+            font-weight: 400;
+        }
+
+        .login-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .login-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-hint {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            max-width: 400px;
+        }
+
+        /* App Screen */
+        .app-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .app-screen.active {
             display: flex;
         }
 
         /* Header */
         .header {
-            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            padding: 16px;
             border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            gap: 12px;
         }
 
-        .header-left {
+        .back-btn {
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
-            gap: 16px;
-        }
-
-        .logo {
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-primary);
             font-size: 20px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #2f81f7 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .repo-selector {
-            padding: 8px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 14px;
-            min-width: 250px;
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .logout-btn:hover {
-            background: var(--bg-tertiary);
+        .header-title {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
         }
 
-        /* Chat Area */
+        .menu-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Chat Container */
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 24px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
         .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             animation: slideIn 0.3s ease;
         }
 
@@ -223,251 +166,330 @@
         }
 
         .message.user {
-            align-self: flex-end;
-            background: var(--accent);
-            color: white;
-            border-bottom-right-radius: 4px;
+            align-items: flex-end;
         }
 
         .message.ai {
-            align-self: flex-start;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
+            align-items: flex-start;
         }
 
-        .message.system {
-            align-self: center;
-            background: rgba(47, 129, 247, 0.1);
-            border: 1px solid rgba(47, 129, 247, 0.3);
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+        }
+
+        .message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .ai .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message-author {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .message-content {
+            padding: 14px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .ai .message-content {
+            background: var(--message-ai);
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .user .message-content {
+            background: var(--message-user);
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .message.system .message-content {
+            background: rgba(74, 158, 255, 0.1);
             color: var(--accent);
             font-size: 13px;
-            max-width: 90%;
             text-align: center;
+            max-width: 90%;
+            margin: 0 auto;
+            border-radius: 12px;
         }
 
         .message pre {
-            background: var(--bg-tertiary);
+            background: #0a0a0a;
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             overflow-x: auto;
             margin: 8px 0;
             font-size: 13px;
         }
 
-        /* Input Area */
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Input Container */
         .input-container {
-            background: var(--bg-secondary);
+            padding: 12px 16px 12px 16px;
             border-top: 1px solid var(--border);
-            padding: 16px 24px;
+            background: var(--bg);
         }
 
         .input-wrapper {
             display: flex;
-            gap: 12px;
-            max-width: 1200px;
-            margin: 0 auto;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 4px 4px 4px 16px;
         }
 
         .chat-input {
             flex: 1;
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            background: none;
+            border: none;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 15px;
+            padding: 10px 0;
+            max-height: 120px;
             resize: none;
             font-family: inherit;
         }
 
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
         .chat-input:focus {
             outline: none;
-            border-color: var(--accent);
         }
 
         .send-btn {
-            padding: 12px 24px;
+            width: 36px;
+            height: 36px;
             background: var(--accent);
-            color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .send-btn:hover {
-            background: var(--accent-hover);
+            flex-shrink: 0;
         }
 
         .send-btn:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
 
-        /* Toolbar */
-        .toolbar {
-            background: var(--bg-tertiary);
-            border-top: 1px solid var(--border);
-            padding: 8px 24px;
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        /* Menu Modal */
+        .menu-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .menu-modal.active {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
         }
 
-        .tool-btn {
-            padding: 6px 12px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-size: 13px;
+        .menu-content {
+            background: var(--surface);
+            width: 100%;
+            border-radius: 16px 16px 0 0;
+            padding: 24px 16px 32px;
+        }
+
+        .menu-item {
+            width: 100%;
+            padding: 16px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            text-align: left;
             cursor: pointer;
-            transition: all 0.2s;
+            border-bottom: 1px solid var(--border);
         }
 
-        .tool-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .menu-item:last-child {
+            border-bottom: none;
+            color: #ff4444;
         }
 
-        /* Loading */
-        .loading {
-            display: inline-block;
-        }
-
-        .loading::after {
-            content: '...';
-            animation: dots 1.5s infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
+        .repo-select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            margin-bottom: 16px;
         }
 
         /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 4px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
             background: var(--border);
-            border-radius: 4px;
+            border-radius: 2px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #484f58;
-        }
-
-        .helper-text {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        .link {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        .link:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
     <!-- Login Screen -->
-    <div id="login-screen" class="login-container">
-        <div class="login-box">
-            <h1>🤖 Gemini Dev Assistant</h1>
-            <p>Assistente de IA para gerenciar seus repositórios GitHub</p>
-            
-            <button class="github-btn" onclick="githubOAuth()">
-                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-                Conectar com GitHub
-            </button>
-
-            <div class="divider">
-                <span>ou use um token</span>
-            </div>
-
-            <input type="password" id="token-input" class="token-input" placeholder="ghp_xxxxxxxxxxxx">
-            <button class="github-btn" onclick="loginWithToken()">Entrar com Token</button>
-            
-            <p class="helper-text">
-                Crie um token em: <a href="https://github.com/settings/tokens" target="_blank" class="link">github.com/settings/tokens</a>
-                <br>Selecione scope: <strong>repo</strong>
-            </p>
-        </div>
+    <div id="login-screen" class="login-screen">
+        <h1>Como posso ajudar você?</h1>
+        
+        <input type="password" id="token-input" class="login-input" placeholder="Cole seu GitHub Token (ghp_...)">
+        <button class="login-btn" onclick="loginWithToken()">Entrar</button>
+        
+        <p class="login-hint">
+            Crie um token em github.com/settings/tokens<br>
+            Selecione o scope: <strong>repo</strong>
+        </p>
     </div>
 
-    <!-- Main App -->
-    <div id="app-screen" class="app-container">
+    <!-- App Screen -->
+    <div id="app-screen" class="app-screen">
+        <!-- Header -->
         <div class="header">
-            <div class="header-left">
-                <div class="logo">Gemini Assistant</div>
-                <select id="repo-select" class="repo-selector">
-                    <option value="">Carregando repositórios...</option>
-                </select>
-            </div>
-            <button class="logout-btn" onclick="logout()">Sair</button>
+            <button class="back-btn" onclick="showMenu()">☰</button>
+            <div class="header-title" id="chat-title">Chat</div>
         </div>
 
+        <!-- Chat Container -->
         <div id="chat-container" class="chat-container">
+            <div class="empty-state">
+                <h2>Como posso ajudar você?</h2>
+                <p>Selecione um repositório no menu e comece a conversar</p>
+            </div>
         </div>
 
-        <div class="toolbar">
-            <button class="tool-btn" onclick="viewRepoStructure()">📂 Ver Estrutura</button>
-            <button class="tool-btn" onclick="insertCommand('/Read { ')">/Read</button>
-            <button class="tool-btn" onclick="insertCommand('/Create { ')">/Create</button>
-            <button class="tool-btn" onclick="insertCommand('/Edit { ')">/Edit</button>
-            <button class="tool-btn" onclick="insertCommand('/Delete { ')">/Delete</button>
-        </div>
-
+        <!-- Input Container -->
         <div class="input-container">
             <form id="chat-form" class="input-wrapper">
                 <textarea 
                     id="chat-input" 
                     class="chat-input" 
-                    placeholder="Ex: 'mostre o README', 'crie um index.html', 'corrija o erro no main.js'"
+                    placeholder="Pergunte qualquer coisa..."
                     rows="1"
                 ></textarea>
-                <button type="submit" class="send-btn">Enviar</button>
+                <button type="submit" class="send-btn" id="send-btn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div id="menu-modal" class="menu-modal" onclick="closeMenu(event)">
+        <div class="menu-content" onclick="event.stopPropagation()">
+            <select id="repo-select" class="repo-select">
+                <option value="">Selecione um repositório</option>
+            </select>
+            
+            <button class="menu-item" onclick="viewRepoStructure(); closeMenu()">
+                📂 Ver Estrutura do Repositório
+            </button>
+            
+            <button class="menu-item" onclick="clearChat(); closeMenu()">
+                🗑️ Limpar Conversa
+            </button>
+            
+            <button class="menu-item" onclick="logout()">
+                Sair
+            </button>
         </div>
     </div>
 
     <script>
         const GEMINI_API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I';
+        const MANUS_API_KEY = 'Ov23li8dDqV5qbOi23k3';
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
         const GITHUB_API_URL = 'https://api.github.com';
-        const GITHUB_CLIENT_ID = 'Ov23li8dDqV5qbOi23k3';
-        const GITHUB_REDIRECT_URI = window.location.origin + window.location.pathname;
         
         let GITHUB_TOKEN = null;
 
-        const SYSTEM_INSTRUCTION = `Você é o Gemini Code Assistant. Quando o usuário pedir para:
+        const SYSTEM_INSTRUCTION = `Você é um assistente de código do GitHub. Quando o usuário pedir para:
 - LER arquivo → responda: /Read { caminho }
 - CRIAR arquivo → responda: /Create { caminho, conteúdo }
 - EDITAR arquivo → responda: /Edit { caminho, conteúdo }
 - DELETAR arquivo → responda: /Delete { caminho }
-Use APENAS o comando, sem texto extra.`;
+Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalmente.`;
 
-        // GitHub OAuth
-        function githubOAuth() {
-            alert('Para usar OAuth:\n\n1. Crie uma OAuth App em:\nhttps://github.com/settings/developers\n\n2. Configure:\n- Homepage URL: ' + window.location.origin + '\n- Callback URL: ' + GITHUB_REDIRECT_URI + '\n\n3. Substitua GITHUB_CLIENT_ID no código\n\nPor enquanto, use "Entrar com Token"');
-        }
-
+        // Login
         function loginWithToken() {
             const token = document.getElementById('token-input').value.trim();
             if (!token || !token.startsWith('ghp_')) {
@@ -485,6 +507,7 @@ Use APENAS o comando, sem texto extra.`;
             GITHUB_TOKEN = null;
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('app-screen').classList.remove('active');
+            closeMenu();
         }
 
         async function initApp() {
@@ -495,6 +518,18 @@ Use APENAS o comando, sem texto extra.`;
             loadChatHistory();
         }
 
+        // Menu
+        function showMenu() {
+            document.getElementById('menu-modal').classList.add('active');
+        }
+
+        function closeMenu(event) {
+            if (!event || event.target.id === 'menu-modal') {
+                document.getElementById('menu-modal').classList.remove('active');
+            }
+        }
+
+        // GitHub API
         async function githubFetch(url, options = {}) {
             const headers = {
                 'Authorization': `token ${GITHUB_TOKEN}`,
@@ -518,7 +553,7 @@ Use APENAS o comando, sem texto extra.`;
             
             try {
                 const repos = await githubFetch(`${GITHUB_API_URL}/user/repos?sort=updated&per_page=100`);
-                select.innerHTML = '<option value="">-- Selecione um Repositório --</option>';
+                select.innerHTML = '<option value="">Selecione um repositório</option>';
                 repos.forEach(repo => {
                     const option = document.createElement('option');
                     option.value = repo.full_name;
@@ -527,14 +562,14 @@ Use APENAS o comando, sem texto extra.`;
                 });
             } catch (error) {
                 select.innerHTML = '<option value="">Erro ao carregar</option>';
-                addMessage('system', `❌ Erro: ${error.message}. Verifique seu token.`);
+                addMessage('system', `❌ Erro: ${error.message}`);
             }
         }
 
         function getSelectedRepo() {
             const fullName = document.getElementById('repo-select').value;
             if (!fullName) {
-                addMessage('system', '⚠️ Selecione um repositório primeiro');
+                addMessage('system', '⚠️ Selecione um repositório no menu primeiro');
                 return null;
             }
             const [owner, name] = fullName.split('/');
@@ -589,7 +624,8 @@ Use APENAS o comando, sem texto extra.`;
                 const files = data.tree.filter(i => i.type === 'blob').map(i => i.path);
                 
                 let msg = `📂 ${repo.fullName}\n\n`;
-                msg += files.map(f => '  📄 ' + f).join('\n');
+                msg += files.slice(0, 50).map(f => '  📄 ' + f).join('\n');
+                if (files.length > 50) msg += `\n\n... e mais ${files.length - 50} arquivos`;
                 addMessage('ai', msg);
             } catch (error) {
                 addMessage('system', `❌ ${error.message}`);
@@ -610,7 +646,7 @@ Use APENAS o comando, sem texto extra.`;
                     const path = readMatch[1].trim();
                     addMessage('system', `📖 Lendo: ${path}`);
                     const file = await readFile(repo, path);
-                    return `Conteúdo de ${path}:\n\n\`\`\`\n${file.content}\n\`\`\``;
+                    return `📄 ${path}\n\n\`\`\`\n${file.content}\n\`\`\``;
                 }
 
                 if (createMatch) {
@@ -618,7 +654,7 @@ Use APENAS o comando, sem texto extra.`;
                     const content = createMatch[2].trim();
                     addMessage('system', `➕ Criando: ${path}`);
                     await createOrEditFile(repo, path, content);
-                    return `✅ Arquivo ${path} criado!`;
+                    return `✅ Arquivo ${path} criado com sucesso!`;
                 }
 
                 if (editMatch) {
@@ -650,10 +686,10 @@ Use APENAS o comando, sem texto extra.`;
 
         async function sendToGemini(prompt) {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]')
-                .filter(m => m.sender !== 'system');
+                .filter(m => m.type !== 'system');
             
             const contents = history.map(m => ({
-                role: m.sender === 'user' ? 'user' : 'model',
+                role: m.type === 'user' ? 'user' : 'model',
                 parts: [{ text: m.text }]
             }));
 
@@ -672,6 +708,7 @@ Use APENAS o comando, sem texto extra.`;
             return data.candidates[0]?.content?.parts[0]?.text || 'Sem resposta';
         }
 
+        // Chat
         document.getElementById('chat-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -681,6 +718,7 @@ Use APENAS o comando, sem texto extra.`;
 
             addMessage('user', prompt);
             input.value = '';
+            input.style.height = 'auto';
 
             try {
                 const aiResponse = await sendToGemini(prompt);
@@ -696,43 +734,72 @@ Use APENAS o comando, sem texto extra.`;
             }
         });
 
-        function addMessage(sender, text) {
+        function addMessage(type, text) {
             const container = document.getElementById('chat-container');
-            const msg = document.createElement('div');
-            msg.className = `message ${sender}`;
-            msg.textContent = text;
-            container.appendChild(msg);
+            
+            // Remove empty state
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            
+            if (type === 'system') {
+                message.innerHTML = `<div class="message-content">${text}</div>`;
+            } else {
+                const author = type === 'user' ? 'Você' : 'manus';
+                const avatar = type === 'user' ? '👤' : '🤖';
+                
+                message.innerHTML = `
+                    ${type === 'ai' ? `
+                        <div class="message-header">
+                            <div class="message-avatar">${avatar}</div>
+                            <div class="message-author">${author}</div>
+                        </div>
+                    ` : ''}
+                    <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
+                `;
+            }
+            
+            container.appendChild(message);
             container.scrollTop = container.scrollHeight;
             
             saveChatHistory();
         }
 
         function saveChatHistory() {
-            const messages = Array.from(document.querySelectorAll('.message')).map(el => ({
-                sender: el.classList.contains('user') ? 'user' : el.classList.contains('system') ? 'system' : 'ai',
-                text: el.textContent
-            }));
+            const messages = Array.from(document.querySelectorAll('.message')).map(el => {
+                let type = 'ai';
+                if (el.classList.contains('user')) type = 'user';
+                if (el.classList.contains('system')) type = 'system';
+                
+                return {
+                    type,
+                    text: el.querySelector('.message-content').textContent
+                };
+            });
             localStorage.setItem('chat_history', JSON.stringify(messages));
         }
 
         function loadChatHistory() {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
-            if (history.length === 0) {
-                addMessage('ai', '👋 Olá! Selecione um repositório e me diga o que precisa fazer.');
-            } else {
-                history.forEach(m => addMessage(m.sender, m.text));
-            }
+            history.forEach(m => addMessage(m.type, m.text));
         }
 
-        function insertCommand(cmd) {
-            document.getElementById('chat-input').value = cmd;
-            document.getElementById('chat-input').focus();
+        function clearChat() {
+            localStorage.removeItem('chat_history');
+            document.getElementById('chat-container').innerHTML = `
+                <div class="empty-state">
+                    <h2>Como posso ajudar você?</h2>
+                    <p>Selecione um repositório no menu e comece a conversar</p>
+                </div>
+            `;
         }
 
-        // Auto textarea resize
+        // Auto resize textarea
         document.getElementById('chat-input').addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
         // Check login
