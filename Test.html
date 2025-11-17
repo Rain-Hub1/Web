@@ -24,7 +24,7 @@
     <hr>
 
     <div id="chat-container">
-        </div>
+    </div>
 
     <form id="chat-form">
         <div id="input-area">
@@ -41,6 +41,120 @@
         <button onclick="handleTool('autofix')">Auto-Corrigir Erros</button>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const STORAGE_KEY = 'geminiChatHistory';
+        const API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I'; 
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+        function saveChatHistory() {
+            const historyElements = chatContainer.querySelectorAll('.message-box');
+            const historyToSave = [];
+
+            historyElements.forEach(el => {
+                historyToSave.push({
+                    sender: el.classList.contains('user-message') ? 'user' : 'ai',
+                    text: el.textContent.trim()
+                });
+            });
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(historyToSave));
+        }
+
+        function appendMessage(sender, text, shouldSave = true) {
+            const messageEl = document.createElement('div');
+            messageEl.classList.add('message-box');
+            messageEl.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+            messageEl.textContent = text;
+            
+            chatContainer.appendChild(messageEl);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            if (shouldSave) {
+                saveChatHistory();
+            }
+        }
+
+        function loadChatHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            
+            if (history.length === 0) {
+                history.push({ 
+                    sender: 'ai', 
+                    text: 'Olá! Eu sou o Gemini, seu assistente de código. Como posso ajudar no seu repositório GitHub hoje?' 
+                });
+            }
+
+            chatContainer.innerHTML = '';
+            history.forEach(message => appendMessage(message.sender, message.text, false));
+        }
+
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const input = document.getElementById('chat-input');
+            const prompt = input.value.trim();
+
+            if (!prompt) return;
+            if (API_KEY === 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I') {
+                appendMessage('ai', 'Erro: Por favor, insira sua chave de API Gemini no código JavaScript para que o chat funcione.');
+                input.value = '';
+                return;
+            }
+
+            appendMessage('user', prompt); 
+            input.value = '';
+
+            try {
+                const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                const contents = history.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                }));
+                
+                const response = await fetch(`${GEMINI_API_URL}?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        contents: [...contents, { role: 'user', parts: [{ text: prompt }] }],
+                        config: { 
+                            systemInstruction: "Você é um assistente de desenvolvimento Gemini, focado em ajudar com tarefas de código, gerenciamento de repositórios GitHub (criar, ler, editar, corrigir) e perguntas técnicas. Responda de forma concisa e útil."
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro de API: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                const aiResponseText = data.candidates[0]?.content?.parts[0]?.text || 'Desculpe, a IA não retornou uma resposta válida.'; 
+
+                appendMessage('ai', aiResponseText); 
+
+            } catch (error) {
+                console.error('Erro ao comunicar com a API:', error);
+                appendMessage('ai', `Desculpe, ocorreu um erro: ${error.message}`);
+            }
+        });
+
+        function handleTool(action) {
+            const actionMap = {
+                'read': 'Qual arquivo você deseja ler? (Ex: Ler o README.md no meu/repo)',
+                'edit': 'Informe o repositório, caminho e conteúdo para criar/editar um arquivo. (Ex: Criar index.html em meu/repo com <h1>Hello</h1>)',
+                'autofix': 'Informe o caminho do arquivo no repositório que precisa de correção. (Ex: Auto-corrigir bugs no src/script.js em meu/repo)'
+            };
+            
+            const initialPrompt = actionMap[action] || 'Ação desconhecida.';
+            
+            appendMessage('ai', `Ação rápida: ${initialPrompt}`);
+        }
+
+        loadChatHistory();
+    </script>
 </body>
 </html>
