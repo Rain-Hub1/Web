@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Gemini Dev Assistant 💻</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <style>
+        body { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        #chat-container { height: 70vh; overflow-y: scroll; padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .message-box { padding: 10px; margin-bottom: 10px; border-radius: var(--border-radius); }
+        .user-message { background-color: var(--pico-secondary-background); text-align: right; }
+        .ai-message { background-color: var(--pico-primary-background); text-align: left; }
+        #input-area { display: flex; gap: 10px; }
+        #chat-input { flex-grow: 1; }
+        .github-tools { margin-top: 20px; padding: 15px; background-color: var(--pico-secondary-background); border-radius: var(--border-radius); }
+    </style>
+</head>
+<body>
+    <hgroup>
+        <h1>🤖 Gemini Dev Assistant</h1>
+        <p>Chat com IA para gerenciar e corrigir código no GitHub.</p>
+    </hgroup>
+    <hr>
+
+    <div id="chat-container">
+        </div>
+
+    <form id="chat-form">
+        <div id="input-area">
+            <input type="text" id="chat-input" name="prompt" placeholder="Digite sua solicitação (Ex: 'Crie um arquivo index.js no repo X com um hello world')">
+            <button type="submit">Enviar</button>
+        </div>
+    </form>
+
+    <div class="github-tools">
+        <h3>🔧 Configurações e Ações GitHub</h3>
+        <p>Ações rápidas para criar, ler, editar ou corrigir arquivos no seu repositório.</p>
+        <button onclick="handleTool('read')">Ler Arquivo</button>
+        <button onclick="handleTool('edit')">Editar/Criar Arquivo</button>
+        <button onclick="handleTool('autofix')">Auto-Corrigir Erros</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
