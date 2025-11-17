@@ -1,27 +1,155 @@
 <!DOCTYPE html>
-<html lang="pt-br" data-theme="dark">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Gemini Dev Assistant 💻</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <title>⚡ Gemini Dev Assistant - GitHub UI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        #chat-container { height: 70vh; overflow-y: scroll; padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color); margin-bottom: 20px; }
-        .message-box { padding: 10px; margin-bottom: 10px; border-radius: var(--border-radius); }
-        .user-message { background-color: var(--pico-secondary-background); text-align: right; }
-        .ai-message { background-color: var(--pico-primary-background); text-align: left; }
-        #input-area { display: flex; gap: 10px; }
-        #chat-input { flex-grow: 1; }
-        .github-tools { margin-top: 20px; padding: 15px; background-color: var(--pico-secondary-background); border-radius: var(--border-radius); }
+        :root {
+            --bg-primary: #0d1117; 
+            --bg-secondary: #161b22; 
+            --border-color: #30363d;
+            --text-color: #c9d1d9;
+            --link-color: #58a6ff;
+            --ai-bubble-bg: #21262d; 
+            --user-bubble-bg: #2d3840;
+            --button-bg: #238636; 
+            --button-hover: #2ea043;
+            --code-bg: rgba(110, 118, 129, 0.4);
+            --radius: 6px;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-color);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        hgroup h1, hgroup p, h3 { color: var(--text-color); }
+
+        #chat-container {
+            height: 70vh;
+            overflow-y: scroll;
+            padding: 15px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            margin-bottom: 20px;
+        }
+
+        .message-box {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: var(--radius);
+            max-width: 85%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            background-color: var(--user-bubble-bg);
+            margin-left: auto; 
+            border: 1px solid var(--border-color);
+        }
+
+        .ai-message {
+            background-color: var(--ai-bubble-bg);
+            margin-right: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            border: none;
+            background-color: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .github-tools {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tool-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tool-buttons button {
+            flex: 1;
+            background-color: #30363d;
+        }
+        
+        .tool-buttons button:hover {
+            background-color: #454d56;
+        }
+
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background-color: var(--code-bg);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        #repo-select {
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
     </style>
 </head>
 <body>
     <hgroup>
         <h1>🤖 Gemini Dev Assistant</h1>
-        <p>Chat com IA para gerenciar e corrigir código no GitHub.</p>
+        <p>Chat com IA para gerenciar e corrigir código no GitHub, estilo **GitHub UI**.</p>
     </hgroup>
-    <hr>
+    <hr style="border-color: var(--border-color);">
 
     <div id="chat-container">
     </div>
@@ -36,17 +164,125 @@
     <div class="github-tools">
         <h3>🔧 Configurações e Ações GitHub</h3>
         <p>Ações rápidas para criar, ler, editar ou corrigir arquivos no seu repositório.</p>
-        <button onclick="handleTool('read')">Ler Arquivo</button>
-        <button onclick="handleTool('edit')">Editar/Criar Arquivo</button>
-        <button onclick="handleTool('autofix')">Auto-Corrigir Erros</button>
+        
+        <div class="select-container">
+            <label for="repo-select">Repositório Selecionado:</label>
+            <select id="repo-select">
+                <option value="">Carregando repositórios...</option>
+            </select>
+        </div>
+
+        <div class="tool-buttons">
+            <button onclick="handleTool('read')">Ler Arquivo</button>
+            <button onclick="handleTool('edit')">Editar/Criar Arquivo</button>
+            <button onclick="handleTool('autofix')">Auto-Corrigir Erros</button>
+        </div>
     </div>
 
     <script>
         const chatContainer = document.getElementById('chat-container');
         const chatForm = document.getElementById('chat-form');
+        const repoSelect = document.getElementById('repo-select');
         const STORAGE_KEY = 'geminiChatHistory';
+        
         const API_KEY = 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I'; 
+        const GITHUB_PAT = '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'; 
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+        const GITHUB_API_URL = 'https://api.github.com';
+        const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
+
+        function getSelectedRepo() {
+            const full_name = repoSelect.value;
+            if (!full_name) {
+                appendMessage('ai', 'Erro: Por favor, selecione um repositório no dropdown.');
+                return null;
+            }
+            const [owner, name] = full_name.split('/');
+            return { owner, name, full_name };
+        }
+
+        async function githubApiFetch(url, options = {}) {
+            const headers = {
+                'Authorization': `token ${GITHUB_PAT}`,
+                'Accept': 'application/vnd.github.v3+json',
+                ...options.headers
+            };
+
+            const response = await fetch(url, { ...options, headers });
+            
+            if (!response.ok) {
+                let errorDetails = await response.text();
+                throw new Error(`Erro ${response.status} na API do GitHub: ${errorDetails}`);
+            }
+            
+            return response.json();
+        }
+
+        async function fetchRepositories() {
+            repoSelect.innerHTML = '<option value="">Carregando...</option>';
+            try {
+                const repos = await githubApiFetch(`${GITHUB_API_URL}/user/repos?type=owner`);
+                repoSelect.innerHTML = '<option value="">-- Selecione um Repositório --</option>';
+                repos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo.full_name;
+                    option.textContent = repo.full_name;
+                    repoSelect.appendChild(option);
+                });
+            } catch (error) {
+                repoSelect.innerHTML = '<option value="">Erro ao carregar repositórios</option>';
+                appendMessage('ai', `Erro ao carregar repositórios do GitHub. Verifique se o PAT está correto e se as permissões (repo scope) estão ativadas. Erro: ${error.message}`);
+            }
+        }
+
+        async function deleteFile(repo, path, sha) {
+            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
+            const commitMessage = `Delete file: ${path} (via Gemini Assistant)`;
+            
+            const response = await githubApiFetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    message: commitMessage,
+                    sha: sha 
+                })
+            });
+            return response;
+        }
+
+        async function readFile(repo, path) {
+            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
+            const fileData = await githubApiFetch(url);
+            
+            if (fileData.content) {
+                return {
+                    content: atob(fileData.content),
+                    sha: fileData.sha
+                };
+            }
+            throw new Error('Arquivo encontrado, mas sem conteúdo.');
+        }
+
+        async function createFileOrEdit(repo, path, content, sha = null) {
+            const url = `${GITHUB_API_URL}/repos/${repo.owner}/${repo.name}/contents/${path}`;
+            const encodedContent = btoa(content);
+            const action = sha ? 'Update' : 'Create';
+            const commitMessage = `${action} ${path} (via Gemini Assistant)`;
+            
+            const body = {
+                message: commitMessage,
+                content: encodedContent,
+                branch: 'main' 
+            };
+            if (sha) {
+                body.sha = sha;
+            }
+
+            const response = await githubApiFetch(url, {
+                method: 'PUT',
+                body: JSON.stringify(body)
+            });
+            return response;
+        }
 
         function saveChatHistory() {
             const historyElements = chatContainer.querySelectorAll('.message-box');
@@ -83,12 +319,58 @@
             if (history.length === 0) {
                 history.push({ 
                     sender: 'ai', 
-                    text: 'Olá! Eu sou o Gemini, seu assistente de código. Como posso ajudar no seu repositório GitHub hoje?' 
+                    text: 'Olá! Eu sou o Gemini, seu assistente de código. Por favor, comece selecionando um repositório e então me diga o que fazer (ex: /Read src/main.js).' 
                 });
             }
 
             chatContainer.innerHTML = '';
             history.forEach(message => appendMessage(message.sender, message.text, false));
+        }
+
+        async function processCommand(prompt) {
+            const repo = getSelectedRepo();
+            if (!repo) return null; 
+
+            const deleteMatch = prompt.match(/^\/Delete\s+\{(.+?)\}$/i);
+            const readMatch = prompt.match(/^\/Read\s+\{(.+?)\}$/i);
+            const createMatch = prompt.match(/^\/Create\s+\{(.+?),\s*(.+?),\s*(.+?)\}$/i);
+            const editMatch = prompt.match(/^\/Edit\s+\{(.+?),\s*(.+?),\s*(.+?)\}$/i);
+
+            if (readMatch) {
+                const path = readMatch[1].trim();
+                const file = await readFile(repo, path);
+                return `Conteúdo do arquivo ${path}:\n\n\`\`\`\n${file.content}\n\`\`\``;
+            }
+
+            if (deleteMatch) {
+                const path = deleteMatch[1].trim();
+                const file = await readFile(repo, path);
+                await deleteFile(repo, path, file.sha);
+                return `O arquivo ${path} foi deletado com sucesso do repositório ${repo.name}.`;
+            }
+
+            if (createMatch) {
+                const path = createMatch[1].trim();
+                const content = createMatch[3].trim(); 
+                await createFileOrEdit(repo, path, content);
+                return `O arquivo ${path} foi criado com sucesso no repositório ${repo.name}.`;
+            }
+
+            if (editMatch) {
+                const path = editMatch[1].trim();
+                const newContent = editMatch[3].trim();
+                
+                let sha = null;
+                try {
+                    const file = await readFile(repo, path);
+                    sha = file.sha;
+                } catch (e) {}
+
+                await createFileOrEdit(repo, path, newContent, sha);
+                return `O arquivo ${path} foi editado/atualizado com sucesso no repositório ${repo.name}.`;
+            }
+            
+            return null;
         }
 
         chatForm.addEventListener('submit', async (event) => {
@@ -97,56 +379,76 @@
             const prompt = input.value.trim();
 
             if (!prompt) return;
-            if (API_KEY === 'AIzaSyB7ou_FpcqAcb21dv5BKoXZl_ve2NHhA3I') {
-                appendMessage('ai', 'Erro: Por favor, insira sua chave de API Gemini no código JavaScript para que o chat funcione.');
-                input.value = '';
-                return;
-            }
 
             appendMessage('user', prompt); 
             input.value = '';
 
+            let aiResponseText = '';
+            let commandResult = null;
+
             try {
-                const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-                const contents = history.map(msg => ({
-                    role: msg.sender === 'user' ? 'user' : 'model',
-                    parts: [{ text: msg.text }]
-                }));
-                
-                const response = await fetch(`${GEMINI_API_URL}?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        contents: [...contents, { role: 'user', parts: [{ text: prompt }] }],
-                        config: { 
-                            systemInstruction: "Você é um assistente de desenvolvimento Gemini, focado em ajudar com tarefas de código, gerenciamento de repositórios GitHub (criar, ler, editar, corrigir) e perguntas técnicas. Responda de forma concisa e útil."
-                        }
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro de API: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                
-                const aiResponseText = data.candidates[0]?.content?.parts[0]?.text || 'Desculpe, a IA não retornou uma resposta válida.'; 
-
-                appendMessage('ai', aiResponseText); 
-
+                commandResult = await processCommand(prompt);
             } catch (error) {
-                console.error('Erro ao comunicar com a API:', error);
-                appendMessage('ai', `Desculpe, ocorreu um erro: ${error.message}`);
+                const errorMessage = error.message.replace(/(\r\n|\n|\r)/gm, " ");
+                const autoFixPrompt = `Hi, please help me resolve this error "${errorMessage}" in the file "FILE_PATH_UNKNOWN".`;
+                appendMessage('ai', `Erro na Ação GitHub. Enviando para a IA: "${autoFixPrompt}"`);
+                
+                try {
+                    const aiResponse = await sendToGemini(autoFixPrompt);
+                    appendMessage('ai', aiResponse);
+                } catch (geminiError) {
+                    appendMessage('ai', `Ocorreu um erro ao enviar para a IA após o erro do GitHub: ${geminiError.message}`);
+                }
+                return;
             }
+
+            if (commandResult) {
+                aiResponseText = `Comando Executado: ${commandResult}`;
+            } else {
+                try {
+                    aiResponseText = await sendToGemini(prompt);
+                } catch (error) {
+                    aiResponseText = `Ocorreu um erro ao comunicar com a IA: ${error.message}`;
+                }
+            }
+            
+            appendMessage('ai', aiResponseText); 
         });
+
+        async function sendToGemini(prompt) {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const contents = history.map(msg => ({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }]
+            }));
+            
+            const response = await fetch(`${GEMINI_API_URL}?key=${API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    contents: [...contents, { role: 'user', parts: [{ text: prompt }] }],
+                    config: { 
+                        systemInstruction: "Você é um assistente de desenvolvimento Gemini. Você pode usar comandos explícitos (/Delete, /Read, /Create, /Edit) para interagir com o GitHub. Responda de forma concisa e útil."
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || `Erro de API: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.candidates[0]?.content?.parts[0]?.text || 'Desculpe, a IA não retornou uma resposta válida.';
+        }
 
         function handleTool(action) {
             const actionMap = {
-                'read': 'Qual arquivo você deseja ler? (Ex: Ler o README.md no meu/repo)',
-                'edit': 'Informe o repositório, caminho e conteúdo para criar/editar um arquivo. (Ex: Criar index.html em meu/repo com <h1>Hello</h1>)',
-                'autofix': 'Informe o caminho do arquivo no repositório que precisa de correção. (Ex: Auto-corrigir bugs no src/script.js em meu/repo)'
+                'read': 'Qual arquivo você deseja ler? (Ex: /Read { src/index.js })',
+                'edit': 'Informe o caminho e o novo conteúdo. (Ex: /Edit { src/index.js, console.log("new code") })',
+                'autofix': 'Ocorre automaticamente ao detectar um erro. Você pode pedir: Corrija o arquivo src/bug.js'
             };
             
             const initialPrompt = actionMap[action] || 'Ação desconhecida.';
@@ -154,6 +456,7 @@
             appendMessage('ai', `Ação rápida: ${initialPrompt}`);
         }
 
+        fetchRepositories();
         loadChatHistory();
     </script>
 </body>
