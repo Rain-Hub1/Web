@@ -31,9 +31,14 @@
             background: var(--bg);
             color: var(--text-primary);
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
         }
 
         /* Login Screen */
@@ -90,6 +95,11 @@
             display: none;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         .app-screen.active {
@@ -162,7 +172,7 @@
 
         /* Chat Container */
         .chat-container {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
             overflow-x: hidden;
             padding: 16px;
@@ -170,6 +180,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            min-height: 0;
         }
 
         .message {
@@ -314,6 +325,8 @@
             padding-bottom: max(12px, env(safe-area-inset-bottom));
             border-top: 1px solid var(--border);
             background: var(--bg);
+            flex-shrink: 0;
+            min-height: 64px;
         }
 
         .input-wrapper {
@@ -324,6 +337,7 @@
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 4px 4px 4px 16px;
+            min-height: 44px;
         }
 
         .chat-input {
@@ -334,8 +348,10 @@
             font-size: 15px;
             padding: 10px 0;
             max-height: 120px;
+            min-height: 20px;
             resize: none;
             font-family: inherit;
+            line-height: 1.4;
         }
 
         .chat-input::placeholder {
@@ -419,6 +435,123 @@
             color: #ff4444;
         }
 
+        /* Settings Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-settings {
+            width: 32px;
+            height: 32px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 15px;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
         .repo-select {
             width: 100%;
             padding: 14px 16px;
@@ -464,8 +597,17 @@
     <div id="app-screen" class="app-screen">
         <!-- Header -->
         <div class="header">
-            <button class="back-btn" onclick="showMenu()">☰</button>
+            <button class="back-btn" onclick="showMenu()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </button>
             <div class="header-title" id="chat-title">Chat</div>
+            <button class="settings-btn" onclick="showSettings()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                </svg>
+            </button>
         </div>
 
         <!-- Chat Container -->
@@ -512,6 +654,49 @@
             <button class="menu-item" onclick="logout()">
                 Sair
             </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal" onclick="closeSettings(event)">
+        <div class="settings-content" onclick="event.stopPropagation()">
+            <div class="settings-header">
+                <div class="settings-title">Configurações</div>
+                <button class="close-settings" onclick="closeSettings()">×</button>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Modo Mobile</div>
+                    <div class="setting-description">Otimizar para dispositivos móveis</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mobile-mode" checked onchange="toggleMobileMode()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Comandos Automáticos</div>
+                    <div class="setting-description">IA executa ações automaticamente</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-commands" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Notificações</div>
+                    <div class="setting-description">Alertas de operações</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifications" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
         </div>
     </div>
 
@@ -567,6 +752,27 @@ Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalme
         function closeMenu(event) {
             if (!event || event.target.id === 'menu-modal') {
                 document.getElementById('menu-modal').classList.remove('active');
+            }
+        }
+
+        // Settings
+        function showSettings() {
+            document.getElementById('settings-modal').classList.add('active');
+        }
+
+        function closeSettings(event) {
+            if (!event || event.target.id === 'settings-modal') {
+                document.getElementById('settings-modal').classList.remove('active');
+            }
+        }
+
+        function toggleMobileMode() {
+            const isEnabled = document.getElementById('mobile-mode').checked;
+            localStorage.setItem('mobile_mode', isEnabled);
+            if (isEnabled) {
+                addMessage('system', '📱 Modo Mobile ativado');
+            } else {
+                addMessage('system', '💻 Modo Desktop ativado');
             }
         }
 
@@ -852,6 +1058,12 @@ Use APENAS o comando sem texto extra. Para perguntas normais, responda naturalme
             if (token) {
                 GITHUB_TOKEN = token;
                 initApp();
+            }
+            
+            // Load settings
+            const mobileMode = localStorage.getItem('mobile_mode');
+            if (mobileMode !== null) {
+                document.getElementById('mobile-mode').checked = mobileMode === 'true';
             }
         });
     </script>
