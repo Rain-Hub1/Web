@@ -1,1 +1,208 @@
-https://www.mediafire.com/file/24ctnmkok6hjrz8/Delta.ipa/file
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 CLICA LOGO AQUI! 🚨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Impact&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #ff0000, #ff9900, #ffff00, #00ff00, #0099ff, #ff00ff);
+            background-size: 400% 400%;
+            animation: rainbow 3s ease infinite;
+            font-family: 'Impact', sans-serif;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 4rem;
+            text-shadow: 0 0 20px black, 0 0 40px red;
+            animation: pulse 1.5s infinite;
+            margin: 10px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .container {
+            position: relative;
+            margin: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 30px 60px;
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            background-color: #000;
+            border: 8px solid #fff;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 0 30px #fff, 0 0 60px #ff0, inset 0 0 20px #ff0;
+            animation: glow 1.5s infinite alternate, shake 0.5s infinite;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn:hover {
+            transform: scale(1.2) rotate(5deg);
+            background-color: #ff0;
+            color: #000;
+            box-shadow: 0 0 80px #fff, 0 0 120px #f00;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 30px #fff, 0 0 60px #ff0; }
+            to { box-shadow: 0 0 50px #fff, 0 0 100px #f00, 0 0 150px #ff0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .arrow {
+            position: absolute;
+            font-size: 6rem;
+            color: #ff0;
+            text-shadow: 0 0 20px #f00;
+            animation: arrowPulse 1s infinite;
+            z-index: 5;
+        }
+
+        @keyframes arrowPulse {
+            0% { transform: scale(1) rotate(-30deg); opacity: 0.8; }
+            50% { transform: scale(1.3) rotate(-30deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-30deg); opacity: 0.8; }
+        }
+
+        .arrow-left { top: 50%; left: -100px; transform: translateY(-50%) rotate(-30deg); }
+        .arrow-right { top: 50%; right: -100px; transform: translateY(-50%) rotate(30deg); }
+        .arrow-top { top: -80px; left: 50%; transform: translateX(-50%) rotate(-90deg); }
+        .arrow-bottom { bottom: -80px; left: 50%; transform: translateX(-50%) rotate(90deg); }
+
+        .explosion {
+            position: absolute;
+            font-size: 4rem;
+            pointer-events: none;
+            animation: explode 1.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .mega-text {
+            font-size: 3.5rem;
+            margin: 15px;
+            animation: flash 1.8s infinite;
+            text-shadow: 0 0 15px #fff;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .download-info {
+            margin-top: 30px;
+            font-size: 2rem;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 4px solid #ff0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { border-color: #ff0; }
+            50% { border-color: #f00; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚨 ATENÇÃO TOTAL! CLICA LOGO AQUI AGORA! 🚨</h1>
+    <p class="mega-text">💎 O TESOURO É SEU! NÃO ESPERE! 💎</p>
+    <p class="mega-text">⚡ DOWNLOAD INSTANTÂNEO! ⚡</p>
+
+    <div class="container">
+        <!-- Setas apontando pro botão -->
+        <div class="arrow arrow-left">←←←←←←←</div>
+        <div class="arrow arrow-right">→→→→→→→</div>
+        <div class="arrow arrow-top">↓↓↓↓↓↓↓</div>
+        <div class="arrow arrow-bottom">↑↑↑↑↑↑↑</div>
+
+        <!-- BOTÃO PRETO GIGANTE -->
+        <a href="https://www.mediafire.com/file/24ctnmkok6hjrz8/Delta.ipa/file" class="btn" id="clicaBtn">
+            CLICA
+        </a>
+    </div>
+
+    <div class="download-info">
+        📱 Delta.ipa (155.91 MB de PURA ALEGRIA!) 🎉
+    </div>
+
+    <script>
+        // Efeitos explosivos ao clicar
+        document.getElementById('clicaBtn').addEventListener('click', function(e) {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const explosion = document.createElement('div');
+                    explosion.className = 'explosion';
+                    explosion.innerHTML = ['💥', '🔥', '✨', '🌟', '🚀'][Math.floor(Math.random() * 5)];
+                    explosion.style.left = Math.random() * window.innerWidth + 'px';
+                    explosion.style.top = Math.random() * window.innerHeight + 'px';
+                    document.body.appendChild(explosion);
+
+                    setTimeout(() => explosion.remove(), 1500);
+                }, i * 100);
+            }
+        });
+
+        // Mais setas dinâmicas
+        setInterval(() => {
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.innerHTML = '👉';
+            arrow.style.left = Math.random() * 100 + '%';
+            arrow.style.top = Math.random() * 100 + '%';
+            arrow.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            document.body.appendChild(arrow);
+            setTimeout(() => arrow.remove(), 3000);
+        }, 300);
+    </script>
+
+</body>
+</html>
